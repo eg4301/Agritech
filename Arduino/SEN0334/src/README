@@ -1,0 +1,9 @@
+Step 1: Use receiver_mac to find mac address of master board/gateway
+Step 2: Change mac address in sender.cpp (line21: uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};)
+Step 3: Flash receiver.cpp to master board
+Step 4: FLash sender.cpp to slave boards with sensors, but remember to change board ID for each new slave node (line 18: "#define BOARD_ID "CHANGE ID NO. HERE"")
+Step 5: Open brower on local network (same wifi master is connected to) and type in ESP32 IP address (can try "192.168.1.75/76")
+
+Note:
+[1] In wet environments, turn on heater in SHT3X module void setup() and uncomment heater_enable()
+[2] Code currently in single measurement mode, instructions will need to be sent to board to read readings
