@@ -37,7 +37,7 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 byte reading[19];
 
 /* Private Constants -------------------------------------------------------- */
-uint8_t broadcastAddress[] = { 0x16, 0x16, 0x16, 0x16, 0x16, 0x16 };  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = { 0x16, 0x16, 0x16, 0x16, 0x16, 0x05 };  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
   byte reading[19];
