@@ -1,9 +1,18 @@
-<mxfile host="Electron" modified="2023-09-09T08:13:19.272Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.5.0 Safari/537.36" etag="Au3gRC_OSEHsz10gkSa5" version="21.6.8" type="device">
+<mxfile host="Electron" modified="2023-09-09T09:47:27.652Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.5.0 Safari/537.36" etag="f1-DpK6BC5idTS8Ik6l5" version="21.6.8" type="device">
   <diagram name="Page-1" id="U6Y1kuCNLoN3sCtDY25j">
-    <mxGraphModel dx="1036" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1050" dy="621" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="00phFU2rRCMJU7jdcwVd-1" value="Planter box" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="95" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="00phFU2rRCMJU7jdcwVd-2" value="Mixing tank" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="95" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="00phFU2rRCMJU7jdcwVd-3" value="Doser" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="620" y="110" width="100" height="40" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
