@@ -46,6 +46,10 @@
 #define TINY_GSM_USE_GPRS true
 #define TINY_GSM_USE_WIFI false
 
+// Your GPRS credentials, if any
+const char apn[]      = "YourAPN";
+const char gprsUser[] = "";
+const char gprsPass[] = "";
 
 // set GSM PIN, if any
 #define GSM_PIN ""
@@ -478,21 +482,21 @@ void setup()
 //         SerialMon.println("Network connected");
 //     }
 
-// #if TINY_GSM_USE_GPRS
-//     // GPRS connection parameters are usually set after network registration
-//     SerialMon.print(F("Connecting to "));
-//     SerialMon.print(apn);
-//     if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
-//         SerialMon.println(" fail");
-//         delay(10000);
-//         return;
-//     }
-//     SerialMon.println(" success");
+#if TINY_GSM_USE_GPRS
+    // GPRS connection parameters are usually set after network registration
+    SerialMon.print(F("Connecting to "));
+    SerialMon.print(apn);
+    if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
+        SerialMon.println(" fail");
+        delay(10000);
+        return;
+    }
+    SerialMon.println(" success");
 
-//     if (modem.isGprsConnected()) {
-//         SerialMon.println("GPRS connected");
-//     }
-// #endif
+    if (modem.isGprsConnected()) {
+        SerialMon.println("GPRS connected");
+    }
+#endif
   delay(1000);
 
   setupRTC();
