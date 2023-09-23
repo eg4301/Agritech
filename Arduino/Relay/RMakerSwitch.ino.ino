@@ -1,6 +1,4 @@
-
-#include <Arduino.h>
-
+// This example demonstrates the ESP RainMaker with a standard Switch device.
 #include "RMaker.h"
 #include "WiFi.h"
 #include "WiFiProv.h"
@@ -20,15 +18,7 @@ static int gpio_0 = 0;
 static int gpio_switch = 16;
 #endif
 
-
-#define RELAY_PIN_1 21
-#define RELAY_PIN_2 19
-#define RELAY_PIN_3 18
-#define RELAY_PIN_4 5
-#define LED_PIN     25
-
-
-* Variable for reading pin status*/
+/* Variable for reading pin status*/
 bool switch_state = true;
 
 // The framework provides some standard device types like switch, lightbulb,
