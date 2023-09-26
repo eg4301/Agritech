@@ -31,7 +31,7 @@
 #define RELAY_PIN_4 5
 #define LED_PIN     25
 
-#define PUMP_DURATION 
+int PUMP_DURATION;
 
 
 /* Fill-in your Template ID (only if using Blynk.Cloud) */
@@ -105,7 +105,7 @@ BLYNK_WRITE(V3)
 
 BLYNK_WRITE(V4)
 {
-    PUMP_DURATION = param.asINT();
+    PUMP_DURATION = param.asInt();
 }
 
 //Syncing the output state with the app at startup
