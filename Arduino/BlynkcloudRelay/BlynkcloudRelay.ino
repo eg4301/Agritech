@@ -31,6 +31,8 @@
 #define RELAY_PIN_4 5
 #define LED_PIN     25
 
+#define PUMP_DURATION 
+
 
 /* Fill-in your Template ID (only if using Blynk.Cloud) */
 #define BLYNK_TEMPLATE_ID "TMPL65P0inFvF"
@@ -49,6 +51,8 @@ char auth[] = BLYNK_AUTH_TOKEN;
 // Set password to "" for open networks.
 char ssid[] = "SINGTEL-1F2B";
 char pass[] = "owaibohvae";
+
+
 
 
 
@@ -90,15 +94,24 @@ BLYNK_WRITE(V3)
     if (param.asInt() == 1) {
         digitalWrite(RELAY_PIN_4, HIGH );
         Blynk.logEvent("relay_state", "RELAY_4 ON");//Sending Events
+        delay(PUMP_DURATION);
+        digitalWrite(RELAY_PIN_4, LOW );
+        Blynk.logEvent("relay_state", "RELAY_4 OFF");//Sending Events
     } else {
         digitalWrite(RELAY_PIN_4, LOW);
         Blynk.logEvent("relay_state", "RELAY_4 OFF");//Sending Events
     }
 }
 
+BLYNK_WRITE(V4)
+{
+    PUMP_DURATION = param.asINT();
+}
+
 //Syncing the output state with the app at startup
 BLYNK_CONNECTED()
 {
+    Blynk.syncVirtual(V4);  // will cause BLYNK_WRITE(V4) to be executed
     Blynk.syncVirtual(V0);  // will cause BLYNK_WRITE(V0) to be executed
     Blynk.syncVirtual(V1);  // will cause BLYNK_WRITE(V1) to be executed
     Blynk.syncVirtual(V2);  // will cause BLYNK_WRITE(V2) to be executed
