@@ -47,6 +47,8 @@ uint16_t pH_now = 0;
 uint16_t N_now = 0;
 uint16_t P_now = 0;
 uint16_t K_now = 0;
+uint16_t HEX_A;
+uint16_t HEX_B;
 bool is_send_data = false;
 
 String formattedDate;
@@ -138,18 +140,18 @@ void mqttPublish(String timestamp, uint16_t hum_now, uint16_t temp_now, uint16_t
  
 
  
-void connectAWS()
-{
-  WiFi.mode(WIFI_STA);
+void connectAWS() {
+  WiFi.mode(WIFI_AP_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
  
-  Serial.println("Connecting to Wi-Fi");
- 
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Setting as a Wi-Fi Station..");
   }
+  Serial.print("Station IP Address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("Wi-Fi Channel: ");
+  Serial.println(WiFi.channel());
  
   // Configure WiFiClientSecure to use the AWS IoT device credentials
   net.setCACert(AWS_CERT_CA);
@@ -197,51 +199,60 @@ void mqttCallback(char *topic, byte *payload, unsigned int len) {
     }
 }
 
+
+
 typedef struct struct_sensor_reading {
-  byte reading[19];
+  uint16_t reading[19];
 } struct_sensor_reading;
 
 struct_sensor_reading incoming_data;
 
-
+// void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
+//   Serial.println("Data Received");
+//   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
+//   timestamp = get_formatted_time();
+//   Serial.println(timestamp);
+//   is_send_data = true;
+// }
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
-  // cli();
+  Serial.println("Data Received");
   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
   timestamp = get_formatted_time();
   lastreceived = millis();
+  
+  hexconcat(incoming_data.reading[3], incoming_data.reading[4]);
+  hum_now = combinedhex;
+  Serial.println(combinedhex);
+  
+  hexconcat(incoming_data.reading[5], incoming_data.reading[6]);
+  temp_now = combinedhex;
+  Serial.println(combinedhex);
+  
+  hexconcat(incoming_data.reading[7], incoming_data.reading[8]);
+  con_now = combinedhex;
+  Serial.println(combinedhex);
+  
+  hexconcat(incoming_data.reading[9], incoming_data.reading[10]);
+  pH_now = combinedhex;
+  Serial.println(combinedhex);
+  
+  hexconcat(incoming_data.reading[11], incoming_data.reading[12]);
+  N_now = combinedhex;
+  Serial.println(combinedhex);
 
-  if ((incoming_data.reading[0] == 1) && (incoming_data.reading[1] == 3)){
-    
-    hexconcat(incoming_data.reading[3],incoming_data.reading[4]);
-    hum_now = combinedhex;
-    Serial.println(combinedhex);
-    
-    hexconcat(incoming_data.reading[5],incoming_data.reading[6]);
-    temp_now = combinedhex;
-    Serial.println(combinedhex);
-    
-    hexconcat(incoming_data.reading[7],incoming_data.reading[8]);
-    con_now = combinedhex;
-    Serial.println(combinedhex);
-    
-    hexconcat(incoming_data.reading[9],incoming_data.reading[10]);
-    pH_now = combinedhex;
-    Serial.println(combinedhex);
-    
-    hexconcat(incoming_data.reading[11],incoming_data.reading[12]);
-    N_now = combinedhex;
-    Serial.println(combinedhex);
 
-    hexconcat(incoming_data.reading[13],incoming_data.reading[14]);
-    P_now = combinedhex;
-    Serial.println(combinedhex);
+  hexconcat(incoming_data.reading[13], incoming_data.reading[14]);
+  P_now = combinedhex;
+  Serial.println(combinedhex);
 
-    hexconcat(incoming_data.reading[15],incoming_data.reading[16]);
-    K_now = combinedhex;
-    Serial.println(combinedhex);
+  hexconcat(incoming_data.reading[15], incoming_data.reading[16]);
+  K_now = combinedhex;
+  Serial.println(combinedhex);
 
-    combinedhex = 0; // reset combinedhex value
-  }
+  combinedhex = 0; // reset combinedhex value
+  is_send_data = true;
+  
+  
 }
  
 void setup() {
@@ -252,14 +263,13 @@ void setup() {
   timeClient.begin();
 
   WiFi.enableLongRange(true);
-  WiFi.mode(WIFI_STA);
-  WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
   
-  Serial.print("[OLD] ESP32 Board MAC Address:  ");
+  // Serial.print("[OLD] ESP32 Board MAC Address:  ");
   Serial.println(WiFi.macAddress());
-  esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]);
-  Serial.print("[NEW] ESP32 Board MAC Address:  ");
-  Serial.println(WiFi.macAddress());
+  // esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]);
+  // Serial.print("[NEW] ESP32 Board MAC Address:  ");
+  // Serial.println(WiFi.macAddress());
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK)
   {
@@ -277,6 +287,11 @@ void loop(){
     mqttPublish(timestamp, hum_now, temp_now, con_now, pH_now, N_now, P_now, K_now);
     is_send_data = false;
     }
+  
+  // timestamp = get_formatted_time();
+  // mqttPublish(timestamp,1,2,3,4,5,6,7);
+  // Serial.println("Sample published");
+  // delay(10000);
 
   client.loop();
   delay(1000);

@@ -37,8 +37,21 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 byte reading[19];
 
 /* Private Constants -------------------------------------------------------- */
-uint8_t broadcastAddress[] = { 0x16, 0x16, 0x16, 0x16, 0x16, 0x05 };  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0xA0, 0xB7, 0x65, 0xFE, 0x85, 0xBC};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
+// Insert your SSID
+constexpr char WIFI_SSID[] = "Mojave10";
+
+int32_t getWiFiChannel(const char *ssid) {
+  if (int32_t n = WiFi.scanNetworks()) {
+      for (uint8_t i=0; i<n; i++) {
+          if (!strcmp(ssid, WiFi.SSID(i).c_str())) {
+              return WiFi.channel(i);
+          }
+      }
+  }
+  return 0;
+}
 
 
 typedef struct struct_sensor_reading {
@@ -67,7 +80,14 @@ void setup() {
 
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
-  WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  int32_t channel = getWiFiChannel(WIFI_SSID);
+
+  WiFi.printDiag(Serial); // Uncomment to verify channel number before
+  esp_wifi_set_promiscuous(true);
+  esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+  esp_wifi_set_promiscuous(false);
+  WiFi.printDiag(Serial); // Uncomment to verify channel change after
 
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK) {
@@ -83,8 +103,8 @@ void setup() {
   peerInfo.encrypt = false;
 
   // Add peer
-  if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-    Serial.println("Failed to add peer");
+  if (esp_now_add_peer(&peerInfo) == ESP_OK) {
+    Serial.println("Peer Added");
     return;
   }
 
@@ -121,7 +141,7 @@ void loop() {
   // Once ESPNow is successfully Init, we will register for Send CB to
   // get the status of Trasnmitted packet
   esp_now_register_send_cb(OnDataSent);
-  delay(59000);
+  delay(9000);
 
 
 }
