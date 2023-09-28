@@ -293,7 +293,7 @@ void loop()
   }
   else if (is_send_data)
   {
-    mqttPublish(company, authToken, getUnixTime(timestamp), sendVpin, sendData);
+    mqttPublish(getUnixTime(timestamp), sendVpin, sendData);
     is_send_data = false;
   }
 
