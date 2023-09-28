@@ -54,7 +54,7 @@ String daystamp;
 String timestamp;
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP);
+NTPClient timeClient(ntpUDP,"sg.pool.ntp.org",28800);
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
@@ -86,8 +86,7 @@ uint64_t seconds, minutes, hours, days, months, year;
 /**
  * @brief Returns the current datetime in a formatted string.
  */
-String get_formatted_time()
-{
+String get_formatted_time(){
   return timeClient.getFormattedDate();
   // return rtc.getTime("%d %B %Y %I:%M:%S %p");
 }
@@ -119,7 +118,7 @@ void hexconcat(uint16_t HEX_A, uint16_t HEX_B){
   
 }
 
-void mqttPublish(int timestamp, uint16_t hum_now, uint16_t temp_now, uint16_t con_now, uint16_t pH_now, uint16_t N_now, uint16_t P_now, uint16_t K_now)
+void mqttPublish(String timestamp, uint16_t hum_now, uint16_t temp_now, uint16_t con_now, uint16_t pH_now, uint16_t N_now, uint16_t P_now, uint16_t K_now)
 {
   StaticJsonDocument<200> doc;
   doc["timestamp"] = timestamp;
@@ -183,8 +182,7 @@ void connectAWS()
   Serial.println("AWS IoT Connected!");
 }
  
-void mqttCallback(char *topic, byte *payload, unsigned int len)
-{
+void mqttCallback(char *topic, byte *payload, unsigned int len) {
 
     SerialMon.print("Message arrived [");
     SerialMon.print(topic);
@@ -206,8 +204,7 @@ typedef struct struct_sensor_reading {
 struct_sensor_reading incoming_data;
 
 
-void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len)
-{
+void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   // cli();
   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
   timestamp = get_formatted_time();
@@ -245,15 +242,14 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len)
 
     combinedhex = 0; // reset combinedhex value
   }
+}
  
-void setup()
-{
+void setup() {
   Serial.begin(115200);
   connectAWS();
 
   // setupRTC();
   timeClient.begin();
-  timeClient.offset(28800);
 
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
@@ -274,11 +270,14 @@ void setup()
   Serial.println("ESP-NOW initialized");
 }
  
-void loop()
-{
-  
+void loop(){
  
-  mqttPublish();
+  if (is_send_data)
+    {
+    mqttPublish(timestamp, hum_now, temp_now, con_now, pH_now, N_now, P_now, K_now);
+    is_send_data = false;
+    }
+
   client.loop();
   delay(1000);
 }
