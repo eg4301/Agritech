@@ -39,6 +39,8 @@ byte reading[19];
 /* Private Constants -------------------------------------------------------- */
 uint8_t broadcastAddress[] = { 0x16, 0x16, 0x16, 0x16, 0x16, 0x05 };  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
+
+
 typedef struct struct_sensor_reading {
   byte reading[19];
 } struct_sensor_reading;
@@ -49,7 +51,6 @@ esp_now_peer_info_t peerInfo;
 
 void request_reading();
 byte receive_reading();
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
 
 void setup() {
 
@@ -74,9 +75,7 @@ void setup() {
     return;
   }
 
-  // Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet
-  esp_now_register_send_cb(OnDataSent);
+  
 
   // Register peer
   memcpy(peerInfo.peer_addr, broadcastAddress, 6);
@@ -98,10 +97,33 @@ void setup() {
   } else {
     Serial.println("Error sending the data");
   }
+  // Once ESPNow is successfully Init, we will register for Send CB to
+  // get the status of Trasnmitted packet
+  esp_now_register_send_cb(OnDataSent);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  
+  // Sensor specific data
+  request_reading();
+  receive_reading();
+  delay(1000);
+
+  memcpy(myData.reading, reading, 19);
+  // Send message via ESP-NOW
+  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
+
+  if (result == ESP_OK) {
+    Serial.println("Sent with success");
+  } else {
+    Serial.println("Error sending the data");
+  }
+  // Once ESPNow is successfully Init, we will register for Send CB to
+  // get the status of Trasnmitted packet
+  esp_now_register_send_cb(OnDataSent);
+  delay(59000);
+
+
 }
 
 void request_reading() {
