@@ -3,8 +3,8 @@
 #define SECRET
 #define THINGNAME "ESP32_all_in_one_sensor"                         //change this
  
-const char WIFI_SSID[] = "Mojave10";               //change this
-const char WIFI_PASSWORD[] = "JoshuaTreeNationalPark";           //change this
+const char WIFI_SSID[] = "POCO X3 Pro";               //change this
+const char WIFI_PASSWORD[] = "bejdqfs2maxuzi4";           //change this
 const char AWS_IOT_ENDPOINT[] = "a29hjx8aa2fj0d-ats.iot.us-east-2.amazonaws.com";       //change this
  
 // Amazon Root CA 1
