@@ -35,9 +35,14 @@
 #define WATER_POWER_PIN  27
 #define WATER_SENS_PIN 23
 
+#define WATER_SWITCH_PIN  2
+
 int water_value = 0; // variable to store the water sensor value
 
-int PUMP_DURATION;
+int water_level = 0;
+
+int PUMP_DURATION_4;
+int PUMP_DURATION_3;
 
 
 /* Fill-in your Template ID (only if using Blynk.Cloud) */
@@ -87,8 +92,13 @@ BLYNK_WRITE(V1)
 BLYNK_WRITE(V2)
 {
   if (param.asInt() == 1) {
-    digitalWrite(RELAY_PIN_3, HIGH);
+    digitalWrite(RELAY_PIN_3, HIGH );
     Blynk.logEvent("relay_state", "RELAY_3 ON");//Sending Events
+    delay(PUMP_DURATION_3);
+    digitalWrite(RELAY_PIN_3, LOW );
+    Blynk.logEvent("relay_state", "RELAY_3 OFF");//Sending Events
+    Blynk.virtualWrite(V2, 0);
+    Blynk.syncVirtual(V2);
   } else {
     digitalWrite(RELAY_PIN_3, LOW);
     Blynk.logEvent("relay_state", "RELAY_3 OFF");//Sending Events
@@ -100,18 +110,37 @@ BLYNK_WRITE(V3)
   if (param.asInt() == 1) {
     digitalWrite(RELAY_PIN_4, HIGH );
     Blynk.logEvent("relay_state", "RELAY_4 ON");//Sending Events
-    delay(PUMP_DURATION);
+    delay(PUMP_DURATION_4);
     digitalWrite(RELAY_PIN_4, LOW );
     Blynk.logEvent("relay_state", "RELAY_4 OFF");//Sending Events
+    Blynk.virtualWrite(V3, 0);
+    Blynk.syncVirtual(V3);
   } else {
     digitalWrite(RELAY_PIN_4, LOW);
     Blynk.logEvent("relay_state", "RELAY_4 OFF");//Sending Events
   }
+
+  // if (param.asInt() == 1) {
+  //   digitalWrite(RELAY_PIN_4, HIGH );
+  //   Blynk.logEvent("relay_state", "RELAY_4 ON");//Sending Events
+    
+  //   if (water_level >= 3) {
+  //     digitalWrite(RELAY_PIN_4, LOW );
+  //     Blynk.logEvent("relay_state", "RELAY_4 OFF");//Sending Events
+  //     Blynk.virtualWrite(V3, 0);
+  //     Blynk.syncVirtual(V3);
+  //   }
+    
+  // } else {
+  //   digitalWrite(RELAY_PIN_4, LOW);
+  //   Blynk.logEvent("relay_state", "RELAY_4 OFF");//Sending Events
+  // }
+
 }
 
 BLYNK_WRITE(V4)
 {
-  PUMP_DURATION = param.asInt();
+  PUMP_DURATION_4 = param.asInt();
 }
 
 BLYNK_WRITE(V5)
@@ -125,11 +154,26 @@ BLYNK_WRITE(V5)
   delay(1000);
 }
 
+BLYNK_WRITE(V6)
+{
+  PUMP_DURATION_3 = param.asInt();
+}
+
+BLYNK_WRITE(V7)
+{
+  water_level = digitalRead(WATER_SWITCH_PIN); // read the digital value from sensor
+  Blynk.virtualWrite(V7, water_level);
+
+  delay(1000);
+}
+
 //Syncing the output state with the app at startup
 BLYNK_CONNECTED()
 {
   Blynk.syncVirtual(V4);  // will cause BLYNK_WRITE(V4) to be executed
   Blynk.syncVirtual(V5);  // will cause BLYNK_WRITE(V5) to be executed
+  Blynk.syncVirtual(V6);  
+  Blynk.syncVirtual(V7);  
   Blynk.syncVirtual(V0);  // will cause BLYNK_WRITE(V0) to be executed
   Blynk.syncVirtual(V1);  // will cause BLYNK_WRITE(V1) to be executed
   Blynk.syncVirtual(V2);  // will cause BLYNK_WRITE(V2) to be executed
