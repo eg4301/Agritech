@@ -35,7 +35,7 @@
 #define WATER_POWER_PIN  27
 #define WATER_SENS_PIN 23
 
-#define WATER_SWITCH_PIN  2
+#define WATER_SWITCH_PIN  22
 
 int water_value = 0; // variable to store the water sensor value
 
@@ -60,12 +60,14 @@ char auth[] = BLYNK_AUTH_TOKEN;
 
 // Your WiFi credentials.
 // Set password to "" for open networks.
-char ssid[] = "SINGTEL-1F2B";
-char pass[] = "owaibohvae";
+// char ssid[] = "SINGTEL-1F2B";
+// char pass[] = "owaibohvae";
 
+char ssid[] = "localize_project";
+char pass[] = "localize_project";
 
-
-
+// char ssid[] = "wz";
+// char pass[] = "Possword1.";
 
 BLYNK_WRITE(V0)
 {
