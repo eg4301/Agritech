@@ -14,6 +14,7 @@
 
 
 // Declarations for pH Sensor:
+<<<<<<< Updated upstream
 #define PH_PIN 35          // pH meter Analog output to Arduino Analog Input 0
 #define flatOff 0.00       // Flat deviation compensate
 #define scaleOff 3.5       // Scale deviation compensate
@@ -21,6 +22,18 @@ float avgRead;             //Store the average value of the sensor feedback
 float pHValue = 0;         // Final pH Value
 
 #define EC_PIN A1
+=======
+#define PH_PIN 35             // pH meter Analog output to Arduino Analog Input 0
+#define flatOff_ph 0.00       // Flat deviation compensate
+#define scaleOff_ph 3.5       // Scale deviation compensate
+float avgRead_ph;             //Store the average value of the sensor feedback
+float pHValue = 0;            // Final pH Value
+
+// Declarations for EC Sensor:
+#define EC_PIN 34
+#define flatOff_ec 0.41                     // Flat deviation compensate
+#define scaleOff_ec 1.07                    // Scale deviation compensate
+>>>>>>> Stashed changes
 float voltageRead,ecValue,temperature = 25;
 DFRobot_EC ec;
 
@@ -134,18 +147,32 @@ void phRead(){
   }
 
   for(int i = 2; i < 8; i++){                         // Sum centre six values
+<<<<<<< Updated upstream
     avgRead += pHBuffer[i];
   }
 
   avgRead = avgRead/6;                                // Obtain average reading for pH
 
   pHValue = scaleOff * avgRead + flatOff;             // Transform avgRead to get pHValue
+=======
+    avgRead_ph += pHBuffer[i];
+  }
+
+  avgRead_ph = avgRead_ph/6;                                // Obtain average reading for pH
+
+  pHValue = scaleOff_ph * avgRead_ph + flatOff_ph;             // Transform avgRead_ph to get pHValue
+>>>>>>> Stashed changes
 }
 
 void ecRead(){
   voltageRead = analogRead(EC_PIN)/1024.0*5000;       // Read voltage for EC
   ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
 
+<<<<<<< Updated upstream
+=======
+  ecValue = scaleOff_ec * ecValue + flatoff_ec;
+
+>>>>>>> Stashed changes
   ec.calibration(voltageRead,temperature);            // Calibrate EC Sensor
 }
 
