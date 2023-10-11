@@ -40,7 +40,7 @@ byte reading[19];
 uint8_t broadcastAddress[] = {0xA0, 0xB7, 0x65, 0xFE, 0x85, 0xBC};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 // Insert your SSID
-constexpr char WIFI_SSID[] = "Mojave10";
+constexpr char WIFI_SSID[] = "POCO X3 Pro";
 
 int32_t getWiFiChannel(const char *ssid) {
   if (int32_t n = WiFi.scanNetworks()) {
