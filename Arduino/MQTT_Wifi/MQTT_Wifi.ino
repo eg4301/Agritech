@@ -16,7 +16,6 @@
 #include <ctime>
 #include <queue>
 #include "secrets.h"
-#include <ESP32Ping.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
  
@@ -25,6 +24,7 @@
 #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"
 // Set serial for debug console (to the Serial Monitor, default speed 115200)
 #define SerialMon Serial 
+#define LED_PIN 25
 
 int ledStatus = LOW;
 // Set your new MAC Address
@@ -257,6 +257,7 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
  
 void setup() {
   Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
   connectAWS();
 
   // setupRTC();
