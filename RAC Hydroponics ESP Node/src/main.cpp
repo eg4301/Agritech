@@ -53,6 +53,51 @@ int32_t getWiFiChannel(const char *ssid) {
   return 0;
 }
 
+// put function definitions here:
+void phRead(){
+  float pHBuffer[10];                                 // Buffer for pH readings
+  
+  for(int i = 0; i < 10; i++){                        // Read 10 values for pH
+    pHBuffer[i] = analogRead(PH_PIN) * 5 / 1024.0;
+  }
+
+  for(int i = 0; i < 9; i++){                         // Sort pH readings in pHBuffer
+    for(int j = i + 1; i < 10; j++){
+      if(pHBuffer[i]>pHBuffer[j]){
+        float pHBufVal = pHBuffer[i];
+        pHBuffer[i] = pHBuffer[j];
+        pHBuffer[j] = pHBufVal;
+      }
+    }
+  }
+
+  for(int i = 2; i < 8; i++){                         // Sum centre six values
+    avgRead_ph += pHBuffer[i];
+  }
+
+  avgRead_ph = avgRead_ph/6;                                // Obtain average reading for pH
+
+  pHValue = scaleOff_ph * avgRead_ph + flatOff_ph;             // Transform avgRead_ph to get pHValue
+}
+
+void ecRead(){
+  voltageRead = analogRead(EC_PIN)/1024.0*5000;       // Read voltage for EC
+  ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
+
+  ecValue = scaleOff_ec * ecValue + flatOff_ec;
+
+  ec.calibration(voltageRead,temperature);            // Calibrate EC Sensor
+}
+
+void tempRead(){
+  temperature = 25;                                   // To update when temperature sensor is obtained
+}
+
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+}
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
@@ -118,47 +163,3 @@ void loop() {
 
 
 
-// put function definitions here:
-void phRead(){
-  float pHBuffer[10];                                 // Buffer for pH readings
-  
-  for(int i = 0; i < 10; i++){                        // Read 10 values for pH
-    pHBuffer[i] = analogRead(PH_PIN) * 5 / 1024.0;
-  }
-
-  for(int i = 0; i < 9; i++){                         // Sort pH readings in pHBuffer
-    for(int j = i + 1; i < 10; j++){
-      if(pHBuffer[i]>pHBuffer[j]){
-        float pHBufVal = pHBuffer[i];
-        pHBuffer[i] = pHBuffer[j];
-        pHBuffer[j] = pHBufVal;
-      }
-    }
-  }
-
-  for(int i = 2; i < 8; i++){                         // Sum centre six values
-    avgRead_ph += pHBuffer[i];
-  }
-
-  avgRead_ph = avgRead_ph/6;                                // Obtain average reading for pH
-
-  pHValue = scaleOff_ph * avgRead_ph + flatOff_ph;             // Transform avgRead_ph to get pHValue
-}
-
-void ecRead(){
-  voltageRead = analogRead(EC_PIN)/1024.0*5000;       // Read voltage for EC
-  ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
-
-  ecValue = scaleOff_ec * ecValue + flatoff_ec;
-
-  ec.calibration(voltageRead,temperature);            // Calibrate EC Sensor
-}
-
-void tempRead(){
-  temperature = 25;                                   // To update when temperature sensor is obtained
-}
-
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.print("\r\nLast Packet Send Status:\t");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-}
