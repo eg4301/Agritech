@@ -137,32 +137,20 @@ void phRead(){
   }
 
   for(int i = 2; i < 8; i++){                         // Sum centre six values
-<<<<<<< Updated upstream
-    avgRead += pHBuffer[i];
-  }
-
-  avgRead = avgRead/6;                                // Obtain average reading for pH
-
-  pHValue = scaleOff * avgRead + flatOff;             // Transform avgRead to get pHValue
-=======
     avgRead_ph += pHBuffer[i];
   }
 
   avgRead_ph = avgRead_ph/6;                                // Obtain average reading for pH
 
   pHValue = scaleOff_ph * avgRead_ph + flatOff_ph;             // Transform avgRead_ph to get pHValue
->>>>>>> Stashed changes
 }
 
 void ecRead(){
   voltageRead = analogRead(EC_PIN)/1024.0*5000;       // Read voltage for EC
   ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
 
-<<<<<<< Updated upstream
-=======
   ecValue = scaleOff_ec * ecValue + flatoff_ec;
 
->>>>>>> Stashed changes
   ec.calibration(voltageRead,temperature);            // Calibrate EC Sensor
 }
 
