@@ -11,6 +11,9 @@
 #include "esp_adc_cal.h"
 #include <esp_now.h>
 
+#include "OneWire.h"
+#include "DallasTemperature.h"
+
 
 
 // Declarations for pH Sensor:
@@ -26,6 +29,13 @@ float pHValue = 0;            // Final pH Value
 #define scaleOff_ec 1.07                    // Scale deviation compensate
 float voltageRead,ecValue,temperature = 25;
 DFRobot_EC ec;
+
+// Declarations for Temp Sensor:
+const int oneWireBus = 4;     
+
+OneWire oneWire(oneWireBus);
+DallasTemperature sensors(&oneWire);
+
 
 uint8_t broadcastAddress[] = {0xA0, 0xB7, 0x65, 0xFE, 0x85, 0xBC};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
@@ -90,7 +100,14 @@ void ecRead(){
 }
 
 void tempRead(){
-  temperature = 25;                                   // To update when temperature sensor is obtained
+  sensors.requestTemperatures(); 
+  float temperatureC = sensors.getTempCByIndex(0);
+
+  //float temperatureF = sensors.getTempFByIndex(0);
+
+  Serial.print(temperatureC);
+  Serial.println("ºC");
+  delay(5000);;                                   
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
@@ -102,6 +119,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   ec.begin();
+  sensors.begin();
 
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
