@@ -23,6 +23,9 @@
  *************************************************************/
 
 /* Comment this out to disable prints and save space */
+
+
+
 #define BLYNK_PRINT Serial
 
 #define RELAY_PIN_1 21
@@ -44,6 +47,14 @@ int water_level = 0;
 int PUMP_DURATION_4;
 int PUMP_DURATION_3;
 
+// weather api definition
+WiFiClientSecure client;
+
+const char* host = "https://api.data.gov.sg";
+const int httpsPort = 443; // for HTTPS requests
+
+char forecast = "NA";
+
 
 /* Fill-in your Template ID (only if using Blynk.Cloud) */
 #define BLYNK_TEMPLATE_ID "TMPL65P0inFvF"
@@ -53,6 +64,9 @@ int PUMP_DURATION_3;
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
+
+#include <ArduinoJson.h>
+#include <SPI.h>
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
@@ -169,17 +183,99 @@ BLYNK_WRITE(V7)
   delay(1000);
 }
 
+BLYNK_WRITE(V8)
+{
+  if (forecast == "Fair & Warm") {
+    Blynk.virtualWrite(V7, 1);
+  }
+
+  delay(1000);
+}
+
 //Syncing the output state with the app at startup
 BLYNK_CONNECTED()
 {
-  Blynk.syncVirtual(V4);  // will cause BLYNK_WRITE(V4) to be executed
-  Blynk.syncVirtual(V5);  // will cause BLYNK_WRITE(V5) to be executed
-  Blynk.syncVirtual(V6);  
-  Blynk.syncVirtual(V7);  
-  Blynk.syncVirtual(V0);  // will cause BLYNK_WRITE(V0) to be executed
-  Blynk.syncVirtual(V1);  // will cause BLYNK_WRITE(V1) to be executed
-  Blynk.syncVirtual(V2);  // will cause BLYNK_WRITE(V2) to be executed
-  Blynk.syncVirtual(V3);  // will cause BLYNK_WRITE(V3) to be executed
+  Blynk.syncVirtual(V4);  // Pump duration 4
+  // Blynk.syncVirtual(V5);  // water sens
+  Blynk.syncVirtual(V6);  // Pump duration 3
+  // Blynk.syncVirtual(V7);  // Display water level
+  Blynk.syncVirtual(V0);  // Relay 1
+  Blynk.syncVirtual(V1);  // Relay 2
+  Blynk.syncVirtual(V2);  // Relay 3
+  Blynk.syncVirtual(V3);  // Relay 4
+
+  delay(10000);
+  Blynk.virtualWrite(V7, 0);
+  forecast = "NA"
+}
+
+void weatherAPI(){
+  // Send an HTTP GET request to weather api
+  client.println("GET /v1/environment/24-hour-weather-forecast");
+  client.print("Host: ");
+  client.println(host);
+  client.println("Connection: close");  
+  if (client.println() == 0) {
+  Serial.println(F("Failed to send request"));
+  client.stop();
+  return;
+  }
+
+  //skip HTTP headers
+  char endOfHeaders[] = "\r\n\r\n";
+  if (!client.find(endOfHeaders)) {
+    Serial.println(F("Invalid response"));
+    client.stop();
+    return;
+  }
+
+  // Parsing JSON file
+  StaticJsonDocument<2048> doc;
+
+  DeserializationError error = deserializeJson(doc, client);
+
+  if (error) {
+    Serial.print("deserializeJson() failed: ");
+    Serial.println(error.c_str());
+    return;
+  }
+
+  JsonObject items_0 = doc["items"][0];
+  const char* items_0_update_timestamp = items_0["update_timestamp"]; // "2023-10-15T17:51:18+08:00"
+  const char* items_0_timestamp = items_0["timestamp"]; // "2023-10-15T17:32:00+08:00"
+
+  const char* items_0_valid_period_start = items_0["valid_period"]["start"];
+  const char* items_0_valid_period_end = items_0["valid_period"]["end"]; // "2023-10-16T18:00:00+08:00"
+
+  JsonObject items_0_general = items_0["general"];
+  const char* items_0_general_forecast = items_0_general["forecast"]; // "Fair & Warm"
+
+  int items_0_general_relative_humidity_low = items_0_general["relative_humidity"]["low"]; // 55
+  int items_0_general_relative_humidity_high = items_0_general["relative_humidity"]["high"]; // 85
+
+  int items_0_general_temperature_low = items_0_general["temperature"]["low"]; // 26
+  int items_0_general_temperature_high = items_0_general["temperature"]["high"]; // 35
+
+  int items_0_general_wind_speed_low = items_0_general["wind"]["speed"]["low"]; // 15
+  int items_0_general_wind_speed_high = items_0_general["wind"]["speed"]["high"]; // 25
+
+  const char* items_0_general_wind_direction = items_0_general["wind"]["direction"]; // "S"
+
+  for (JsonObject items_0_period : items_0["periods"].as<JsonArray>()) {
+
+    const char* items_0_period_time_start = items_0_period["time"]["start"]; // "2023-10-15T18:00:00+08:00", ...
+    const char* items_0_period_time_end = items_0_period["time"]["end"]; // "2023-10-16T06:00:00+08:00", ...
+
+    JsonObject items_0_period_regions = items_0_period["regions"];
+    const char* items_0_period_regions_west = items_0_period_regions["west"]; // "Fair (Night)", "Fair & ...
+    const char* items_0_period_regions_east = items_0_period_regions["east"]; // "Fair (Night)", "Fair & ...
+    const char* items_0_period_regions_central = items_0_period_regions["central"]; // "Fair (Night)", "Fair ...
+    const char* items_0_period_regions_south = items_0_period_regions["south"]; // "Fair (Night)", "Fair & ...
+    const char* items_0_period_regions_north = items_0_period_regions["north"]; // "Fair (Night)", "Fair & ...
+
+  }
+
+  const char* api_info_status = doc["api_info"]["status"]; // "healthy"
 }
 
 void setup()
@@ -187,6 +283,15 @@ void setup()
   // Debug console
   Serial.begin(115200);
   pinMode(LED_PIN, OUTPUT);
+
+  //connecting to weather API
+  Serial.print("Connecting to ");
+  Serial.println(host);
+
+  if (!client.connect(host, httpsPort)) {
+    Serial.println("Connection failed");
+    return;
+  }
 
   pinMode(RELAY_PIN_1, OUTPUT);
   pinMode(RELAY_PIN_2, OUTPUT);
@@ -203,5 +308,8 @@ void setup()
 
 void loop()
 {
-    Blynk.run();
+  weatherAPI();
+  forecast = items_0_general_forecast;
+  Blynk.run();
+
 }
