@@ -156,7 +156,7 @@ BLYNK_WRITE(V3)
 
 BLYNK_WRITE(V4)
 {
-  PUMP_DURATION_4 = param.asInt();
+  PUMP_DURATION_4 = param.asInt()*1000;
 }
 
 BLYNK_WRITE(V5)
@@ -172,7 +172,7 @@ BLYNK_WRITE(V5)
 
 BLYNK_WRITE(V6)
 {
-  PUMP_DURATION_3 = param.asInt();
+  PUMP_DURATION_3 = param.asInt()*1000;
 }
 
 BLYNK_WRITE(V7)
