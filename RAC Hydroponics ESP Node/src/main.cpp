@@ -17,30 +17,32 @@
 
 
 // Declarations for pH Sensor:
-#define PH_PIN 4             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 2.00       // Flat deviation compensate
-#define scaleOff_ph 3.5       // Scale deviation compensate
+#define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
+#define flatOff_ph 16.06       // Flat deviation compensate
+#define scaleOff_ph -6       // Scale deviation compensate
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
 
 // Declarations for EC Sensor:
-#define EC_PIN 5
+#define EC_PIN 6
 #define flatOff_ec 0.41                     // Flat deviation compensate
 #define scaleOff_ec 1.07                    // Scale deviation compensate
 float voltageRead,ecValue,temperature = 25;
 DFRobot_EC ec;
 
 // Declarations for Temp Sensor:
-const int oneWireBus = 6;     
+const int oneWireBus = 7;     
 
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
 
+String MACaddr;
+char* charMAC = new char[17];
 
 uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
-  int MAC;
+  char* MAC = new char[17];
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
@@ -96,12 +98,10 @@ void phRead(){
 }
 
 void ecRead(){
-  voltageRead = analogRead(EC_PIN)*5000/4096.0;       // Read voltage for EC
+  voltageRead = analogRead(EC_PIN)*3300/4096.0;       // Read voltage for EC
   ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
 
   ecValue = scaleOff_ec * ecValue + flatOff_ec;
-
-  ec.calibration(voltageRead,temperature);            // Calibrate EC Sensor
   Serial.print(ecValue);
   Serial.println(" ms/cm");
 }
@@ -126,7 +126,9 @@ void setup() {
   Serial.begin(115200);
   ec.begin();
   sensors.begin();
-  myData.MAC = 1;
+  MACaddr = WiFi.macAddress();
+  strcpy(charMAC,MACaddr.c_str());
+  myData.MAC = charMAC;
 
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
