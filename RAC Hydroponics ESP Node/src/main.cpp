@@ -17,29 +17,30 @@
 
 
 // Declarations for pH Sensor:
-#define PH_PIN 35             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 0.00       // Flat deviation compensate
+#define PH_PIN 4             // pH meter Analog output to Arduino Analog Input 0
+#define flatOff_ph 2.00       // Flat deviation compensate
 #define scaleOff_ph 3.5       // Scale deviation compensate
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
 
 // Declarations for EC Sensor:
-#define EC_PIN 34
+#define EC_PIN 5
 #define flatOff_ec 0.41                     // Flat deviation compensate
 #define scaleOff_ec 1.07                    // Scale deviation compensate
 float voltageRead,ecValue,temperature = 25;
 DFRobot_EC ec;
 
 // Declarations for Temp Sensor:
-const int oneWireBus = 4;     
+const int oneWireBus = 6;     
 
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
 
 
-uint8_t broadcastAddress[] = {0xA0, 0xB7, 0x65, 0xFE, 0x85, 0xBC};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
+  int MAC;
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
@@ -50,7 +51,7 @@ struct_sensor_reading myData;
 esp_now_peer_info_t peerInfo;
 
 // Insert your SSID
-constexpr char WIFI_SSID[] = "Mojave10";
+constexpr char WIFI_SSID[] = "localize_project";
 
 int32_t getWiFiChannel(const char *ssid) {
   if (int32_t n = WiFi.scanNetworks()) {
@@ -65,49 +66,54 @@ int32_t getWiFiChannel(const char *ssid) {
 
 // put function definitions here:
 void phRead(){
-  float pHBuffer[10];                                 // Buffer for pH readings
+  // float pHBuffer[10];                                 // Buffer for pH readings
   
-  for(int i = 0; i < 10; i++){                        // Read 10 values for pH
-    pHBuffer[i] = analogRead(PH_PIN) * 5 / 1024.0;
-  }
+  // for(int i = 0; i < 10; i++){                        // Read 10 values for pH
+  //   pHBuffer[i] = analogRead(PH_PIN) * 5 / 1024.0;
+  // }
 
-  for(int i = 0; i < 9; i++){                         // Sort pH readings in pHBuffer
-    for(int j = i + 1; i < 10; j++){
-      if(pHBuffer[i]>pHBuffer[j]){
-        float pHBufVal = pHBuffer[i];
-        pHBuffer[i] = pHBuffer[j];
-        pHBuffer[j] = pHBufVal;
-      }
-    }
-  }
+  // for(int i = 0; i < 9; i++){                         // Sort pH readings in pHBuffer
+  //   for(int j = i + 1; i < 10; j++){
+  //     if(pHBuffer[i]>pHBuffer[j]){
+  //       float pHBufVal = pHBuffer[i];
+  //       pHBuffer[i] = pHBuffer[j];
+  //       pHBuffer[j] = pHBufVal;
+  //     }
+  //   }
+  // }
 
-  for(int i = 2; i < 8; i++){                         // Sum centre six values
-    avgRead_ph += pHBuffer[i];
-  }
+  // for(int i = 2; i < 8; i++){                         // Sum centre six values
+  //   avgRead_ph += pHBuffer[i];
+  // }
 
-  avgRead_ph = avgRead_ph/6;                                // Obtain average reading for pH
+  // avgRead_ph = avgRead_ph/6;                                // Obtain average reading for pH
 
-  pHValue = scaleOff_ph * avgRead_ph + flatOff_ph;             // Transform avgRead_ph to get pHValue
+
+  pHValue = analogRead(PH_PIN) * 3.3 / 4096.0;  
+  pHValue = scaleOff_ph * pHValue + flatOff_ph;             // Transform avgRead_ph to get pHValue
+  Serial.print(pHValue);
+  Serial.println(" pH");
 }
 
 void ecRead(){
-  voltageRead = analogRead(EC_PIN)/1024.0*5000;       // Read voltage for EC
+  voltageRead = analogRead(EC_PIN)*5000/4096.0;       // Read voltage for EC
   ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
 
   ecValue = scaleOff_ec * ecValue + flatOff_ec;
 
   ec.calibration(voltageRead,temperature);            // Calibrate EC Sensor
+  Serial.print(ecValue);
+  Serial.println(" ms/cm");
 }
 
 void tempRead(){
   sensors.requestTemperatures(); 
-  float temperatureC = sensors.getTempCByIndex(0);
+  temperature = sensors.getTempCByIndex(0);
 
   //float temperatureF = sensors.getTempFByIndex(0);
 
-  Serial.print(temperatureC);
+  Serial.print(temperature);
   Serial.println("ºC");
-  delay(5000);;                                   
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
@@ -120,6 +126,7 @@ void setup() {
   Serial.begin(115200);
   ec.begin();
   sensors.begin();
+  myData.MAC = 1;
 
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
