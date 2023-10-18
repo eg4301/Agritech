@@ -77,7 +77,7 @@ String get_formatted_time(){
 
 void hexconcat(uint16_t HEX_A, uint16_t HEX_B){
   combinedhex = HEX_A;
-  combinedhex = combinedhex * 25;
+  combinedhex = combinedhex * 256;
   combinedhex = combinedhex | HEX_B;
   
 }

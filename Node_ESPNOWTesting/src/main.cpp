@@ -8,14 +8,19 @@
 #include "esp_adc_cal.h"
 #include <esp_now.h>
 
+#include <cstring> 
+#include <string> 
+#include <iostream> 
+
 // put function declarations here:
 float A,B,C;
 
 String MACaddr;
-uint8_t broadcastAddress[] = {0xA0, 0xB7, 0x65, 0xFE, 0x85, 0xBC};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+char* charMAC = new char[17];
+uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
-  String MAC;
+  char* MAC = new char[17];
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
@@ -39,6 +44,11 @@ int32_t getWiFiChannel(const char *ssid) {
   return 0;
 }
 
+// put function definitions here:
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+}
 
 
 void setup() {
@@ -48,8 +58,13 @@ void setup() {
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
   MACaddr = WiFi.macAddress();
-  myData.MAC = MACaddr;
-  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  Serial.println(MACaddr);
+  Serial.println(sizeof(MACaddr));
+  strcpy(charMAC,MACaddr.c_str());
+  Serial.println(charMAC);
+  Serial.println(sizeof(charMAC));
+  myData.MAC = charMAC;
+  // // WiFi.setTxPower(WIFI_POWER_19_5dBm);
   int32_t channel = getWiFiChannel(WIFI_SSID);
 
   WiFi.printDiag(Serial); // Uncomment to verify channel number before
@@ -78,11 +93,11 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  A = random(10);
+  A = random(20,30);
   Serial.println(A);
-  B = random(10);
+  B = random(0,20);
   Serial.println(B);
-  C = random(10);
+  C = random(0,14);
   Serial.println(C);
 
   myData.temp = A;
@@ -100,11 +115,6 @@ void loop() {
   // get the status of Transmitted packet
   esp_now_register_send_cb(OnDataSent);
 
-  delay(20000);
+ delay(20000);
 }
 
-// put function definitions here:
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.print("\r\nLast Packet Send Status:\t");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-}
