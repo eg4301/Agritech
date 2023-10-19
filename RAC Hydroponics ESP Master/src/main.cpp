@@ -52,7 +52,7 @@ String daystamp;
 String timestamp;
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP,"sg.pool.ntp.org",0);
+NTPClient timeClient(ntpUDP,"pool.ntp.org",28800);
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
@@ -206,6 +206,8 @@ void setup() {
 
   // setupRTC();
   timeClient.begin();
+  timeClient.update();
+  timeClient.setTimeOffset(28800);
 
   WiFi.enableLongRange(true);
   // WiFi.setTxPower(WIFI_POWER_19_5dBm);

@@ -100,8 +100,6 @@ void ecRead(){
   ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
 
   ecValue = scaleOff_ec * ecValue + flatOff_ec;
-
-  ec.calibration(voltageRead,temperature);            // Calibrate EC Sensor
   Serial.print(ecValue);
   Serial.println(" ms/cm");
 }
