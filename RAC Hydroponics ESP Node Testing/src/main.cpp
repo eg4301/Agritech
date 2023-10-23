@@ -7,7 +7,7 @@
 #define PUMP_PIN_2 5
 #define PUMP_PIN_3 6
 #define PUMP_PIN_4 7
-#define PUMP_PIN_5 18
+#define PUMP_PIN_5 8
 #define PUMP_PIN_6 3
 #define PUMP_PIN_7 9
 #define VALVE_PIN 10
@@ -31,6 +31,7 @@ void sampling_seq() {
     digitalWrite(int(pumplist[i]), HIGH);
     delay(PUMP_DURATION);           
     digitalWrite(int(pumplist[i]), LOW); 
+
     digitalWrite(VALVE_PIN, HIGH);
     delay(VALVE_DURATION);           
     digitalWrite(VALVE_PIN, LOW);
@@ -43,8 +44,7 @@ void sampling_seq() {
 
 void setup() {
   Serial.begin(115200);
-  
-  Serial.println("test1");  
+
 
   pinMode(PUMP_PIN_1, OUTPUT);
   pinMode(PUMP_PIN_2, OUTPUT);
@@ -55,11 +55,11 @@ void setup() {
   pinMode(PUMP_PIN_7, OUTPUT);
   pinMode(VALVE_PIN, OUTPUT);
 
-  
+  sampling_seq();
 }
 
 void loop() {
   
-  sampling_seq();
+  
   
 }
