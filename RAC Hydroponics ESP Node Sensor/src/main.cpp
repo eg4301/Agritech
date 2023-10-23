@@ -17,21 +17,21 @@
 
 
 // Declarations for pH Sensor:
-#define PH_PIN 4             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 2.00       // Flat deviation compensate
-#define scaleOff_ph 3.5       // Scale deviation compensate
+#define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
+#define flatOff_ph 16.06       // Flat deviation compensate
+#define scaleOff_ph -6       // Scale deviation compensate
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
 
 // Declarations for EC Sensor:
-#define EC_PIN 5
+#define EC_PIN 6
 #define flatOff_ec 0.41                     // Flat deviation compensate
 #define scaleOff_ec 1.07                    // Scale deviation compensate
-float voltageRead,ecValue,temperature = 25;
+float voltageRead,ecValue,temperature = 22;
 DFRobot_EC ec;
 
 // Declarations for Temp Sensor:
-const int oneWireBus = 6;     
+const int oneWireBus = 7;     
 
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
@@ -96,7 +96,7 @@ void phRead(){
 }
 
 void ecRead(){
-  voltageRead = analogRead(EC_PIN)*5000/4096.0;       // Read voltage for EC
+  voltageRead = (analogRead(EC_PIN)*3300)/4096.0;       // Read voltage for EC
   ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
 
   ecValue = scaleOff_ec * ecValue + flatOff_ec;
