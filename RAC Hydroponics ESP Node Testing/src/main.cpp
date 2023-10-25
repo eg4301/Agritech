@@ -23,7 +23,6 @@ char pumplist[][25] =
   "PUMP_PIN_4",
   "PUMP_PIN_5",
   "PUMP_PIN_6",
-  "PUMP_PIN_7",
 };
 
 void sampling_seq() {
@@ -36,6 +35,13 @@ void sampling_seq() {
     delay(VALVE_DURATION);           
     digitalWrite(VALVE_PIN, LOW);
 
+    digitalWrite(int(PUMP_PIN_7), HIGH);
+    delay(PUMP_DURATION);           
+    digitalWrite(int(PUMP_PIN_7), LOW); 
+
+    digitalWrite(VALVE_PIN, HIGH);
+    delay(VALVE_DURATION);           
+    digitalWrite(VALVE_PIN, LOW);
 
     Serial.println(pumplist[i]);
   }
