@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdint.h>
 #include <Arduino.h>
 
@@ -8,28 +9,37 @@
 #include "esp_adc_cal.h"
 #include <esp_now.h>
 
-// Temperature and Humidity sensor library
-#include <DFRobot_SHT3x.h>
+// CO2, Temperature and Humidity sensor library
+#include "SCD30.h"
+
+// O2 Sensor Library
+#include "DFRobot_MultiGasSensor.h"
+#define O2_I2C_ADDRESS 0x74
+
+
+
 
 #define flatOff_temp 0            // Flat deviation compensate
 #define scaleOff_temp 1           // Scale deviation compensate
-
-float atmTemp = 25.0;
-
 #define flatOff_hum 0            // Flat deviation compensate
 #define scaleOff_hum 1           // Scale deviation compensate
 
+float atmTemp = 25.0;
 float atmHum = 50.0;
+float result[3] = {0};
+float CO2;
+float err;
+float O2;
+String MACaddr;
+char* charMAC = new char[17];
 
-// CO2 Sensor Library
-
-// O2 Sensor Library
+DFRobot_GAS_I2C gas(&Wire, O2_I2C_ADDRESS);
 
 // put function declarations here:
 uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
-  int MAC;
+  char* MAC = new char[17];
   float temp = 0;
   float hum = 0;
   float CO2 = 0;
@@ -59,25 +69,44 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
+// put function definitions here:
+void getCO2HumTemp(){
+  if (scd30.isAvailable()){
+    scd30.getCarbonDioxideConcentration(result);
+    CO2 = result[0];
+    atmTemp = result[1];
+    atmHum = result[2];
+  }
+}
+
+void getO2(){
+  O2 = gas.readGasConcentrationPPM();
+}
+
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
-  // Initialize SHT31-F
-  while (sht3x.begin() != 0) {
-    Serial.println("Failed to Initialize the chip, please confirm the wire connection");
+  Wire.begin();
+  Serial.begin(115200);
+  MACaddr = WiFi.macAddress();
+  strcpy(charMAC,MACaddr.c_str());
+  myData.MAC = charMAC;
+
+  // Start SCD30 CO2 Sensor
+  scd30.initialize();
+
+  // Start SEN0469 O2 Sensor
+  while(!gas.begin())
+  {
+    Serial.println("NO Devices!");
     delay(1000);
   }
+  Serial.println("The device is connected successfully!");
+  while(!gas.changeAcquireMode(gas.PASSIVITY)){
+    delay(1000);
+  }
+  Serial.println("Acquire mode changed to passive.");
 
-  /**
-   * softReset Send command resets via IIC, enter the chip's default mode single-measure mode, 
-   * turn off the heater, and clear the alert of the ALERT pin.
-   * @return Read the register status to determine whether the command was executed successfully, 
-   * and return true indicates success.
-   */
-   if(!sht3x.softReset()){
-     Serial.println("Failed to Initialize the chip....");
-   }
-
+  // Start WiFi and enable LR
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
   // WiFi.setTxPower(WIFI_POWER_19_5dBm);
@@ -105,21 +134,15 @@ void setup() {
     Serial.println("Peer Added");
     return;
   }
-
-
-
-
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  atmTempRead();
-  Serial.println(atmTemp);
-  atmHumRead();
-  Serial.println(atmHum);
-
+  getCO2HumTemp();
+  getO2();
   myData.temp = atmTemp;
   myData.hum = atmHum;
+  myData.Oxy = O2;
 
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
@@ -135,13 +158,3 @@ void loop() {
   delay(30000);
 }
 
-// put function definitions here:
-void atmTempRead() {
-  atmTemp = sht3x.getTemperatureC();
-  atmTemp = scaleOff_temp * atmTemp + flatOff_temp;
-}
-
-void atmHumRead() {
-  atmHum = sht3x.getHumidityRH();
-  atmHum = scaleOff_hum * atmHum + flatOff_hum;
-}
