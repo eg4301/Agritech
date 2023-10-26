@@ -3,14 +3,14 @@
 
 
 
-#define PUMP_PIN_1 4
-#define PUMP_PIN_2 5
-#define PUMP_PIN_3 6
-#define PUMP_PIN_4 7
-#define PUMP_PIN_5 8
-#define PUMP_PIN_6 3
-#define PUMP_PIN_7 9
-#define VALVE_PIN 10
+#define PUMP_PIN_1 1
+#define PUMP_PIN_2 2
+#define PUMP_PIN_3 4
+#define PUMP_PIN_4 5
+#define PUMP_PIN_5 6
+#define PUMP_PIN_6 7
+#define PUMP_PIN_7 8
+#define VALVE_PIN 9
 
 #define PUMP_DURATION 1000
 #define VALVE_DURATION 1000
