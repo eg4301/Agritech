@@ -2,7 +2,7 @@
 #include <Arduino.h>
 
 
-
+// When changin pins, please also change the pin numbers manually in pumplist!!!
 #define PUMP_PIN_1 9
 #define PUMP_PIN_2 10
 #define PUMP_PIN_3 11
@@ -12,27 +12,27 @@
 #define PUMP_PIN_7 15
 #define VALVE_PIN 16
 
+// Define length of time pumps and valves are open
 #define PUMP_DURATION 1000
 #define VALVE_DURATION 1000
 
-char pumplist[][25] = 
+// Chang here too!!!
+int pumplist[] = 
 {
-  "PUMP_PIN_1",
-  "PUMP_PIN_2",
-  "PUMP_PIN_3",
-  "PUMP_PIN_4",
-  "PUMP_PIN_5",
-  "PUMP_PIN_6",
+  9,
+  10,
+  11,
+  12,
+  13,
+  14
 };
 
 void sampling_seq() {
   for (int i = 0; i < (sizeof(pumplist)) / sizeof(pumplist[0]); i++) {
-    
-    char* x = pumplist[i];
 
-    digitalWrite(int(x), HIGH);
+    digitalWrite(pumplist[i], HIGH);
     delay(PUMP_DURATION);           
-    digitalWrite(int(x), LOW); 
+    digitalWrite(pumplist[i], LOW); 
 
     digitalWrite(VALVE_PIN, HIGH);
     delay(VALVE_DURATION);           
@@ -46,7 +46,7 @@ void sampling_seq() {
     delay(VALVE_DURATION);           
     digitalWrite(VALVE_PIN, LOW);
 
-    Serial.println(x);
+    Serial.println(pumplist[i]);
   }
 }
 
@@ -64,16 +64,7 @@ void setup() {
   pinMode(PUMP_PIN_7, OUTPUT);
   pinMode(VALVE_PIN, OUTPUT);
 
-  sampling_seq();
-
-  // digitalWrite(int(PUMP_PIN_1), HIGH);
-  // digitalWrite(int(PUMP_PIN_2), HIGH);
-  // digitalWrite(int(PUMP_PIN_3), HIGH);
-  // digitalWrite(int(PUMP_PIN_4), HIGH);
-  // digitalWrite(int(PUMP_PIN_5), HIGH);
-  // digitalWrite(int(PUMP_PIN_6), HIGH);
-  // digitalWrite(int(PUMP_PIN_7), HIGH);
-  // digitalWrite(int(VALVE_PIN), HIGH);
+  // sampling_seq();
 
 }
 
