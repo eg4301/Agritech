@@ -8,8 +8,8 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "C:/Users/LimWe/PlatformIO/Projects/Agritech/RAC Hydroponics ESP Node/include",
-                "C:/Users/LimWe/PlatformIO/Projects/Agritech/RAC Hydroponics ESP Node/src",
+                "C:/Users/LimWe/OneDrive - National University of Singapore/Documents/GitHub/Agritech/RAC Hydroponics ESP Node/include",
+                "C:/Users/LimWe/OneDrive - National University of Singapore/Documents/GitHub/Agritech/RAC Hydroponics ESP Node/src",
                 "C:/Users/LimWe/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                 "C:/Users/LimWe/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                 "C:/Users/LimWe/.platformio/packages/framework-arduinoespressif32/libraries/EEPROM/src",
@@ -238,8 +238,8 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "C:/Users/LimWe/PlatformIO/Projects/Agritech/RAC Hydroponics ESP Node/include",
-                    "C:/Users/LimWe/PlatformIO/Projects/Agritech/RAC Hydroponics ESP Node/src",
+                    "C:/Users/LimWe/OneDrive - National University of Singapore/Documents/GitHub/Agritech/RAC Hydroponics ESP Node/include",
+                    "C:/Users/LimWe/OneDrive - National University of Singapore/Documents/GitHub/Agritech/RAC Hydroponics ESP Node/src",
                     "C:/Users/LimWe/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                     "C:/Users/LimWe/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                     "C:/Users/LimWe/.platformio/packages/framework-arduinoespressif32/libraries/EEPROM/src",

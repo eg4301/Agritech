@@ -3,14 +3,14 @@
 
 
 
-#define PUMP_PIN_1 4
-#define PUMP_PIN_2 5
-#define PUMP_PIN_3 6
-#define PUMP_PIN_4 7
-#define PUMP_PIN_5 8
-#define PUMP_PIN_6 3
-#define PUMP_PIN_7 9
-#define VALVE_PIN 10
+#define PUMP_PIN_1 9
+#define PUMP_PIN_2 10
+#define PUMP_PIN_3 11
+#define PUMP_PIN_4 12
+#define PUMP_PIN_5 13
+#define PUMP_PIN_6 14
+#define PUMP_PIN_7 15
+#define VALVE_PIN 16
 
 #define PUMP_DURATION 1000
 #define VALVE_DURATION 1000
@@ -27,9 +27,12 @@ char pumplist[][25] =
 
 void sampling_seq() {
   for (int i = 0; i < (sizeof(pumplist)) / sizeof(pumplist[0]); i++) {
-    digitalWrite(int(pumplist[i]), HIGH);
+    
+    char* x = pumplist[i];
+
+    digitalWrite(int(x), HIGH);
     delay(PUMP_DURATION);           
-    digitalWrite(int(pumplist[i]), LOW); 
+    digitalWrite(int(x), LOW); 
 
     digitalWrite(VALVE_PIN, HIGH);
     delay(VALVE_DURATION);           
@@ -43,7 +46,7 @@ void sampling_seq() {
     delay(VALVE_DURATION);           
     digitalWrite(VALVE_PIN, LOW);
 
-    Serial.println(pumplist[i]);
+    Serial.println(x);
   }
 }
 
@@ -62,6 +65,16 @@ void setup() {
   pinMode(VALVE_PIN, OUTPUT);
 
   sampling_seq();
+
+  // digitalWrite(int(PUMP_PIN_1), HIGH);
+  // digitalWrite(int(PUMP_PIN_2), HIGH);
+  // digitalWrite(int(PUMP_PIN_3), HIGH);
+  // digitalWrite(int(PUMP_PIN_4), HIGH);
+  // digitalWrite(int(PUMP_PIN_5), HIGH);
+  // digitalWrite(int(PUMP_PIN_6), HIGH);
+  // digitalWrite(int(PUMP_PIN_7), HIGH);
+  // digitalWrite(int(VALVE_PIN), HIGH);
+
 }
 
 void loop() {
