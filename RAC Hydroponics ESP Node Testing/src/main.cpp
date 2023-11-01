@@ -26,8 +26,8 @@
 #define VALVE_PIN 16
 
 // Define length of time pumps and valves are open
-#define PUMP_DURATION 1000
-#define VALVE_DURATION 1000
+#define PUMP_DURATION 470500
+#define VALVE_DURATION 5000
 
 // Change here too!!!
 int pumplist[] = 
@@ -189,9 +189,9 @@ void sampling_seq() {
 
 void setup() {
   Serial.begin(115200);
-  ec.begin();
-  sensors.begin();
-  myData.MAC = 1;
+  // ec.begin();
+  // sensors.begin();
+  // myData.MAC = 1;
 
   // WiFi.enableLongRange(true);
   // WiFi.mode(WIFI_STA);
@@ -231,11 +231,17 @@ void setup() {
   pinMode(PUMP_PIN_7, OUTPUT);
   pinMode(VALVE_PIN, OUTPUT);
 
+  sampling_seq();
+
+  // digitalWrite(int(PUMP_PIN_7), HIGH);
+  // delay(10000);           
+  // digitalWrite(int(PUMP_PIN_7), LOW); 
+
 }
 
 void loop() {
 
-  sampling_seq();
+  // sampling_seq();
 
   // Once ESPNow is successfully Init, we will register for Send CB to
   // get the status of Trasnmitted packet;
