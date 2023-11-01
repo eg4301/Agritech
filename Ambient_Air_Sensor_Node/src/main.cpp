@@ -14,7 +14,7 @@
 
 // O2 Sensor Library
 #include "DFRobot_MultiGasSensor.h"
-#define O2_I2C_ADDRESS 0x74
+#define O2_I2C_ADDRESS 0x73
 
 
 
@@ -40,7 +40,10 @@ uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE
 
 typedef struct struct_sensor_reading {
   char* MAC = new char[17];
+  float pHVal = 0;
+  float ECVal = 0;
   float temp = 0;
+  float atmtemp = 0;
   float hum = 0;
   float CO2 = 0;
   float Oxy = 0;
@@ -93,6 +96,7 @@ void setup() {
 
   // Start SCD30 CO2 Sensor
   scd30.initialize();
+  Serial.println("SCD30 Sensor started");
 
   // Start SEN0469 O2 Sensor
   while(!gas.begin())
@@ -101,9 +105,8 @@ void setup() {
     delay(1000);
   }
   Serial.println("The device is connected successfully!");
-  while(!gas.changeAcquireMode(gas.PASSIVITY)){
-    delay(1000);
-  }
+  gas.changeAcquireMode(gas.PASSIVITY);
+  delay(1000);
   Serial.println("Acquire mode changed to passive.");
 
   // Start WiFi and enable LR
@@ -140,7 +143,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   getCO2HumTemp();
   getO2();
-  myData.temp = atmTemp;
+  myData.atmtemp = atmTemp;
   myData.hum = atmHum;
   myData.Oxy = O2;
 

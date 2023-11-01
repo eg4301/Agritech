@@ -37,13 +37,17 @@ OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
 
 
-uint8_t broadcastAddress[] = {0x68, 0xB6, 0xB3, 0x51, 0xD3, 0x28};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
   int MAC;
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
+  float atmtemp = 0;
+  float hum = 0;
+  float CO2 = 0;
+  float Oxy = 0;
 } struct_sensor_reading;
 
 struct_sensor_reading myData;

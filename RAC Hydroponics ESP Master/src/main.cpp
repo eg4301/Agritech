@@ -28,7 +28,7 @@
 
 int ledStatus = LOW;
 // Set your new MAC Address
-uint8_t newMACAddress[] = {0x16, 0x16, 0x16, 0x16, 0x16, 0x05};
+uint8_t newMACAddress[] = {0x0E, 0x10, 0x04, 0x03, 0x00, 0x01};
 
 uint32_t lastReconnectAttempt = 0;
 uint16_t combinedhex = 0;
@@ -41,6 +41,10 @@ std::queue<float> pH = {};       // queue for pH values
 float temp_now = 0;
 float con_now = 0;
 float pH_now = 0;
+float atmtemp_now = 0;
+float hum_now = 0;
+float CO2_now = 0;
+float oxy_now = 0;
 int MAC_now;
 
 uint16_t HEX_A;
@@ -82,7 +86,7 @@ void hexconcat(uint16_t HEX_A, uint16_t HEX_B){
   
 }
 
-void mqttPublish(String timestamp, int MAC_now, float temp_now, float con_now, float pH_now)
+void mqttPublish(String timestamp, int MAC_now, float temp_now, float con_now, float pH_now, float atmtemp_now, float hum_now, float CO2_now, float oxy_now)
 {
   StaticJsonDocument<200> doc;
   doc["timestamp"] = timestamp;
@@ -90,6 +94,10 @@ void mqttPublish(String timestamp, int MAC_now, float temp_now, float con_now, f
   doc["temperature"] = temp_now;
   doc["conductivity"] = con_now;
   doc["pH"] = pH_now;
+  doc["atm_temperature"] = atmtemp_now;
+  doc["humidity"] = hum_now;
+  doc["CO2"] = CO2_now;
+  doc["O2"] = oxy_now;
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
 
@@ -167,6 +175,10 @@ typedef struct struct_sensor_reading {
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
+  float atmtemp = 0;
+  float hum = 0;
+  float CO2 = 0;
+  float Oxy = 0;
 } struct_sensor_reading;
 
 struct_sensor_reading incoming_data;
@@ -194,6 +206,14 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   pH.push(pH_now);
 
   MAC_now = incoming_data.MAC;
+
+  atmtemp_now = incoming_data.atmtemp;
+
+  hum_now = incoming_data.hum;
+
+  CO2_now = incoming_data.CO2;
+
+  oxy_now = incoming_data.Oxy;
   
   is_send_data = true;
   
@@ -201,7 +221,13 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 }
  
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200);  
+  Serial.print("[OLD] ESP32 Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
+  esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]);
+  Serial.print("[NEW] ESP32 Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
+  
   connectAWS();
 
   // setupRTC();
@@ -211,12 +237,7 @@ void setup() {
 
   WiFi.enableLongRange(true);
   // WiFi.setTxPower(WIFI_POWER_19_5dBm);
-  
-  // Serial.print("[OLD] ESP32 Board MAC Address:  ");
-  Serial.println(WiFi.macAddress());
-  // esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]);
-  // Serial.print("[NEW] ESP32 Board MAC Address:  ");
-  // Serial.println(WiFi.macAddress());
+
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK)
   {
@@ -231,7 +252,7 @@ void loop(){
  
   if (is_send_data)
     {
-    mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now);
+    mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now, atmtemp_now, hum_now, CO2_now, oxy_now);
     is_send_data = false;
     }
   
