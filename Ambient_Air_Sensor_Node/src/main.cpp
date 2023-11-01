@@ -145,6 +145,7 @@ void loop() {
   getO2();
   myData.atmtemp = atmTemp;
   myData.hum = atmHum;
+  myData.CO2 = CO2;
   myData.Oxy = O2;
 
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
