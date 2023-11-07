@@ -27,7 +27,7 @@
 
 // Define length of time pumps and valves are open
 #define PUMP_DURATION 470500
-#define VALVE_DURATION 5000
+#define VALVE_DURATION 10000
 
 // Change here too!!!
 int pumplist[] = 
@@ -61,7 +61,7 @@ OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
 
 
-uint8_t broadcastAddress[] = {0x68, 0xB6, 0xB3, 0x51, 0xD3, 0x28};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
   int MAC;
@@ -189,37 +189,37 @@ void sampling_seq() {
 
 void setup() {
   Serial.begin(115200);
-  // ec.begin();
-  // sensors.begin();
-  // myData.MAC = 1;
+  ec.begin();
+  sensors.begin();
+  myData.MAC = 1;
 
-  // WiFi.enableLongRange(true);
-  // WiFi.mode(WIFI_STA);
-  // // WiFi.setTxPower(WIFI_POWER_19_5dBm);
-  // int32_t channel = getWiFiChannel(WIFI_SSID);
+  WiFi.enableLongRange(true);
+  WiFi.mode(WIFI_STA);
+  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  int32_t channel = getWiFiChannel(WIFI_SSID);
 
-  // WiFi.printDiag(Serial); // Uncomment to verify channel number before
-  // esp_wifi_set_promiscuous(true);
-  // esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
-  // esp_wifi_set_promiscuous(false);
-  // WiFi.printDiag(Serial); // Uncomment to verify channel change after
+  WiFi.printDiag(Serial); // Uncomment to verify channel number before
+  esp_wifi_set_promiscuous(true);
+  esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+  esp_wifi_set_promiscuous(false);
+  WiFi.printDiag(Serial); // Uncomment to verify channel change after
 
-  // // Init ESP-NOW
-  // if (esp_now_init() != ESP_OK) {
-  //   Serial.println("Error initializing ESP-NOW");
-  //   return;
-  // }
+  // Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
 
-  // // Register peer
-  // memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  // peerInfo.channel = 0;
-  // peerInfo.encrypt = false;
+  // Register peer
+  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
 
-  // // Add peer
-  // if (esp_now_add_peer(&peerInfo) == ESP_OK) {
-  //   Serial.println("Peer Added");
-  //   return;
-  // }
+  // Add peer
+  if (esp_now_add_peer(&peerInfo) == ESP_OK) {
+    Serial.println("Peer Added");
+    return;
+  }
 
   // Initialize pump pins
   pinMode(PUMP_PIN_1, OUTPUT);
@@ -241,13 +241,13 @@ void setup() {
 
 void loop() {
 
-  // sampling_seq();
+  sampling_seq();
 
   // Once ESPNow is successfully Init, we will register for Send CB to
   // get the status of Trasnmitted packet;
-  // esp_now_register_send_cb(OnDataSent);
+  esp_now_register_send_cb(OnDataSent);
 
-  delay(30000);
+  delay(2400000);
   
 }
 

@@ -13,8 +13,10 @@
 #include "SCD30.h"
 
 // O2 Sensor Library
-#include "DFRobot_MultiGasSensor.h"
-#define O2_I2C_ADDRESS 0x73
+#include "DFRobot_OxygenSensor.h"
+#define Oxygen_IICAddress ADDRESS_3
+#define COLLECT_NUMBER  10             // collect number, the collection range is 1-100.
+DFRobot_OxygenSensor oxygen;
 
 
 
@@ -33,7 +35,6 @@ float O2;
 String MACaddr;
 char* charMAC = new char[17];
 
-DFRobot_GAS_I2C gas(&Wire, O2_I2C_ADDRESS);
 
 // put function declarations here:
 uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
@@ -77,13 +78,17 @@ void getCO2HumTemp(){
   if (scd30.isAvailable()){
     scd30.getCarbonDioxideConcentration(result);
     CO2 = result[0];
+    Serial.println(CO2);
     atmTemp = result[1];
+    Serial.println(atmTemp);
     atmHum = result[2];
+    Serial.println(atmHum);
   }
 }
 
 void getO2(){
-  O2 = gas.readGasConcentrationPPM();
+  O2 = oxygen.getOxygenData(COLLECT_NUMBER);
+  Serial.println(O2);
 }
 
 void setup() {
@@ -98,16 +103,12 @@ void setup() {
   scd30.initialize();
   Serial.println("SCD30 Sensor started");
 
-  // Start SEN0469 O2 Sensor
-  while(!gas.begin())
-  {
-    Serial.println("NO Devices!");
+  // Start O2 Sensor
+  while(!oxygen.begin(Oxygen_IICAddress)){
+    Serial.println("I2c device number error !");
     delay(1000);
   }
-  Serial.println("The device is connected successfully!");
-  gas.changeAcquireMode(gas.PASSIVITY);
-  delay(1000);
-  Serial.println("Acquire mode changed to passive.");
+  Serial.println("I2c connect success !");
 
   // Start WiFi and enable LR
   WiFi.enableLongRange(true);
