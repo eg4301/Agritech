@@ -10,6 +10,7 @@
 #include "esp_wifi.h"
 #include "esp_adc_cal.h"
 #include <esp_now.h>
+#include "driver/gpio.h"
 
 #include "OneWire.h"
 #include "DallasTemperature.h"
@@ -26,18 +27,22 @@
 #define VALVE_PIN 16
 
 // Define length of time pumps and valves are open
-#define PUMP_DURATION 470500
-#define VALVE_DURATION 10000
+
+#define PUMP_DURATION 600000
+#define VALVE_DURATION 5000
+
+// #define PUMP_DURATION 470500
+// #define VALVE_DURATION 10000
 
 // Change here too!!!
 int pumplist[] = 
 {
   9,
-  10,
-  11,
-  12,
-  13,
-  14
+  // 10,
+  // 11,
+  // 12,
+  // 13,
+  // 14
 };
 
 // Declarations for pH Sensor:
@@ -148,8 +153,15 @@ void sampling_seq() {
   for (int i = 0; i < (sizeof(pumplist)) / sizeof(pumplist[0]); i++) {
 
     digitalWrite(pumplist[i], HIGH);
+
+    // esp_err_t gpio_set_level(gpio_num_t GPIO_NUM_9,  uint32_t 1);
+    // esp_err_t gpio_pullup_en(gpio_num_t GPIO_NUM_9);
+
     delay(PUMP_DURATION);           
     digitalWrite(pumplist[i], LOW); 
+
+    // esp_err_t gpio_set_level(gpio_num_t GPIO_NUM_9, uint32_t 0);
+    // esp_err_t gpio_pullup_dis(gpio_num_t GPIO_NUM_9);
 
     tempRead();
     Serial.println(temperature);
@@ -193,9 +205,19 @@ void setup() {
   sensors.begin();
   myData.MAC = 1;
 
+  // Initialize pump pins
+  pinMode(PUMP_PIN_1, OUTPUT);
+  pinMode(PUMP_PIN_2, OUTPUT);
+  pinMode(PUMP_PIN_3, OUTPUT);
+  pinMode(PUMP_PIN_4, OUTPUT);
+  pinMode(PUMP_PIN_5, OUTPUT);
+  pinMode(PUMP_PIN_6, OUTPUT);
+  pinMode(PUMP_PIN_7, OUTPUT);
+  pinMode(VALVE_PIN, OUTPUT);
+
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
-  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  WiFi.setTxPower(WIFI_POWER_19_5dBm);
   int32_t channel = getWiFiChannel(WIFI_SSID);
 
   WiFi.printDiag(Serial); // Uncomment to verify channel number before
@@ -221,33 +243,29 @@ void setup() {
     return;
   }
 
-  // Initialize pump pins
-  pinMode(PUMP_PIN_1, OUTPUT);
-  pinMode(PUMP_PIN_2, OUTPUT);
-  pinMode(PUMP_PIN_3, OUTPUT);
-  pinMode(PUMP_PIN_4, OUTPUT);
-  pinMode(PUMP_PIN_5, OUTPUT);
-  pinMode(PUMP_PIN_6, OUTPUT);
-  pinMode(PUMP_PIN_7, OUTPUT);
-  pinMode(VALVE_PIN, OUTPUT);
 
-  sampling_seq();
-
-  // digitalWrite(int(PUMP_PIN_7), HIGH);
-  // delay(10000);           
-  // digitalWrite(int(PUMP_PIN_7), LOW); 
-
+  // esp_err_t gpio_reset_pin(gpio_num_t GPIO_NUM_9);
+  // esp_err_t gpio_set_direction(gpio_num_t GPIO_NUM_9, gpio_mode_t GPIO_MODE_OUTPUT);
 }
 
 void loop() {
+
+  // digitalWrite(PUMP_PIN_1, HIGH);
+  // digitalWrite(PUMP_PIN_2, HIGH);
+  // digitalWrite(PUMP_PIN_3, HIGH);
+  // digitalWrite(PUMP_PIN_4, HIGH);
+  // digitalWrite(PUMP_PIN_5, HIGH);
+  // digitalWrite(PUMP_PIN_6, HIGH);
+  // digitalWrite(PUMP_PIN_7, HIGH);
+  // digitalWrite(VALVE_PIN, HIGH);
 
   sampling_seq();
 
   // Once ESPNow is successfully Init, we will register for Send CB to
   // get the status of Trasnmitted packet;
-  esp_now_register_send_cb(OnDataSent);
+  // esp_now_register_send_cb(OnDataSent);
 
-  delay(2400000);
+  // delay(2400000);
   
 }
 
