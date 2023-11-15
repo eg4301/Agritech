@@ -28,7 +28,7 @@
 
 // Define length of time pumps and valves are open
 
-#define PUMP_DURATION 60000
+#define PUMP_DURATION 5000
 #define VALVE_DURATION 5000
 
 // #define PUMP_DURATION 470500
@@ -38,11 +38,11 @@
 int pumplist[] = 
 {
   9,
-  // 10,
-  // 11,
-  // 12,
-  // 13,
-  // 14
+  10,
+  11,
+  12,
+  13,
+  14
 };
 
 // Declarations for pH Sensor:
@@ -66,7 +66,7 @@ OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
 
 
-uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0xEC, 0xDA, 0x3B, 0x96, 0xF2, 0x14};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
   int MAC;
@@ -154,14 +154,9 @@ void sampling_seq() {
 
     digitalWrite(pumplist[i], HIGH);
 
-    // esp_err_t gpio_set_level(gpio_num_t GPIO_NUM_9,  uint32_t 1);
-    // esp_err_t gpio_pullup_en(gpio_num_t GPIO_NUM_9);
 
     delay(PUMP_DURATION);           
     digitalWrite(pumplist[i], LOW); 
-
-    // esp_err_t gpio_set_level(gpio_num_t GPIO_NUM_9, uint32_t 0);
-    // esp_err_t gpio_pullup_dis(gpio_num_t GPIO_NUM_9);
 
     tempRead();
     Serial.println(temperature);
@@ -182,20 +177,24 @@ void sampling_seq() {
     delay(PUMP_DURATION);           
     digitalWrite(int(PUMP_PIN_7), LOW); 
 
-    digitalWrite(VALVE_PIN, HIGH);
-    delay(VALVE_DURATION);           
-    digitalWrite(VALVE_PIN, LOW);
+    if (i!=5){
+      digitalWrite(VALVE_PIN, HIGH);
+      delay(VALVE_DURATION);           
+      digitalWrite(VALVE_PIN, LOW);
 
-    Serial.println(pumplist[i]);
+      Serial.println(pumplist[i]);
+    }
 
-    // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
-    // if (result == ESP_OK) {
-    //   Serial.println("Sent with success Pump #" + String(pumplist[i]));
+    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
-    // } else {
-    //   Serial.println("Error sending the data");
-    // }
+    if (result == ESP_OK) {
+      Serial.println("Sent with success Pump #" + String(pumplist[i]));
+
+    } else {
+      Serial.println("Error sending the data");
+    }
+    esp_now_register_send_cb(OnDataSent);
   }
 }
 
@@ -241,8 +240,7 @@ void setup() {
   pinMode(PUMP_PIN_6, OUTPUT);
   pinMode(PUMP_PIN_7, OUTPUT);
   pinMode(VALVE_PIN, OUTPUT);
-  // esp_err_t gpio_reset_pin(gpio_num_t GPIO_NUM_9);
-  // esp_err_t gpio_set_direction(gpio_num_t GPIO_NUM_9, gpio_mode_t GPIO_MODE_OUTPUT);
+
 }
 
 void loop() {
@@ -262,7 +260,7 @@ void loop() {
   // get the status of Trasnmitted packet;
   // esp_now_register_send_cb(OnDataSent);
 
-  // delay(2400000);
+  delay(2400000);
   
 }
 
