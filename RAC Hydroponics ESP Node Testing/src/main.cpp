@@ -28,7 +28,7 @@
 
 // Define length of time pumps and valves are open
 
-#define PUMP_DURATION 600000
+#define PUMP_DURATION 60000
 #define VALVE_DURATION 5000
 
 // #define PUMP_DURATION 470500
@@ -205,16 +205,6 @@ void setup() {
   sensors.begin();
   myData.MAC = 1;
 
-  // Initialize pump pins
-  pinMode(PUMP_PIN_1, OUTPUT);
-  pinMode(PUMP_PIN_2, OUTPUT);
-  pinMode(PUMP_PIN_3, OUTPUT);
-  pinMode(PUMP_PIN_4, OUTPUT);
-  pinMode(PUMP_PIN_5, OUTPUT);
-  pinMode(PUMP_PIN_6, OUTPUT);
-  pinMode(PUMP_PIN_7, OUTPUT);
-  pinMode(VALVE_PIN, OUTPUT);
-
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
   WiFi.setTxPower(WIFI_POWER_19_5dBm);
@@ -229,7 +219,6 @@ void setup() {
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
-    return;
   }
 
   // Register peer
@@ -240,10 +229,18 @@ void setup() {
   // Add peer
   if (esp_now_add_peer(&peerInfo) == ESP_OK) {
     Serial.println("Peer Added");
-    return;
   }
 
 
+  // Initialize pump pins
+  pinMode(PUMP_PIN_1, OUTPUT);
+  pinMode(PUMP_PIN_2, OUTPUT);
+  pinMode(PUMP_PIN_3, OUTPUT);
+  pinMode(PUMP_PIN_4, OUTPUT);
+  pinMode(PUMP_PIN_5, OUTPUT);
+  pinMode(PUMP_PIN_6, OUTPUT);
+  pinMode(PUMP_PIN_7, OUTPUT);
+  pinMode(VALVE_PIN, OUTPUT);
   // esp_err_t gpio_reset_pin(gpio_num_t GPIO_NUM_9);
   // esp_err_t gpio_set_direction(gpio_num_t GPIO_NUM_9, gpio_mode_t GPIO_MODE_OUTPUT);
 }
