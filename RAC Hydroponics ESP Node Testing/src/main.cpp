@@ -31,7 +31,7 @@
 // #define PUMP_DURATION 5000
 // #define VALVE_DURATION 5000
 
-#define PUMP_DURATION 470500
+#define PUMP_DURATION 480000
 #define VALVE_DURATION 10000
 
 // Change here too!!!
@@ -82,6 +82,10 @@ typedef struct struct_sensor_reading {
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
+  float atmtemp = 0;
+  float hum = 0;
+  float CO2 = 0;
+  float Oxy = 0;
 } struct_sensor_reading;
 
 struct_sensor_reading myData;
