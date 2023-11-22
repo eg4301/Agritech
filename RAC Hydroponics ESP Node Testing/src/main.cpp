@@ -28,11 +28,11 @@
 
 // Define length of time pumps and valves are open
 
-#define PUMP_DURATION 5000
-#define VALVE_DURATION 5000
+// #define PUMP_DURATION 5000
+// #define VALVE_DURATION 5000
 
-// #define PUMP_DURATION 470500
-// #define VALVE_DURATION 10000
+#define PUMP_DURATION 470500
+#define VALVE_DURATION 10000
 
 // Change here too!!!
 int pumplist[] = 
@@ -52,15 +52,24 @@ int pumplist[] =
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
 
+
 // Declarations for EC Sensor:
 #define EC_PIN 6
-#define flatOff_ec 0.41                     // Flat deviation compensate
-#define scaleOff_ec 1.07                    // Scale deviation compensate
-float voltageRead,ecValue,temperature = 22;
-DFRobot_EC ec;
+
+  // Using DFRobot library
+// #define flatOff_ec 0.41                     // Flat deviation compensate
+// #define scaleOff_ec 1.07                    // Scale deviation compensate
+// float voltageRead,ecValue,temperature = 22;
+// DFRobot_EC ec;
+
+  // Own code
+#define ecLow 1794
+#define ecHigh 279
+float ecValue;
 
 // Declarations for Temp Sensor:
 const int oneWireBus = 7;     
+float temperature;
 
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
@@ -125,12 +134,33 @@ void phRead(){
 }
 
 void ecRead(){
-  voltageRead = (analogRead(EC_PIN)*3300)/4096.0;       // Read voltage for EC
-  ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
+    //Using DFRobot Library
+  // voltageRead = (analogRead(EC_PIN)*3300)/4096.0;       // Read voltage for EC  
+  // ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
 
-  ecValue = scaleOff_ec * ecValue + flatOff_ec;
+  // ecValue = scaleOff_ec * ecValue + flatOff_ec;
+  // Serial.print(ecValue);
+  // Serial.println(" ms/cm");
+
+    //Using Own code
+  int j = 0; 
+  int V; 
+  float grad;
+  
+  for(int i = 0; i<10; i++){
+    j += analogRead(EC_PIN)*3300/4096;
+  }
+  V = j/10;
+  // Serial.print("Voltage = ");
+  // Serial.print(V);
+  // Serial.print("V      ");
+
+  grad = 11.467/(ecHigh - ecLow);
+  ecValue = 12.88 + (ecLow - V)*grad;
+
+  Serial.print("EC = ");
   Serial.print(ecValue);
-  Serial.println(" ms/cm");
+  Serial.println("ms/cm^2");
 }
 
 void tempRead(){
@@ -159,11 +189,8 @@ void sampling_seq() {
     digitalWrite(pumplist[i], LOW); 
 
     tempRead();
-    Serial.println(temperature);
     phRead();
-    Serial.println(pHValue);
     ecRead();
-    Serial.println(ecValue);
 
     myData.temp = temperature;
     myData.ECVal = ecValue;
@@ -200,7 +227,7 @@ void sampling_seq() {
 
 void setup() {
   Serial.begin(115200);
-  ec.begin();
+  // ec.begin();
   sensors.begin();
   myData.MAC = 1;
 
