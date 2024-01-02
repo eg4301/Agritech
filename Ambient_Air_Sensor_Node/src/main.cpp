@@ -37,7 +37,7 @@ char* charMAC = new char[17];
 
 
 // put function declarations here:
-uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0xEC, 0xDA, 0x3B, 0x96, 0xF2, 0x14};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
   char* MAC = new char[17];
