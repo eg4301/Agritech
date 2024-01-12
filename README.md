@@ -1,1 +1,1 @@
-[Our Wiki](../../wiki)
+[Click me for Wiki](../../wiki)
