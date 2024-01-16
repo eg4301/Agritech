@@ -34,9 +34,9 @@ uint32_t lastReconnectAttempt = 0;
 uint16_t combinedhex = 0;
 uint16_t lastreceived;
 
-std::queue<float> temp = {};     // queue for temperature values 
-std::queue<float> conduct = {};  // queue for conductivity values
-std::queue<float> pH = {};       // queue for pH values
+// std::queue<float> temp = {};     // queue for temperature values 
+// std::queue<float> conduct = {};  // queue for conductivity values
+// std::queue<float> pH = {};       // queue for pH values
 
 float temp_now = 0;
 float con_now = 0;
@@ -45,7 +45,7 @@ float atmtemp_now = 0;
 float hum_now = 0;
 float CO2_now = 0;
 float oxy_now = 0;
-int MAC_now;
+char* MAC_now = new char[17];
 
 uint16_t HEX_A;
 uint16_t HEX_B;
@@ -86,7 +86,7 @@ void hexconcat(uint16_t HEX_A, uint16_t HEX_B){
   
 }
 
-void mqttPublish(String timestamp, int MAC_now, float temp_now, float con_now, float pH_now, float atmtemp_now, float hum_now, float CO2_now, float oxy_now)
+void mqttPublish(String timestamp, char* MAC_now, float temp_now, float con_now, float pH_now, float atmtemp_now, float hum_now, float CO2_now, float oxy_now)
 {
   StaticJsonDocument<200> doc;
   doc["timestamp"] = timestamp;
@@ -171,7 +171,7 @@ void connectAWS() {
 
 
 typedef struct struct_sensor_reading {
-  int MAC;
+  char* MAC = new char[17];
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
@@ -197,13 +197,13 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   lastreceived = millis();
   
   temp_now = incoming_data.temp;
-  temp.push(temp_now);
+  // temp.push(temp_now);
 
   con_now = incoming_data.ECVal;
-  conduct.push(con_now);
+  // conduct.push(con_now);
 
   pH_now = incoming_data.pHVal;
-  pH.push(pH_now);
+  // pH.push(pH_now);
 
   MAC_now = incoming_data.MAC;
 
