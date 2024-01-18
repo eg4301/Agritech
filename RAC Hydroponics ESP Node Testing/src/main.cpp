@@ -31,8 +31,11 @@
 // #define PUMP_DURATION 5000
 // #define VALVE_DURATION 5000
 
-#define PUMP_DURATION 480000
+#define PUMP_DURATION 120000
 #define VALVE_DURATION 10000
+
+// #define PUMP_DURATION 480000
+// #define VALVE_DURATION 10000
 
 // Change here too!!!
 int pumplist[] = 
@@ -47,7 +50,7 @@ int pumplist[] =
 
 // Declarations for pH Sensor:
 #define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 16.06       // Flat deviation compensate
+#define flatOff_ph 15.78       // Flat deviation compensate
 #define scaleOff_ph -6       // Scale deviation compensate
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
@@ -63,8 +66,8 @@ float pHValue = 0;            // Final pH Value
 // DFRobot_EC ec;
 
   // Own code
-#define ecLow 1794
-#define ecHigh 279
+#define ecLow 215
+#define ecHigh 1922
 float ecValue;
 
 // Declarations for Temp Sensor:
@@ -160,8 +163,10 @@ void ecRead(){
   // Serial.print("V      ");
 
   grad = 11.467/(ecHigh - ecLow);
-  ecValue = 12.88 + (ecLow - V)*grad;
+  ecValue = 12.88 - (ecHigh - V)*grad;
 
+  Serial.print("EC V = ");
+  Serial.println(V);
   Serial.print("EC = ");
   Serial.print(ecValue);
   Serial.println("ms/cm^2");
@@ -184,11 +189,10 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
 // Sequence of events
 void sampling_seq() {
-  for (int i = 0; i < (sizeof(pumplist)) / sizeof(pumplist[0]); i++) {
+  // for (int i = 0; i < (sizeof(pumplist)) / sizeof(pumplist[0]); i++) {
+  for (int i = 0; i < 1; i++) {
 
     digitalWrite(pumplist[i], HIGH);
-
-
     delay(PUMP_DURATION);           
     digitalWrite(pumplist[i], LOW); 
 
@@ -291,7 +295,9 @@ void loop() {
   // get the status of Trasnmitted packet;
   // esp_now_register_send_cb(OnDataSent);
 
-  delay(2400000);
+
+  // delay(2400000);
+  delay(90000);
   
 }
 
