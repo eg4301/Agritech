@@ -34,33 +34,10 @@ Config protocol = SWSERIAL_8N1;
 
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
-byte reading[19];
-
-// /* Private Constants -------------------------------------------------------- */
-// uint8_t broadcastAddress[] = {0xA0, 0xB7, 0x65, 0xFE, 0x85, 0xBC};  // ! REPLACE WITH YOUR RECEIVER MAC Address
-
-// // Insert your SSID
-// constexpr char WIFI_SSID[] = "POCO X3 Pro";
-
-// int32_t getWiFiChannel(const char *ssid) {
-//   if (int32_t n = WiFi.scanNetworks()) {
-//       for (uint8_t i=0; i<n; i++) {
-//           if (!strcmp(ssid, WiFi.SSID(i).c_str())) {
-//               return WiFi.channel(i);
-//           }
-//       }
-//   }
-//   return 0;
-// }
+//List of slave IDs
+byte slaveID[] = {0x01, 0x02, 0x03, 0x04, 0x05};
 
 
-typedef struct struct_sensor_reading {
-  byte reading[19];
-} struct_sensor_reading;
-
-struct_sensor_reading myData;
-
-// esp_now_peer_info_t peerInfo;
 
 
 
@@ -69,7 +46,7 @@ byte receive_reading();
 
 void setup() {
 
-  Serial.begin(115200);
+  Serial.begin(4800);
   pinMode(EN_1, OUTPUT);
   digitalWrite(EN_1, HIGH);
   delay(100);
@@ -77,99 +54,38 @@ void setup() {
   CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS, baud_rate, protocol);  // Serial connection setup
 
   // Sensor specific data
-  request_reading();
-  receive_reading();
-
-  // WiFi.enableLongRange(true);
-  // WiFi.mode(WIFI_STA);
-  // // WiFi.setTxPower(WIFI_POWER_19_5dBm);
-  // int32_t channel = getWiFiChannel(WIFI_SSID);
-
-  // WiFi.printDiag(Serial); // Uncomment to verify channel number before
-  // esp_wifi_set_promiscuous(true);
-  // esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
-  // esp_wifi_set_promiscuous(false);
-  // WiFi.printDiag(Serial); // Uncomment to verify channel change after
-
-  // // Init ESP-NOW
-  // if (esp_now_init() != ESP_OK) {
-  //   Serial.println("Error initializing ESP-NOW");
-  //   return;
-  // }
-
-  
-
-  // // Register peer
-  // memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  // peerInfo.channel = 0;
-  // peerInfo.encrypt = false;
-
-  // // Add peer
-  // if (esp_now_add_peer(&peerInfo) == ESP_OK) {
-  //   Serial.println("Peer Added");
-  //   return;
-  // }
-
-  memcpy(myData.reading, reading, 19);
-  // // Send message via ESP-NOW
-  // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
-
-  // if (result == ESP_OK) {
-  //   Serial.println("Sent with success");
-  // } else {
-  //   Serial.println("Error sending the data");
-  // }
-  // // Once ESPNow is successfully Init, we will register for Send CB to
-  // // get the status of Trasnmitted packet
-  // esp_now_register_send_cb(OnDataSent);
+  for(int i=0; i <= 4; i++ ){
+    Serial.println("Connect your sensor to board, then type any number into the input and press Enter to continue...");
+    while (!Serial.available()) { }
+    Serial.read();
+    
+    request_reading(slaveID[i]);
+    Serial.println(receive_reading());
+  }
+  Serial.println("5 sensors initialized");
 }
 
 void loop() {
-  
-  // Sensor specific data
-  request_reading();
-  receive_reading();
-  delay(1000);
-
-  memcpy(myData.reading, reading, 19);
-  // // Send message via ESP-NOW
-  // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
-
-  // if (result == ESP_OK) {
-  //   Serial.println("Sent with success");
-  // } else {
-  //   Serial.println("Error sending the data");
-  // }
-  // // Once ESPNow is successfully Init, we will register for Send CB to
-  // // get the status of Trasnmitted packet
-  // esp_now_register_send_cb(OnDataSent);
-  delay(9000);
-
 
 }
 
-void request_reading() {
+void request_reading(byte SLAVE_ID) {
   byte command[8];
 
   command[0] = ADDRESS;  // Set the address of the water meter based on last 2 digits
-  command[1] = 0x03;     // Set the function code for reading data register, given in datasheet
-  command[2] = 0x00;     // Starting address, high byte
-  command[3] = 0x00;     // Starting address, low byte
+  command[1] = 0x06;     // Set the function code for reading data register, given in datasheet
+  command[2] = 0x07;     // Starting address, high byte
+  command[3] = 0xD0;     // Starting address, low byte
   command[4] = 0x00;     // Number of registers, high byte
-  command[5] = 0x07;     // Number of registers, low byte
-  command[6] = 0x04;
-  command[7] = 0x08;
+  command[5] = SLAVE_ID;     // Number of registers, low byte
+  command[6] = 0x08;
+  command[7] = 0x86;
   CWT_Sensor.request_reading(command, 8);
 }
 
 byte receive_reading() {
-  int num_bytes = 19;
-  byte reading[19];
+  int num_bytes = 8;
+  byte reading[8];
   CWT_Sensor.receive_reading(num_bytes, RETURN_ADDRESS_IDX, RETURN_FUNCTIONCODE_IDX, reading);
-  return reading[19];
-}
-
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.print("\r\nLast Packet Send Status:\t");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+  return reading[8];
 }

@@ -11,7 +11,7 @@
 
 /* Public defines ----------------------------------------------------------- */
 #define DEEPSLEEPDURATION (24 * 60 * 60)  // Time interval between readings, in seconds (default 24 hours)
-#define ADDRESS (0x01)                    // ! NEED TO CHANGE FOR EACH WATER METER
+
 
 #define EN_1 12
 
@@ -34,6 +34,7 @@ Config protocol = SWSERIAL_8N1;
 
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
+byte ADDRESS[5] {0x01, 0x02, 0x03, 0x04, 0x05}  //List of slaveIDs(addresses) of sensors
 byte reading[19];
 
 // /* Private Constants -------------------------------------------------------- */
@@ -76,9 +77,14 @@ void setup() {
 
   CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS, baud_rate, protocol);  // Serial connection setup
 
-  // Sensor specific data
-  request_reading();
-  receive_reading();
+  for (int i=0; i <= 4; i++){
+    // Sensor specific data
+    request_reading(ADDRESS[i]);
+    receive_reading();
+  }
+
+  // request_reading();
+  // receive_reading();
 
   // WiFi.enableLongRange(true);
   // WiFi.mode(WIFI_STA);
@@ -127,31 +133,36 @@ void setup() {
 void loop() {
   
   // Sensor specific data
-  request_reading();
-  receive_reading();
-  delay(1000);
+  for (int i=0; i <= 4; i++){
+    // Sensor specific data
+    request_reading(ADDRESS[i]);
+    receive_reading();
+    
+    delay(1000);
 
-  memcpy(myData.reading, reading, 19);
-  // // Send message via ESP-NOW
-  // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
+    memcpy(myData.reading, reading, 19);
+    // // Send message via ESP-NOW
+    // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
-  // if (result == ESP_OK) {
-  //   Serial.println("Sent with success");
-  // } else {
-  //   Serial.println("Error sending the data");
-  // }
-  // // Once ESPNow is successfully Init, we will register for Send CB to
-  // // get the status of Trasnmitted packet
-  // esp_now_register_send_cb(OnDataSent);
-  delay(9000);
+    // if (result == ESP_OK) {
+    //   Serial.println("Sent with success");
+    // } else {
+    //   Serial.println("Error sending the data");
+    // }
+    // // Once ESPNow is successfully Init, we will register for Send CB to
+    // // get the status of Trasnmitted packet
+    // esp_now_register_send_cb(OnDataSent);
+    delay(9000);
+
+  }
 
 
 }
 
-void request_reading() {
+void request_reading(byte address) {
   byte command[8];
 
-  command[0] = ADDRESS;  // Set the address of the water meter based on last 2 digits
+  command[0] = address;  // Set the address of the water meter based on last 2 digits
   command[1] = 0x03;     // Set the function code for reading data register, given in datasheet
   command[2] = 0x00;     // Starting address, high byte
   command[3] = 0x00;     // Starting address, low byte
