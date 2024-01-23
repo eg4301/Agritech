@@ -8,6 +8,7 @@
 #include <WiFi.h>
 
 #include "Sol16_RS485.h"
+#include "SoftwareSerial.h"
 
 /* Public defines ----------------------------------------------------------- */
 #define DEEPSLEEPDURATION (24 * 60 * 60)  // Time interval between readings, in seconds (default 24 hours)

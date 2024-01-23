@@ -34,7 +34,7 @@ Config protocol = SWSERIAL_8N1;
 
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
-byte ADDRESS[5] {0x01, 0x02, 0x03, 0x04, 0x05}  //List of slaveIDs(addresses) of sensors
+byte ADDRESS[5] {0x01, 0x02, 0x03, 0x04, 0x05};  //List of slaveIDs(addresses) of sensors
 byte reading[19];
 
 // /* Private Constants -------------------------------------------------------- */
@@ -75,9 +75,11 @@ void setup() {
   digitalWrite(EN_1, HIGH);
   delay(100);
 
-  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS, baud_rate, protocol);  // Serial connection setup
 
   for (int i=0; i <= 4; i++){
+    
+    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS[i], baud_rate, protocol);  // Serial connection setup
+
     // Sensor specific data
     request_reading(ADDRESS[i]);
     receive_reading();
