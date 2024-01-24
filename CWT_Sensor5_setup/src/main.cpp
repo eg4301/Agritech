@@ -54,29 +54,29 @@ void setup() {
 
   CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS, baud_rate, protocol);  // Serial connection setup
 
-  // Check byte[0] for address
-  check_slaveID();
-  Serial.println(receive_reading_ID());
+  // // Check byte[0] for address
+  // check_slaveID();
+  // Serial.println(receive_reading_ID());
 
-  // // Sensor specific data
-  // for(int i=0; i <= 4; i++ ){
-  //   Serial.println("Connect your sensor to board, then type any number into the input and press Enter to continue...");
+  // Sensor specific data
+  for(int i=0; i <= 4; i++ ){
+    Serial.println("Connect your sensor to board, then type any number into the input and press Enter to continue...");
 
-  //   Serial.read();
-  //   while (!Serial.available()) {
-  //     delay(1000);
-  //   }
-  //   while (Serial.available()) {
-  //     Serial.read();
-  //     delay(1000);
-  //   }
+    Serial.read();
+    while (!Serial.available()) {
+      delay(1000);
+    }
+    while (Serial.available()) {
+      Serial.read();
+      delay(1000);
+    }
 
     
-  //   request_reading(slaveID[i]);
+    request_reading(slaveID[i]);
 
-  //   Serial.println(receive_reading());
-  // }
-  // Serial.println("5 sensors initialized");
+    Serial.println(receive_reading());
+  }
+  Serial.println("5 sensors initialized");
 
 
 }

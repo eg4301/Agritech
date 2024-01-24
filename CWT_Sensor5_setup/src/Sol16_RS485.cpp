@@ -16,8 +16,8 @@ unsigned short Sol16_RS485Sensor::calc_crc(byte reading[], int start, int size) 
 void Sol16_RS485Sensor::add_crc(byte reading[], int start, int size) {
   Crc16 crc;
   unsigned short calculated_crc = crc.Modbus(reading, start, size);
-  reading[size] = lowByte(calculated_crc) << 8;
-  reading[size + 1] = highByte(calculated_crc);
+  reading[size] = highByte(calculated_crc);
+  reading[size + 1] = lowByte(calculated_crc);
   // calculated_crc = (lowByte(calculated_crc) << 8) | highByte(calculated_crc); // swap the byte pos
 }
 
