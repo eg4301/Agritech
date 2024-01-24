@@ -189,6 +189,11 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
 // Sequence of events
 void sampling_seq() {
+    
+  digitalWrite(VALVE_PIN, HIGH);
+  delay(VALVE_DURATION);           
+  digitalWrite(VALVE_PIN, LOW);
+  
   // for (int i = 0; i < (sizeof(pumplist)) / sizeof(pumplist[0]); i++) {
   for (int i = 0; i < 1; i++) {
 
@@ -231,6 +236,11 @@ void sampling_seq() {
     }
     esp_now_register_send_cb(OnDataSent);
   }
+
+  digitalWrite(int(PUMP_PIN_7), HIGH);
+  delay(PUMP_DURATION);           
+  digitalWrite(int(PUMP_PIN_7), LOW); 
+
 }
 
 void setup() {
