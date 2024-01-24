@@ -7,7 +7,7 @@
 #define RETURN_ADDRESS_IDX      0
 #define RETURN_FUNCTIONCODE_IDX 1
 
-#include <SoftwareSerial.h>
+#include "SoftwareSerial.h"
 
 /*
  * Base class for RS485 Sensors
