@@ -39,12 +39,10 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 //List of slave IDs
 byte slaveID[] = {0x01, 0x02, 0x03, 0x04, 0x05};
 
-
-
-
-
 void request_reading(byte SLAVE_ID);
 byte receive_reading();
+void check_slaveID();
+byte receive_reading_ID();
 
 void setup() {
 
@@ -55,25 +53,31 @@ void setup() {
 
   CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS, baud_rate, protocol);  // Serial connection setup
 
-  // Sensor specific data
-  for(int i=0; i <= 4; i++ ){
-    Serial.println("Connect your sensor to board, then type any number into the input and press Enter to continue...");
+  // Check byte[4] for slave id
+  check_slaveID();
+  Serial.println(receive_reading_ID());
+
+  // // Sensor specific data
+  // for(int i=0; i <= 4; i++ ){
+  //   Serial.println("Connect your sensor to board, then type any number into the input and press Enter to continue...");
+
+  //   Serial.read();
+  //   while (!Serial.available()) {
+  //     delay(1000);
+  //   }
+  //   while (Serial.available()) {
+  //     Serial.read();
+  //     delay(1000);
+  //   }
+
     
-    delay(5000);
+  //   request_reading(slaveID[i]);
 
-    while (!Serial.available()) { }
-    Serial.read();
-    
+  //   Serial.println(receive_reading());
+  // }
+  // Serial.println("5 sensors initialized");
 
 
-    request_reading(slaveID[i]);
-
-    delay(5000);
-
-    Serial.println(receive_reading());
-
-  }
-  Serial.println("5 sensors initialized");
 }
 
 void loop() {
@@ -99,4 +103,26 @@ byte receive_reading() {
   byte reading[8];
   CWT_Sensor.receive_reading(num_bytes, RETURN_ADDRESS_IDX, RETURN_FUNCTIONCODE_IDX, reading);
   return reading[8];
+}
+
+void check_slaveID() {
+  byte command[8];
+
+  command[0] = 0xFF;  // Set the address of the water meter based on last 2 digits
+  command[1] = 0x03;     // Set the function code for reading data register, given in datasheet
+  command[2] = 0x07;     // Starting address, high byte
+  command[3] = 0xD0;     // Starting address, low byte
+  command[4] = 0x00;     // Number of registers, high byte
+  command[5] = 0x01;     // Number of registers, low byte
+  command[6] = 0x91;
+  command[7] = 0x59;
+  CWT_Sensor.request_reading(command, 8);
+
+}
+
+byte receive_reading_ID(){
+  int num_bytes = 7;
+  byte reading[7];
+  CWT_Sensor.receive_reading(num_bytes, RETURN_ADDRESS_IDX, RETURN_FUNCTIONCODE_IDX, reading);
+  return reading[4];
 }

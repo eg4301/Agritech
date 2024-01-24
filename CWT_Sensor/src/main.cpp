@@ -34,7 +34,7 @@ Config protocol = SWSERIAL_8N1;
 
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
-byte ADDRESS[5] {0x01, 0x02, 0x03, 0x04, 0x05};  //List of slaveIDs(addresses) of sensors
+byte ADDRESS[5] = {0x01, 0x02, 0x03, 0x04, 0x05};  //List of slaveIDs (addresses) of sensors
 byte reading[19];
 
 // /* Private Constants -------------------------------------------------------- */
@@ -63,20 +63,19 @@ struct_sensor_reading myData;
 
 // esp_now_peer_info_t peerInfo;
 
-
-
-void request_reading();
+//function declarations
+void request_reading(byte address);
 byte receive_reading();
 
 void setup() {
 
-  Serial.begin(115200);
+  Serial.begin(4800);
   pinMode(EN_1, OUTPUT);
   digitalWrite(EN_1, HIGH);
   delay(100);
 
 
-  for (int i=0; i <= 4; i++){
+  for (int i=0; i <= 4; ++i){
     
     CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS[i], baud_rate, protocol);  // Serial connection setup
 
@@ -130,6 +129,7 @@ void setup() {
   // // Once ESPNow is successfully Init, we will register for Send CB to
   // // get the status of Trasnmitted packet
   // esp_now_register_send_cb(OnDataSent);
+  delay(600000);
 }
 
 void loop() {
@@ -154,11 +154,11 @@ void loop() {
     // // Once ESPNow is successfully Init, we will register for Send CB to
     // // get the status of Trasnmitted packet
     // esp_now_register_send_cb(OnDataSent);
-    delay(9000);
+    delay(1000);
 
   }
 
-
+  delay(600000);
 }
 
 void request_reading(byte address) {
