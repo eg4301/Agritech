@@ -74,10 +74,10 @@ void setup() {
   digitalWrite(EN_1, HIGH);
   delay(100);
 
-  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x02, baud_rate, protocol);  // Serial connection setup
+  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x01, baud_rate, protocol);  // Serial connection setup
 
   // Sensor specific data
-  request_reading(0x02);
+  request_reading(0x01);
   receive_reading();
 
   // for (int i=0; i <= 4; ++i){

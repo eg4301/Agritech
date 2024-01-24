@@ -43,6 +43,7 @@ void request_reading(byte SLAVE_ID);
 byte receive_reading();
 void check_slaveID();
 byte receive_reading_ID();
+void add_crc(byte reading[], int start, int size);
 
 void setup() {
 
@@ -53,7 +54,7 @@ void setup() {
 
   CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS, baud_rate, protocol);  // Serial connection setup
 
-  // Check byte[4] for slave id
+  // Check byte[0] for address
   check_slaveID();
   Serial.println(receive_reading_ID());
 
@@ -87,14 +88,15 @@ void loop() {
 void request_reading(byte SLAVE_ID) {
   byte command[8];
 
-  command[0] = ADDRESS;  // Set the address of the water meter based on last 2 digits
+  command[0] = 0x01;  // Set the address of the water meter based on last 2 digits
   command[1] = 0x06;     // Set the function code for reading data register, given in datasheet
   command[2] = 0x07;     // Starting address, high byte
   command[3] = 0xD0;     // Starting address, low byte
   command[4] = 0x00;     // Number of registers, high byte
   command[5] = SLAVE_ID;     // Number of registers, low byte
-  command[6] = 0x08;
-  command[7] = 0x86;
+
+  CWT_Sensor.add_crc(command, 0, 6);
+
   CWT_Sensor.request_reading(command, 8);
 }
 
@@ -124,5 +126,6 @@ byte receive_reading_ID(){
   int num_bytes = 7;
   byte reading[7];
   CWT_Sensor.receive_reading(num_bytes, RETURN_ADDRESS_IDX, RETURN_FUNCTIONCODE_IDX, reading);
-  return reading[4];
+  return reading[0];
 }
+
