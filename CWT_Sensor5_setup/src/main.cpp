@@ -10,6 +10,7 @@
 #include "Sol16_RS485.h"
 #include "SoftwareSerial.h"
 
+
 /* Public defines ----------------------------------------------------------- */
 #define DEEPSLEEPDURATION (24 * 60 * 60)  // Time interval between readings, in seconds (default 24 hours)
 #define ADDRESS (0x01)                    // ! NEED TO CHANGE FOR EACH sensor type
@@ -42,7 +43,7 @@ byte slaveID[] = {0x01, 0x02, 0x03, 0x04, 0x05};
 
 
 
-void request_reading();
+void request_reading(byte SLAVE_ID);
 byte receive_reading();
 
 void setup() {
@@ -57,11 +58,20 @@ void setup() {
   // Sensor specific data
   for(int i=0; i <= 4; i++ ){
     Serial.println("Connect your sensor to board, then type any number into the input and press Enter to continue...");
+    
+    delay(5000);
+
     while (!Serial.available()) { }
     Serial.read();
     
+
+
     request_reading(slaveID[i]);
+
+    delay(5000);
+
     Serial.println(receive_reading());
+
   }
   Serial.println("5 sensors initialized");
 }
