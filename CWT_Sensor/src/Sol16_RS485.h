@@ -7,7 +7,7 @@
 #define RETURN_ADDRESS_IDX      0
 #define RETURN_FUNCTIONCODE_IDX 1
 
-#include <SoftwareSerial.h>
+#include "SoftwareSerial.h"
 
 /*
  * Base class for RS485 Sensors
@@ -26,6 +26,16 @@ class Sol16_RS485Sensor : virtual public SoftwareSerial{
      * @return Calculated CRC of the data array usind Modbus
      */
     unsigned short calc_crc(byte reading[], int start, int size);
+
+    /**
+     * @brief Adds CRC based on the command message being sent
+     * 
+     * @param reading Array of all data bytes sending, excluding last 2 bytes of CRC
+     * @param start Index of first data byte
+     * @param size Size of array of data bytes, excluding the last 2 bytes of CRC
+     * @return Calculated CRC of the data array using Modbus
+     */
+    void add_crc(byte reading[], int start, int size);
 
     /**
      * @brief Checks the received CRC of data bytes against the calculated CRC

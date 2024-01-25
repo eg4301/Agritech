@@ -74,23 +74,22 @@ void setup() {
   digitalWrite(EN_1, HIGH);
   delay(100);
 
-  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x01, baud_rate, protocol);  // Serial connection setup
+  // // debug code
+  // CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x01, baud_rate, protocol);  // Serial connection setup
 
-  // Sensor specific data
-  request_reading(0x01);
-  receive_reading();
-
-  // for (int i=0; i <= 4; ++i){
-    
-  //   CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS[i], baud_rate, protocol);  // Serial connection setup
-
-  //   // Sensor specific data
-  //   request_reading(ADDRESS[i]);
-  //   receive_reading();
-  // }
-
-  // request_reading();
+  // // Sensor specific data
+  // request_reading(0x01);
   // receive_reading();
+
+  for (int i=0; i <= 4; ++i){
+    
+    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, ADDRESS[i], baud_rate, protocol);  // Serial connection setup
+
+    // Sensor specific data
+    request_reading(ADDRESS[i]);
+    receive_reading();
+  }
+
 
   // WiFi.enableLongRange(true);
   // WiFi.mode(WIFI_STA);
@@ -175,8 +174,9 @@ void request_reading(byte address) {
   command[3] = 0x00;     // Starting address, low byte
   command[4] = 0x00;     // Number of registers, high byte
   command[5] = 0x07;     // Number of registers, low byte
-  command[6] = 0x04;
-  command[7] = 0x08;
+
+  CWT_Sensor.add_crc(command, 0, 6);
+
   CWT_Sensor.request_reading(command, 8);
 }
 
