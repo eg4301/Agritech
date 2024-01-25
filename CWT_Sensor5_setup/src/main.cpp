@@ -58,25 +58,7 @@ void setup() {
   // check_slaveID();
   // Serial.println(receive_reading_ID());
 
-  // Sensor specific data
-  for(int i=0; i <= 4; i++ ){
-    Serial.println("Connect your sensor to board, then type any number into the input and press Enter to continue...");
 
-    Serial.read();
-    while (!Serial.available()) {
-      delay(1000);
-    }
-    while (Serial.available()) {
-      Serial.read();
-      delay(1000);
-    }
-
-    
-    request_reading(slaveID[i]);
-
-    Serial.println(receive_reading());
-  }
-  Serial.println("5 sensors initialized");
 
 
 }

@@ -13,6 +13,14 @@ unsigned short Sol16_RS485Sensor::calc_crc(byte reading[], int start, int size) 
   return calculated_crc;
 }
 
+void Sol16_RS485Sensor::add_crc(byte reading[], int start, int size) {
+  Crc16 crc;
+  unsigned short calculated_crc = crc.Modbus(reading, start, size);
+  reading[size] = lowByte(calculated_crc);
+  reading[size + 1] = highByte(calculated_crc);
+  // calculated_crc = (lowByte(calculated_crc) << 8) | highByte(calculated_crc); // swap the byte pos
+}
+
 void Sol16_RS485Sensor::serial_flush() {
   Serial.println("Flushing sensor serial");
   while(this->available() > 0) {
