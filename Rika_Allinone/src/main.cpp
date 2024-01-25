@@ -41,7 +41,7 @@ byte reading[13];
 uint8_t broadcastAddress[] = {0xA0, 0xB7, 0x65, 0xFE, 0x85, 0xBC};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 // Insert your SSID
-constexpr char WIFI_SSID[] = "4G-MIFI-FF";
+constexpr char WIFI_SSID[] = "localize_project";
 
 int32_t getWiFiChannel(const char *ssid) {
   if (int32_t n = WiFi.scanNetworks()) {
