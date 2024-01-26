@@ -21,7 +21,6 @@
 #define TX_PIN 17    // Soft Serial Transmit pin, connected to DI // 
 #define CTRL_PIN 26  // RS485 Direction control, connected to RE and DE // 
 
-#define baud_rate 4800
 
 // RS485 Constants
 #define RS485_TRANSMIT HIGH
@@ -36,16 +35,23 @@ Config protocol = SWSERIAL_8N1;
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 //variables
-byte command[] = {0x00, 0x06, 0x07, 0xD0, 0x00, 0x00, 0x00, 0x00};
-byte address = 0x01;
-int num_bytes = 8;
+int baud_rate = 9600;
+byte command[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0xc4, 0x0b};
+byte address = 0x1;
+int num_bytes = 7;
+
+// standard commands
+// CWT check slaveID {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59}
+// CWT read {0x01, 0x03, 0x00, 0x00, 0x00, 0x07, 0x04, 0x08}
+// rk520-01 read {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b}
+// rk500-03 read {0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0xc4, 0x0b}
 
 void request_reading();
 void receive_reading(int num_bytes);
 
 void setup() {
 
-  Serial.begin(4800);
+  Serial.begin(baud_rate);
   pinMode(EN_1, OUTPUT);
   digitalWrite(EN_1, HIGH);
   delay(100);
