@@ -43,9 +43,7 @@ uint16_t lastreceived;
 // std::queue<float> conduct = {};  // queue for conductivity values
 // std::queue<float> pH = {};       // queue for pH values
 
-float temp_now = 0;
-float con_now = 0;
-float pH_now = 0;
+byte reading_now[19];
 String MAC_now;
 
 uint16_t HEX_A;
@@ -90,14 +88,12 @@ void hexconcat(uint16_t HEX_A, uint16_t HEX_B){
   
 }
 
-void mqttPublish(String timestamp, String MAC_now, float temp_now, float con_now, float pH_now)
+void mqttPublish(String timestamp, String MAC_now, byte reading_now[])
 {
   StaticJsonDocument<200> doc;
   doc["timestamp"] = timestamp;
   doc["MAC"] = MAC_now;
-  doc["temperature"] = temp_now;
-  doc["conductivity"] = con_now;
-  doc["pH"] = pH_now;
+  doc["reading"] = reading_now;
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
 
@@ -171,10 +167,7 @@ void connectAWS() {
 
 
 typedef struct struct_sensor_reading {
-  String MAC;
-  float pHVal = 0;
-  float ECVal = 0;
-  float temp = 0;
+  byte reading_inc[19];
 } struct_sensor_reading;
 
 struct_sensor_reading incoming_data;
@@ -192,16 +185,8 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   timestamp = get_formatted_time();
   lastreceived = millis();
   
-  temp_now = incoming_data.temp;
-  // temp.push(temp_now);
 
-  con_now = incoming_data.ECVal;
-  // conduct.push(con_now);
-
-  pH_now = incoming_data.pHVal;
-  // pH.push(pH_now);
-
-  MAC_now = incoming_data.MAC;
+  reading_now = incoming_data.reading_inc;
   
   is_send_data = true;
   
@@ -374,7 +359,7 @@ void loop(){
  
   if (is_send_data)
     {
-    mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now);
+    mqttPublish(timestamp, MAC_now, reading_now);
     is_send_data = false;
     }
   
