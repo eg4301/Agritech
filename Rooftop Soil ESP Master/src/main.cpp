@@ -33,7 +33,7 @@
 
 int ledStatus = LOW;
 // Set your new MAC Address
-uint8_t newMACAddress[] = {0x16, 0x16, 0x16, 0x16, 0x16, 0x05};
+uint8_t newMACAddress[] = {0x40, 0x22, 0xD8, 0x66, 0x7B, 0xF0};
 
 uint32_t lastReconnectAttempt = 0;
 uint16_t combinedhex = 0;
