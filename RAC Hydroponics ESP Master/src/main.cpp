@@ -45,7 +45,7 @@ float atmtemp_now = 0;
 float hum_now = 0;
 float CO2_now = 0;
 float oxy_now = 0;
-char* MAC_now = new char[17];
+int MAC_now = 0;
 
 uint16_t HEX_A;
 uint16_t HEX_B;
@@ -86,7 +86,7 @@ void hexconcat(uint16_t HEX_A, uint16_t HEX_B){
   
 }
 
-void mqttPublish(String timestamp, char* MAC_now, float temp_now, float con_now, float pH_now, float atmtemp_now, float hum_now, float CO2_now, float oxy_now)
+void mqttPublish(String timestamp, int MAC_now, float temp_now, float con_now, float pH_now, float atmtemp_now, float hum_now, float CO2_now, float oxy_now)
 {
   StaticJsonDocument<200> doc;
   doc["timestamp"] = timestamp;
@@ -171,7 +171,7 @@ void connectAWS() {
 
 
 typedef struct struct_sensor_reading {
-  char* MAC = new char[17];
+  int MAC;
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
