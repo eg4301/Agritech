@@ -160,6 +160,6 @@ void loop() {
   // get the status of Trasnmitted packet
   esp_now_register_send_cb(OnDataSent);
 
-  delay(30000);
+  delay(600000);
 }
 
