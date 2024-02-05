@@ -195,7 +195,7 @@ void sampling_seq() {
   digitalWrite(VALVE_PIN, LOW);
   
   // for (int i = 0; i < (sizeof(pumplist)) / sizeof(pumplist[0]); i++) {
-  for (int i = 0; i < 1; i++) {
+  for (int i = 1; i < 2; i++) {
 
     digitalWrite(pumplist[i], HIGH);
     delay(PUMP_DURATION);           
@@ -213,9 +213,9 @@ void sampling_seq() {
     delay(VALVE_DURATION);           
     digitalWrite(VALVE_PIN, LOW);
 
-    digitalWrite(int(PUMP_PIN_7), HIGH);
+    digitalWrite(int(PUMP_PIN_6), HIGH);
     delay(PUMP_DURATION);           
-    digitalWrite(int(PUMP_PIN_7), LOW); 
+    digitalWrite(int(PUMP_PIN_6), LOW); 
 
     if (i!=5){
       digitalWrite(VALVE_PIN, HIGH);
@@ -237,9 +237,9 @@ void sampling_seq() {
     esp_now_register_send_cb(OnDataSent);
   }
 
-  digitalWrite(int(PUMP_PIN_7), HIGH);
+  digitalWrite(int(PUMP_PIN_6), HIGH);
   delay(PUMP_DURATION);           
-  digitalWrite(int(PUMP_PIN_7), LOW); 
+  digitalWrite(int(PUMP_PIN_6), LOW); 
 
 }
 
@@ -252,7 +252,13 @@ void setup() {
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
   WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  
   int32_t channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("WiFi Channel Not Found!");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
 
   WiFi.printDiag(Serial); // Uncomment to verify channel number before
   esp_wifi_set_promiscuous(true);
@@ -298,6 +304,13 @@ void loop() {
   // digitalWrite(PUMP_PIN_6, HIGH);
   // digitalWrite(PUMP_PIN_7, HIGH);
   // digitalWrite(VALVE_PIN, HIGH);
+  int32_t channel = getWiFiChannel(WIFI_SSID);
+  channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("WiFi Channel Not Found!");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
 
   sampling_seq();
 
