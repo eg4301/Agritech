@@ -32,15 +32,15 @@ float result[3] = {0};
 float CO2;
 float err;
 float O2;
-String MACaddr;
-char* charMAC = new char[17];
+// String MACaddr;
+// char charMAC[17] = {1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7};
 
 
 // put function declarations here:
 uint8_t broadcastAddress[] = {0xEC, 0xDA, 0x3B, 0x96, 0xF2, 0x14};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 typedef struct struct_sensor_reading {
-  char* MAC = new char[17];
+  int MAC;
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
@@ -95,9 +95,12 @@ void setup() {
   // put your setup code here, to run once:
   Wire.begin();
   Serial.begin(115200);
-  MACaddr = WiFi.macAddress();
-  strcpy(charMAC,MACaddr.c_str());
-  myData.MAC = charMAC;
+  // MACaddr = WiFi.macAddress();
+  // strcpy(charMAC,MACaddr.c_str());
+  // Serial.println("Below is charMAC");
+  // Serial.println(charMAC);
+  // Serial.println("Above is charMAC");
+  myData.MAC = 2;
 
   // Start SCD30 CO2 Sensor
   scd30.initialize();

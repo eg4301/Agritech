@@ -73,6 +73,7 @@ float ecValue;
 // Declarations for Temp Sensor:
 const int oneWireBus = 7;     
 float temperature;
+// char MAC_address[17] = {1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7};
 
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
@@ -90,6 +91,8 @@ typedef struct struct_sensor_reading {
   float CO2 = 0;
   float Oxy = 0;
 } struct_sensor_reading;
+
+
 
 struct_sensor_reading myData;
 
@@ -247,6 +250,8 @@ void setup() {
   Serial.begin(115200);
   // ec.begin();
   sensors.begin();
+  // memcpy(myData.MAC,MAC_address,17);
+
   myData.MAC = 1;
 
   WiFi.enableLongRange(true);
@@ -320,7 +325,7 @@ void loop() {
 
 
   // delay(2400000);
-  delay(90000);
+  delay(900000);
   
 }
 
