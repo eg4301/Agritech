@@ -64,7 +64,7 @@ String daystamp;
 String timestamp;
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP,"sg.pool.ntp.org",0);
+NTPClient timeClient(ntpUDP,"pool.ntp.org",0);
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
@@ -78,6 +78,9 @@ uint64_t seconds, minutes, hours, days, months, year;
 //OTA
 const char* host = "esp32";
 
+//WiFi Reconnect
+unsigned long previousMillis = 0;
+unsigned long interval = 30000;
 
 
 
@@ -328,6 +331,8 @@ void setup() {
 
   // setupRTC();
   timeClient.begin();
+  timeClient.update();
+  timeClient.setTimeOffset(28800);
 
   WiFi.enableLongRange(true);
   // WiFi.setTxPower(WIFI_POWER_19_5dBm);
@@ -391,17 +396,25 @@ void setup() {
 }
  
 void loop(){
- 
+ unsigned long currentMillis = millis();
+  // if WiFi is down, try reconnecting every CHECK_WIFI_TIME seconds
+  if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
+    Serial.print(millis());
+    Serial.println("Reconnecting to WiFi...");
+    WiFi.disconnect();
+    connectAWS();
+    previousMillis = currentMillis;
+  }
   if (is_send_data)
     {
     mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now, atmtemp_now, hum_now, CO2_now, oxy_now, N_now, P_now, K_now);
     is_send_data = false;
     }
   
-  // timestamp = get_formatted_time();
-  // mqttPublish(timestamp,1,2,3,4,5,6,7);
-  // Serial.println("Sample published");
-  // delay(10000);
+  timestamp = get_formatted_time();
+  mqttPublish(timestamp,1,2,3,4,5,6,7,8,9,10,11);
+  Serial.println("Sample published");
+  delay(10000);
 
   client.loop();
   server.handleClient();
