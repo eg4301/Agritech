@@ -50,55 +50,59 @@ void setup() {
   pinMode(EN_1, OUTPUT);
   digitalWrite(EN_1, HIGH);
   delay(100);
-  Serial.println("CLEARSHEET");
+  // Serial.println("CLEARSHEET");
   Serial.println("LABEL,Seconds,Sensor,Temperature,Moisture,EC,pH,N,P,K");
 }
 
 void loop() {
-  byte reading[19] {};
+  
+  for (int i = 0; i < 1; i++) {
+    byte reading[19] {};
 
-  // Read and send CWT data
-  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x01, baud_rate, protocol);  // Serial connection setup
-  request_reading_CWT();
-  receive_reading(reading,19);
-  Serial.print("DATA,");
-  Serial.print(millis()/1000);
-  Serial.print(",CWT,");
-  Serial.print((String)((reading[5] << 8 | reading[6])/10)+",");
-  Serial.print((String)((reading[3] << 8 | reading[4])/10)+",");
-  Serial.print((String)(reading[7] << 8 | reading[8])+",");
-  Serial.print((String)((reading[9] << 8 | reading[10])/10)+",");
-  Serial.print((String)(reading[11] << 8 | reading[12])+",");
-  Serial.print((String)(reading[13] << 8 | reading[14])+",");
-  Serial.println((String)((reading[15]<< 8 | reading[16])/10));
+    // Read and send CWT data
+    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x01, baud_rate, protocol);  // Serial connection setup
+    request_reading_CWT();
+    receive_reading(reading,19);
+    Serial.print("DATA,");
+    Serial.print(millis()/1000);
+    Serial.print(",CWT,");
+    Serial.print((String)((reading[5] << 8 | reading[6])/10)+",");
+    Serial.print((String)((reading[3] << 8 | reading[4])/10)+",");
+    Serial.print((String)(reading[7] << 8 | reading[8])+",");
+    Serial.print((String)((reading[9] << 8 | reading[10])/10)+",");
+    Serial.print((String)(reading[11] << 8 | reading[12])+",");
+    Serial.print((String)(reading[13] << 8 | reading[14])+",");
+    Serial.println((String)((reading[15]<< 8 | reading[16])/10));
 
-  delay(1000);
+    delay(1000);
 
-  // Read and send Rika all in one data
-  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
-  request_reading_rika();
-  receive_reading(reading,13);
-  Serial.print("DATA,");
-  Serial.print(millis()/1000);
-  Serial.print(",Rika,");
-  Serial.print((String)((reading[3] << 8 | reading[4])/10)+",");
-  Serial.print((String)((reading[5] << 8 | reading[6])/10)+",");
-  Serial.print((String)(reading[7] << 8 | reading[8])+",");
-  Serial.println((String)((reading[9] << 8 | reading[10])/100));
+    // Read and send Rika all in one data
+    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
+    request_reading_rika();
+    receive_reading(reading,13);
+    Serial.print("DATA,");
+    Serial.print(millis()/1000);
+    Serial.print(",Rika,");
+    Serial.print((String)((reading[3] << 8 | reading[4])/10)+",");
+    Serial.print((String)((reading[5] << 8 | reading[6])/10)+",");
+    Serial.print((String)(reading[7] << 8 | reading[8])+",");
+    Serial.println((String)((reading[9] << 8 | reading[10])/100));
 
-  delay(1000);
+    delay(1000);
 
-  // Read and send Rika moisture data
-  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x07, baud_rate, protocol);  // Serial connection setup
-  request_reading_moisture();
-  receive_reading(reading,7);
-  Serial.print("DATA,");
-  Serial.print(millis()/1000);
-  Serial.print(",Rika Moisture,Null,");
-  Serial.println((String)((reading[3] << 8 | reading[4])/10));
+    // Read and send Rika moisture data
+    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x07, baud_rate, protocol);  // Serial connection setup
+    request_reading_moisture();
+    receive_reading(reading,7);
+    Serial.print("DATA,");
+    Serial.print(millis()/1000);
+    Serial.print(",Rika Moisture,Null,");
+    Serial.println((String)((reading[3] << 8 | reading[4])/10));
+
+    delay(10000);
+  }
 
   delay(60000);
-
 }
 
 void request_reading_CWT() {
