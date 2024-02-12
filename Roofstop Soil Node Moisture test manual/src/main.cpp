@@ -50,7 +50,7 @@ void setup() {
   pinMode(EN_1, OUTPUT);
   digitalWrite(EN_1, HIGH);
   delay(100);
-  // Serial.println("CLEARSHEET");
+  Serial.println("CLEARSHEET");
   Serial.println("LABEL,Seconds,Sensor,Temperature,Moisture,EC,pH,N,P,K");
 }
 
