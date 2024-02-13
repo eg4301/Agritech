@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2024-01-16T14:01:41.229Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="YBiM_GX5Sx1B7HjM7KzU" version="21.7.5" type="device" pages="7">
+<mxfile host="Electron" modified="2024-02-13T14:01:49.165Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="nzJjm_lOTECymj63EWuf" version="21.7.5" type="device" pages="7">
   <diagram name="Base reference" id="KbNva6xg7A-uu2KdlD7H">
-    <mxGraphModel dx="1276" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="1548" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="xmJIriCBekTQ6MhUrHxU-0" />
         <mxCell id="xmJIriCBekTQ6MhUrHxU-1" parent="xmJIriCBekTQ6MhUrHxU-0" />
@@ -365,7 +365,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="Basic" id="Ho-6O-4MTrsFXdS1m-I3">
-    <mxGraphModel dx="1036" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="1548" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="h5xBZQyBgD9znRmQZh7G-0" />
         <mxCell id="h5xBZQyBgD9znRmQZh7G-1" parent="h5xBZQyBgD9znRmQZh7G-0" />
@@ -579,7 +579,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="Iter1" id="zmhZhM8CQIxDoj_jNqV4">
-    <mxGraphModel dx="1036" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="2580" dy="1503" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="r37aGIfni6xgvilkSFrG-0" />
         <mxCell id="r37aGIfni6xgvilkSFrG-1" parent="r37aGIfni6xgvilkSFrG-0" />
@@ -973,7 +973,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="Iter2" id="mSUXatx3NGZQLz7jR2bt">
-    <mxGraphModel dx="1036" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="1548" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="pdjHVwJBZPTXlufEzGtt-0" />
         <mxCell id="pdjHVwJBZPTXlufEzGtt-1" parent="pdjHVwJBZPTXlufEzGtt-0" />
@@ -1424,7 +1424,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="Iter3" id="KvuLpVFfNncRVMmhpxkL">
-    <mxGraphModel dx="1036" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="1548" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="z4cl_u4WtgqJrv2pkGHY-0" />
         <mxCell id="z4cl_u4WtgqJrv2pkGHY-1" parent="z4cl_u4WtgqJrv2pkGHY-0" />
@@ -1902,7 +1902,7 @@
     </mxGraphModel>
   </diagram>
   <diagram name="Kang Kong irrigation" id="UuWuuMDWohshIwEKDMAm">
-    <mxGraphModel dx="1036" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="1548" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="PC0Vv07x1tl_fqhoHKHU-0" />
         <mxCell id="PC0Vv07x1tl_fqhoHKHU-1" parent="PC0Vv07x1tl_fqhoHKHU-0" />
@@ -2134,7 +2134,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="c9Srezb--5lRLvHBM3ee" name="Rooftop Testing Setup 1">
-    <mxGraphModel dx="3476" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="4803" dy="1528" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" style="locked=1;" parent="0" />
@@ -3060,7 +3060,7 @@
           <mxGeometry x="-740" y="630" width="20" height="20" as="geometry" />
         </mxCell>
         <object label="Notes Layer" id="2P_HHarE8VwktIhZOvbi-164">
-          <mxCell style="" parent="0" />
+          <mxCell style="locked=1;" parent="0" />
         </object>
         <mxCell id="2P_HHarE8VwktIhZOvbi-163" value="Use bought 4/7mm tubing" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="2P_HHarE8VwktIhZOvbi-164" vertex="1">
           <mxGeometry x="-506" y="150" width="50" height="70" as="geometry" />
