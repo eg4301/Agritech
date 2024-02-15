@@ -43,8 +43,17 @@ uint16_t lastreceived;
 // std::queue<float> conduct = {};  // queue for conductivity values
 // std::queue<float> pH = {};       // queue for pH values
 
-byte reading_now[19];
-String MAC_now;
+float temp_now = 0;
+float con_now = 0;
+float pH_now = 0;
+float atmtemp_now = 0;
+float hum_now = 0;
+float CO2_now = 0;
+float oxy_now = 0;
+float N_now = 0;
+float P_now = 0;
+float K_now = 0;
+int MAC_now;
 
 uint16_t HEX_A;
 uint16_t HEX_B;
@@ -55,7 +64,7 @@ String daystamp;
 String timestamp;
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP,"sg.pool.ntp.org",0);
+NTPClient timeClient(ntpUDP,"pool.ntp.org",0);
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
@@ -69,6 +78,9 @@ uint64_t seconds, minutes, hours, days, months, year;
 //OTA
 const char* host = "esp32";
 
+//WiFi Reconnect
+unsigned long previousMillis = 0;
+unsigned long interval = 30000;
 
 
 
@@ -88,12 +100,21 @@ void hexconcat(uint16_t HEX_A, uint16_t HEX_B){
   
 }
 
-void mqttPublish(String timestamp, String MAC_now, byte reading_now[])
+void mqttPublish(String timestamp, int MAC_now, float temp_now, float con_now, float pH_now, float atmtemp_now, float hum_now, float CO2_now, float oxy_now, float N_now, float P_now, float K_now)
 {
   StaticJsonDocument<200> doc;
   doc["timestamp"] = timestamp;
   doc["MAC"] = MAC_now;
-  doc["reading"] = reading_now;
+  doc["temperature"] = temp_now;
+  doc["conductivity"] = con_now;
+  doc["pH"] = pH_now;
+  doc["atm_temperature"] = atmtemp_now;
+  doc["humidity"] = hum_now;
+  doc["CO2"] = CO2_now;
+  doc["O2"] = oxy_now;
+  doc["Nitrogen"] = N_now;
+  doc["Phosphorous"] = P_now;
+  doc["Potassium"] = K_now;
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
 
@@ -167,7 +188,17 @@ void connectAWS() {
 
 
 typedef struct struct_sensor_reading {
-  byte reading_inc[19];
+  int MAC;
+  float pHVal = 0;
+  float ECVal = 0;
+  float temp = 0;
+  float atmtemp = 0;
+  float hum = 0;
+  float CO2 = 0;
+  float Oxy = 0;
+  float N = 0;
+  float P = 0;
+  float K = 0;
 } struct_sensor_reading;
 
 struct_sensor_reading incoming_data;
@@ -185,9 +216,19 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   timestamp = get_formatted_time();
   lastreceived = millis();
 
-  memcpy(reading_now, incoming_data.reading_inc, sizeof(reading_now));
-  
-  is_send_data = true;
+  temp_now = incoming_data.temp;
+  con_now = incoming_data.ECVal;
+  pH_now = incoming_data.pHVal;
+  MAC_now = incoming_data.MAC;
+  atmtemp_now = incoming_data.atmtemp;
+  hum_now = incoming_data.hum;
+  CO2_now = incoming_data.CO2;
+  oxy_now = incoming_data.Oxy;
+  N_now = incoming_data.N;
+  P_now = incoming_data.P;
+  K_now = incoming_data.K;
+
+  is_send_data = true;  
 }
 
 
@@ -198,8 +239,8 @@ WebServer server(80);
  * Login page
  */
 const char* loginIndex = 
- "<form name='loginForm'>"
-    "<table width='20%' bgcolor='A09F9F' align='center'>"
+ "<form name='User Login'>"
+    "<table width='20%' bgcolor='818352' align='center'>"
         "<tr>"
             "<td colspan=2>"
                 "<center><font size=4><b>ESP32 Login Page</b></font></center>"
@@ -227,7 +268,7 @@ const char* loginIndex =
 "<script>"
     "function check(form)"
     "{"
-    "if(form.userid.value=='admin' && form.pwd.value=='admin')"
+    "if(form.userid.value=='admin' && form.pwd.value=='agr1tech!')"
     "{"
     "window.open('/serverIndex')"
     "}"
@@ -290,6 +331,8 @@ void setup() {
 
   // setupRTC();
   timeClient.begin();
+  timeClient.update();
+  timeClient.setTimeOffset(28800);
 
   WiFi.enableLongRange(true);
   // WiFi.setTxPower(WIFI_POWER_19_5dBm);
@@ -353,17 +396,25 @@ void setup() {
 }
  
 void loop(){
- 
+ unsigned long currentMillis = millis();
+  // if WiFi is down, try reconnecting every CHECK_WIFI_TIME seconds
+  if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
+    Serial.print(millis());
+    Serial.println("Reconnecting to WiFi...");
+    WiFi.disconnect();
+    connectAWS();
+    previousMillis = currentMillis;
+  }
   if (is_send_data)
     {
-    mqttPublish(timestamp, MAC_now, reading_now);
+    mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now, atmtemp_now, hum_now, CO2_now, oxy_now, N_now, P_now, K_now);
     is_send_data = false;
     }
   
-  // timestamp = get_formatted_time();
-  // mqttPublish(timestamp,1,2,3,4,5,6,7);
-  // Serial.println("Sample published");
-  // delay(10000);
+  timestamp = get_formatted_time();
+  mqttPublish(timestamp,1,2,3,4,5,6,7,8,9,10,11);
+  Serial.println("Sample published");
+  delay(10000);
 
   client.loop();
   server.handleClient();
