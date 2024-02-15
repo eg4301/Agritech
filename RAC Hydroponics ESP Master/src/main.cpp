@@ -166,7 +166,7 @@ void connectAWS() {
   while (!client.connect(THINGNAME))
   {
     Serial.print(".");
-    delay(100);
+    delay(1000);
   }
  
   if (!client.connected())
@@ -207,6 +207,7 @@ struct_sensor_reading incoming_data;
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   Serial.println("Data Received");
   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
+  timeClient.update();
   timestamp = get_formatted_time();
   lastreceived = millis();
   
@@ -396,6 +397,10 @@ void setup() {
  
 void loop(){
   unsigned long currentMillis = millis();
+
+  if (millis() >= 43200000) {
+    esp_sleep_enable_timer_wakeup(20e6);
+  }
   // if WiFi is down, try reconnecting
   if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
     Serial.print(millis());
@@ -404,6 +409,7 @@ void loop(){
     connectAWS();
     previousMillis = currentMillis;
   }
+
  
   if (is_send_data)
     {
