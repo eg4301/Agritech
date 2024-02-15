@@ -35,7 +35,9 @@ Config protocol = SWSERIAL_8N1;
 
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
-byte reading[13];
+// CWT sensor addresses
+byte hexI[] {0x01, 0x02, 0x03, 0x04, 0x05};
+byte reading[19];
 
 /* Private Constants -------------------------------------------------------- */
 uint8_t broadcastAddress[] = {0x68, 0xB6, 0xB3, 0x52, 0x37, 0x84};  // ! REPLACE WITH YOUR RECEIVER MAC Address
@@ -65,9 +67,9 @@ esp_now_peer_info_t peerInfo;
 
 
 
-void request_reading_CWT();
+void request_reading_CWT(byte address);
 void request_reading_rika();
-byte receive_reading();
+void receive_reading(byte reading[], int num_bytes);
 
 
 
@@ -112,21 +114,25 @@ void setup() {
     Serial.println("Peer Added");
     return;
   }
+  
+}
 
-  for (int i=0; i<=1; i++){
+void loop() {
+  
+    for (int i=0; i<5; i++){
 
-    if (i=0){
+    if (i==0){
     // Read and send CWT data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x01, baud_rate, protocol);  // Serial connection setup
-    request_reading_CWT();
-    receive_reading();
+    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
+    request_reading_CWT(hexI[i]);
+    receive_reading(reading, 19);
     }    
 
     else {
     // Read and send Rika data
     CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
     request_reading_rika();
-    receive_reading();
+    receive_reading(reading, 13);
     }     
 
 
@@ -143,52 +149,16 @@ void setup() {
     // get the status of Trasnmitted packet
     esp_now_register_send_cb(OnDataSent);
 
-    delay(1000);
+    delay(5000);
   }
   
-}
-
-void loop() {
-  
-  for (int i=0; i<=1; i++){
-
-    if (i=0){
-    // Read and send CWT data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x02, baud_rate, protocol);  // Serial connection setup
-    request_reading_CWT();
-    receive_reading();
-    }    
-
-    else {
-    // Read and send Rika data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x01, baud_rate, protocol);  // Serial connection setup
-    request_reading_rika();
-    receive_reading();
-    }     
-
-
-    memcpy(myData.reading, reading, 19);
-    // Send message via ESP-NOW
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
-
-    if (result == ESP_OK) {
-      Serial.println("Sent with success");
-    } else {
-      Serial.println("Error sending the data");
-    }
-    // Once ESPNow is successfully Init, we will register for Send CB to
-    // get the status of Trasnmitted packet
-    esp_now_register_send_cb(OnDataSent);
-
-    delay(1000);
-  }
-
+  // 10min delay between readings
   delay(600000);
 
 }
 
-void request_reading_CWT() {
-  byte command[8] ={0x01, 0x03, 0x00, 0x00, 0x00, 0x07, 0x04, 0x08};
+void request_reading_CWT(byte address) {
+  byte command[8] ={address, 0x03, 0x00, 0x00, 0x00, 0x07, 0x04, 0x08};
   CWT_Sensor.request_reading(command, 8);
 }
 
@@ -197,10 +167,7 @@ void request_reading_rika() {
   CWT_Sensor.request_reading(command, 8);
 }
 
-byte receive_reading() {
-  int num_bytes = 19;
-  byte reading[19];
+void receive_reading(byte reading[], int num_bytes) {
   CWT_Sensor.receive_reading(num_bytes, RETURN_ADDRESS_IDX, RETURN_FUNCTIONCODE_IDX, reading);
-  return reading[19];
 }
 

@@ -184,13 +184,10 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
   timestamp = get_formatted_time();
   lastreceived = millis();
-  
 
-  reading_now = incoming_data.reading_inc;
+  memcpy(reading_now, incoming_data.reading_inc, sizeof(reading_now));
   
   is_send_data = true;
-  
-  
 }
 
 

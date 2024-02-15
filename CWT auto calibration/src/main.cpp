@@ -65,7 +65,8 @@ void request_reading_moisture();
 void receive_reading(byte reading[totSensors],int num_bytes);
 void storeReadings(byte readings[totSensors][numReadingTypes][numReadings], byte reading[19], int address, int time, int sensType);
 void printReadings(byte readings[totSensors][numReadingTypes][numReadings]);
-void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sensorTrends[totSensors][numReadingTypes]);
+void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sensorTrends[totSensors][numReadingTypes][2]);
+void LSRL(byte readings[numReadings], byte sensorTrends[2]);
 
 
 
@@ -113,6 +114,7 @@ void setup() {
   // Stores it into sensorTrends[(sensors)][(parameters)][(slope,intercept)]
   calcTrend(readings, sensorTrends);
 
+  // 
 }
 
 void loop() {
@@ -184,6 +186,27 @@ void printReadings(byte readings[totSensors][numReadingTypes][numReadings]) {
   }
 }
 
+void LSRL(byte readings[numReadings], byte sensorTrends[2]){ //Least square regression
+  float sumX = 0;
+  float sumY = 0;
+  float sumXY = 0;
+  float sumX2 = 0;
+  float n = numReadings;
+
+  for (int i = 0; i < numReadings; i++) {
+    sumX += i;
+    sumY += readings[i];
+    sumXY += i*readings[i];
+    sumX2 += i*i;
+  }
+
+  float slope = (n*sumXY - sumX*sumY)/(n*sumX2 - sumX*sumX);
+  float intercept = (sumY - slope*sumX)/n;
+
+  sensorTrends[0] = slope;
+  sensorTrends[1] = intercept;
+}
+
 void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sensorTrends[totSensors][numReadingTypes][2]) {
   for (int sensor = 0; sensor < totSensors; sensor++) {
 
@@ -206,24 +229,5 @@ void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sen
 
 }
 
-void LSRL(byte readings[numReadings], byte sensorTrends[2]){ //Least square regression
-  float sumX = 0;
-  float sumY = 0;
-  float sumXY = 0;
-  float sumX2 = 0;
-  float n = numReadings;
 
-  for (int i = 0; i < numReadings; i++) {
-    sumX += i;
-    sumY += readings[i];
-    sumXY += i*readings[i];
-    sumX2 += i*i;
-  }
-
-  float slope = (n*sumXY - sumX*sumY)/(n*sumX2 - sumX*sumX);
-  float intercept = (sumY - slope*sumX)/n;
-
-  sensorTrends[0] = slope;
-  sensorTrends[1] = intercept;
-}
 
