@@ -40,7 +40,7 @@ byte hexI[] {0x01, 0x02, 0x03, 0x04, 0x05};
 byte reading[19];
 
 /* Private Constants -------------------------------------------------------- */
-uint8_t broadcastAddress[] = {0x68, 0xB6, 0xB3, 0x52, 0x37, 0x84};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8D, 0x54};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 // Insert your SSID
 constexpr char WIFI_SSID[] = "localize_project";
@@ -56,9 +56,22 @@ int32_t getWiFiChannel(const char *ssid) {
   return 0;
 }
 
+float temp_now = 0;
+float con_now = 0;
+float pH_now = 0;
+float hum_now = 0;
+float N_now = 0;
+float P_now = 0;
+float K_now = 0;
 
 typedef struct struct_sensor_reading {
-  byte reading[19]; 
+  float pHVal = 0;
+  float ECVal = 0;
+  float temp = 0;
+  float hum = 0;
+  float N = 0;
+  float P = 0;
+  float K = 0;
 } struct_sensor_reading;
 
 struct_sensor_reading myData;
@@ -70,6 +83,8 @@ esp_now_peer_info_t peerInfo;
 void request_reading_CWT(byte address);
 void request_reading_rika();
 void receive_reading(byte reading[], int num_bytes);
+void packDataCWT(byte reading[]);
+void packDataRika(byte reading[]);
 
 
 
@@ -119,13 +134,14 @@ void setup() {
 
 void loop() {
   
-    for (int i=0; i<5; i++){
+    for (int i=0; i<6; i++){
 
-    if (i==0){
+    if (i<5){
     // Read and send CWT data
     CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
     request_reading_CWT(hexI[i]);
     receive_reading(reading, 19);
+    packDataCWT(reading);
     }    
 
     else {
@@ -133,10 +149,17 @@ void loop() {
     CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
     request_reading_rika();
     receive_reading(reading, 13);
+    packDataRika(reading);
     }     
 
 
-    memcpy(myData.reading, reading, 19);
+    temp_now = myData.temp;
+    con_now = myData.ECVal;
+    pH_now = myData.pHVal;
+    hum_now = myData.hum;
+    N_now = myData.N;
+    P_now = myData.P;
+    K_now = myData.K;
     // Send message via ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
@@ -171,3 +194,19 @@ void receive_reading(byte reading[], int num_bytes) {
   CWT_Sensor.receive_reading(num_bytes, RETURN_ADDRESS_IDX, RETURN_FUNCTIONCODE_IDX, reading);
 }
 
+void packDataCWT(byte reading[]) {
+  hum_now = (reading[3] << 8 | reading[4]) / 10;
+  temp_now = (reading[5] << 8 | reading[6]) / 10;
+  con_now = (reading[7] << 8 | reading[8]);
+  pH_now = (reading[9] << 8 | reading[10]) / 10;
+  N_now = (reading[11] << 8 | reading[12]) / 10;
+  P_now = (reading[13] << 8 | reading[14]) / 10;
+  K_now = (reading[15] << 8 | reading[16]) / 10;
+}
+
+void packDataRika(byte reading[]) {
+  temp_now = (reading[3] << 8 | reading[4]) / 10;
+  hum_now = (reading[5] << 8 | reading[6]) / 10;
+  con_now = (reading[7] << 8 | reading[8]);
+  pH_now = (reading[9] << 8 | reading[10]) / 10;
+}
