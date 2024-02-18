@@ -9,6 +9,7 @@
 #include "esp_adc_cal.h"
 #include <esp_now.h>
 #include <WiFi.h>
+#include <Preferences.h>
 
 #include "Sol16_RS485.h"
 #include "SoftwareSerial.h"
@@ -25,8 +26,6 @@
 // RS485 Constants
 #define RS485_TRANSMIT HIGH
 #define RS485_RECEIVE LOW
-
-// Norika water meter constants
 #define RETURN_ADDRESS_IDX 0
 #define RETURN_FUNCTIONCODE_IDX 1
 
@@ -38,13 +37,13 @@
 
 Config protocol = SWSERIAL_8N1;
 
+Preferences preferences;
+
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 byte hexI[] {0x01};
 // byte hexI[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 int numCWT = sizeof(hexI);
-
-
 
 byte readings[totSensors][numReadingTypes][numReadings] {};
 // readings[i][0] = address;
@@ -56,7 +55,17 @@ byte readings[totSensors][numReadingTypes][numReadings] {};
 //// readings[i][5] = N(mg/kg);
 //// readings[i][6] = P(mg/kg);
 //// readings[i][7] = K(mg/kg);
+byte quickreadings[totSensors][numReadingTypes] {};
+//instant version of readings
+
 byte sensorTrends[totSensors][numReadingTypes][2] {};
+// sensorTrends[i][j][0] = slope;
+// sensorTrends[i][j][1] = intercept;
+
+byte sensorTransform[totSensors][numReadingTypes][3] {};
+// sensorTrends[i][j][0] = c1;
+// sensorTrends[i][j][1] = m2/m1;
+// sensorTrends[i][j][2] = c2;
 
 // Function init
 void request_reading_CWT(byte address);
@@ -67,8 +76,8 @@ void storeReadings(byte readings[totSensors][numReadingTypes][numReadings], byte
 void printReadings(byte readings[totSensors][numReadingTypes][numReadings]);
 void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sensorTrends[totSensors][numReadingTypes][2]);
 void LSRL(byte readings[numReadings], byte sensorTrends[2]);
-
-
+int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensor, int readingNo, float val);
+void printQuickReadings(byte quickreadings[totSensors][numReadingTypes]);
 
 void setup() {
 
@@ -225,9 +234,80 @@ void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sen
     }
     Serial.println("---------------------------");
   }
-
-
 }
 
+
+void storeTransform(byte sensorTrends[totSensors][numReadingTypes][2]) {
+  preferences.begin("Transform", false);
+
+  for (int readingType = 1; readingType < numReadingTypes; readingType++) {
+      
+      float c2 = sensorTrends[totSensors][readingType][0]; 
+      float m2 = sensorTrends[totSensors][readingType][1]; 
+
+      for (int sensor = 0; sensor < totSensors-1; sensor++)  {
+      // Construct the key as "sensori_j_0" and "sensor_i_j_1" for slope and intercept respectively
+      String keyC1 = "sensor" + String(sensor) + "_" + String(readingType) + "0";
+      String keym2_m1 = "sensor" + String(sensor) + "_" + String(readingType) + "1";
+      String keyC2 = "sensor" + String(sensor) + "_" + String(readingType) + "2";
+
+      // Store the slope and intercept values
+      preferences.putFloat(keyC1.c_str(), sensorTrends[sensor][readingType][0]);
+      preferences.putFloat(keym2_m1.c_str(), m2/sensorTrends[sensor][readingType][1]);
+      preferences.putFloat(keyC2.c_str(), c2);
+    }
+  }
+
+  preferences.end();
+}
+
+
+void retrieveTransform(byte sensorTransform[totSensors][numReadingTypes][3]) {
+  preferences.begin("Transform", true);
+
+  for (int sensor = 0; sensor < totSensors; sensor++) {
+      for (int readingType = 1; readingType < numReadingTypes; readingType++) {
+      // Construct the key as "sensori_j_0" and "sensor_i_j_1" for slope and intercept respectively
+      String keyC1 = "sensor" + String(sensor) + "_" + String(readingType) + "0";
+      String keym2_m1 = "sensor" + String(sensor) + "_" + String(readingType) + "1";
+      String keyC2 = "sensor" + String(sensor) + "_" + String(readingType) + "2";
+
+      // Store the slope and intercept values
+      sensorTransform[sensor][readingType][0] = preferences.getFloat(keyC1.c_str(), sensorTrends[sensor][readingType][0]);
+      sensorTransform[sensor][readingType][1] = preferences.getFloat(keym2_m1.c_str(), sensorTrends[sensor][readingType][1]);
+      sensorTransform[sensor][readingType][2] = preferences.getFloat(keyC2.c_str(), sensorTrends[sensor][readingType][2]);
+    }
+  }
+
+  preferences.end();
+}
+
+
+int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensor, int readingNo, float val) {
+  // y2 = (y1-c1) x m2_m1 + c2
+  return (val - sensorTransform[sensor][readingNo][0]) * sensorTransform[sensor][readingNo][1] + sensorTransform[sensor][readingNo][2];
+}
+
+
+void printQuickReadings(byte quickreadings[totSensors][numReadingTypes]) {
+  for (int sensor = 0; sensor < totSensors; sensor++) {
+    Serial.print("Sensor ");
+    Serial.print(sensor+1);
+    Serial.println("Quick Reading:");
+
+    for (int readingType = 0; readingType < numReadingTypes; readingType++) {
+      switch(readingType) {
+        case 0: Serial.print("Address: "); break;
+        case 1: Serial.print("Humidity: "); break;
+        case 2: Serial.print("Temperature: "); break;
+        case 3: Serial.print("Conductivity: "); break;
+        case 4: Serial.print("PH: "); break;
+      }
+      Serial.print(transform(sensorTransform, sensor, readingType, quickreadings[sensor][readingType]));
+      Serial.println();
+    }
+    Serial.println("---------------------------");
+  }
+}
 
 
