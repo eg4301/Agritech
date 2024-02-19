@@ -10,10 +10,6 @@
 #include "Sol16_RS485.h"
 #include "SoftwareSerial.h"
 
-/* Public defines ----------------------------------------------------------- */
-#define DEEPSLEEPDURATION (24 * 60 * 60)  // Time interval between readings, in seconds (default 24 hours)
-#define ADDRESS (0x01)                    // ! NEED TO CHANGE FOR EACH WATER METER
-
 #define EN_1 12
 
 // RS485 pins in use
@@ -35,10 +31,11 @@ Config protocol = SWSERIAL_8N1;
 
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
+byte HexI[] = {0x01, 0x02, 0x03, 0x04, 0x05};
 
 
 
-void request_reading_CWT();
+void request_reading_CWT(byte address);
 void request_reading_rika();
 void request_reading_moisture();
 void receive_reading(byte reading[],int num_bytes);
@@ -49,23 +46,26 @@ void setup() {
   Serial.begin(9600);
   pinMode(EN_1, OUTPUT);
   digitalWrite(EN_1, HIGH);
-  delay(100);
+  delay(2000);
+  Serial.println("buffer");
+  Serial.println("buffer");
+  Serial.println("buffer");
   Serial.println("CLEARSHEET");
-  Serial.println("LABEL,Seconds,Sensor,Temperature,Moisture,EC,pH,N,P,K");
+  Serial.println("Address,Minutes,Sensor,Temperature,Moisture,EC,pH,N,P,K");
 }
 
 void loop() {
   
   for (int i = 0; i < 1; i++) {
     byte reading[19] {};
-
-    // Read and send CWT data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x01, baud_rate, protocol);  // Serial connection setup
-    request_reading_CWT();
+    for (int j = 0; j < sizeof(HexI); j++) {
+          // Read and send CWT data
+    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, HexI[j], baud_rate, protocol);  // Serial connection setup
+    request_reading_CWT(HexI[j]);
     receive_reading(reading,19);
     Serial.print("DATA,");
-    Serial.print(millis()/1000);
-    Serial.print(",CWT,");
+    Serial.print(millis()/60000);
+    Serial.print("," + (String)(reading[0]) + ",");
     Serial.print((String)((reading[5] << 8 | reading[6])/10)+",");
     Serial.print((String)((reading[3] << 8 | reading[4])/10)+",");
     Serial.print((String)(reading[7] << 8 | reading[8])+",");
@@ -75,14 +75,16 @@ void loop() {
     Serial.println((String)((reading[15]<< 8 | reading[16])/10));
 
     delay(1000);
+    }
+
 
     // Read and send Rika all in one data
     CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
     request_reading_rika();
     receive_reading(reading,13);
     Serial.print("DATA,");
-    Serial.print(millis()/1000);
-    Serial.print(",Rika,");
+    Serial.print(millis()/60000);
+    Serial.print("," + (String)(reading[0]) + ",");
     Serial.print((String)((reading[3] << 8 | reading[4])/10)+",");
     Serial.print((String)((reading[5] << 8 | reading[6])/10)+",");
     Serial.print((String)(reading[7] << 8 | reading[8])+",");
@@ -90,28 +92,30 @@ void loop() {
 
     delay(1000);
 
-    // Read and send Rika moisture data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x07, baud_rate, protocol);  // Serial connection setup
-    request_reading_moisture();
-    receive_reading(reading,7);
-    Serial.print("DATA,");
-    Serial.print(millis()/1000);
-    Serial.print(",Rika Moisture,Null,");
-    Serial.println((String)((reading[3] << 8 | reading[4])/10));
+    // // Read and send Rika moisture data
+    // CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x07, baud_rate, protocol);  // Serial connection setup
+    // request_reading_moisture();
+    // receive_reading(reading,7);
+    // Serial.print("DATA,");
+    // Serial.print(millis()/1000);
+    // Serial.print(",Rika Moisture,Null,");
+    // Serial.println((String)((reading[3] << 8 | reading[4])/10));
 
-    delay(10000);
+    // delay(10000);
   }
 
-  delay(60000);
+  delay(600000);
 }
 
-void request_reading_CWT() {
-  byte command[8] ={0x01, 0x03, 0x00, 0x00, 0x00, 0x07, 0x04, 0x08};
+void request_reading_CWT(byte address) {
+  byte command[8] ={address, 0x03, 0x00, 0x00, 0x00, 0x07, 0x04, 0x08};
+  CWT_Sensor.add_crc(command, 0, 6);
   CWT_Sensor.request_reading(command, 8);
 }
 
 void request_reading_rika() {
   byte command[8] = {0x06, 0x03, 0x00, 0x00, 0x00, 0x04, 0x45, 0xBE};
+  CWT_Sensor.add_crc(command, 0, 6);
   CWT_Sensor.request_reading(command, 8);
 }
 
