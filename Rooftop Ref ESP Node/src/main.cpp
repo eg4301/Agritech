@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <Arduino.h>
 
-#include <EEPROM.h>
 #include <DFRobot_EC.h>
 
 #include <Wire.h>
@@ -14,6 +13,25 @@
 
 #include "OneWire.h"
 #include "DallasTemperature.h"
+
+
+// RS485 pins in use
+#define RX_PIN 16    // Soft Serial Receive pin, connected to RO //  
+#define TX_PIN 17    // Soft Serial Transmit pin, connected to DI // 
+#define CTRL_PIN 26  // RS485 Direction control, connected to RE and DE // 
+
+
+// RS485 Constants
+#define RS485_TRANSMIT HIGH
+#define RS485_RECEIVE LOW
+
+// Norika water meter constants
+#define RETURN_ADDRESS_IDX 0
+#define RETURN_FUNCTIONCODE_IDX 1
+
+Config protocol = SWSERIAL_8N1;
+
+Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // Declarations for Actuation (pumps + valve)
 // When changin pins, please also change the pin numbers manually in pumplist!!!
@@ -39,14 +57,7 @@
 
 // Change here too!!!
 int pumplist[] = 
-{
-  9,
-  10,
-  11,
-  12,
-  13,
-  14
-};
+{  9,  10,  11,  12,  13,  14};
 
 // Declarations for pH Sensor:
 #define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
@@ -114,29 +125,6 @@ int32_t getWiFiChannel(const char *ssid) {
 
 // put function definitions here:
 void phRead(){
-  // float pHBuffer[10];                                 // Buffer for pH readings
-  
-  // for(int i = 0; i < 10; i++){                        // Read 10 values for pH
-  //   pHBuffer[i] = analogRead(PH_PIN) * 5 / 1024.0;
-  // }
-
-  // for(int i = 0; i < 9; i++){                         // Sort pH readings in pHBuffer
-  //   for(int j = i + 1; i < 10; j++){
-  //     if(pHBuffer[i]>pHBuffer[j]){
-  //       float pHBufVal = pHBuffer[i];
-  //       pHBuffer[i] = pHBuffer[j];
-  //       pHBuffer[j] = pHBufVal;
-  //     }
-  //   }
-  // }
-
-  // for(int i = 2; i < 8; i++){                         // Sum centre six values
-  //   avgRead_ph += pHBuffer[i];
-  // }
-
-  // avgRead_ph = avgRead_ph/6;                                // Obtain average reading for pH
-
-
   pHValue = analogRead(PH_PIN) * 3.3 / 4096.0;  
   pHValue = scaleOff_ph * pHValue + flatOff_ph;             // Transform avgRead_ph to get pHValue
   Serial.print(pHValue);
@@ -144,15 +132,6 @@ void phRead(){
 }
 
 void ecRead(){
-    //Using DFRobot Library
-  // voltageRead = (analogRead(EC_PIN)*3300)/4096.0;       // Read voltage for EC  
-  // ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
-
-  // ecValue = scaleOff_ec * ecValue + flatOff_ec;
-  // Serial.print(ecValue);
-  // Serial.println(" ms/cm");
-
-    //Using Own code
   int j = 0; 
   int V; 
   float grad;
@@ -190,6 +169,19 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
+void watermeterOpen() {
+  byte command[] = {0x63, 0x05, 0x00, 0x01, 0x00, 0xFF, 0xD4, 0x08};
+
+  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x63, baud_rate, protocol);
+  CWT_Sensor.request_reading(command, 8); 
+}
+
+void watermeterClose() {
+  byte command[] = {0x63, 0x05, 0x00, 0x01, 0x00, 0x00, 0x94, 0x48};
+  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x63, baud_rate, protocol);
+  CWT_Sensor.request_reading(command, 8); 
+}
+
 // Sequence of events
 void sampling_seq() {
     
@@ -205,7 +197,7 @@ void sampling_seq() {
     digitalWrite(pumplist[i], LOW); 
 
     tempRead();
-    phRead();
+    DFRobot. ();
     ecRead();
 
     myData.temp = temperature;
@@ -245,6 +237,8 @@ void sampling_seq() {
   digitalWrite(int(PUMP_PIN_6), LOW); 
 
 }
+
+
 
 void setup() {
   Serial.begin(115200);
