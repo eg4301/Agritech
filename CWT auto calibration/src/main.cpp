@@ -74,10 +74,12 @@ void request_reading_moisture();
 void receive_reading(byte reading[totSensors],int num_bytes);
 void storeReadings(byte readings[totSensors][numReadingTypes][numReadings], byte reading[19], int address, int time, int sensType);
 void printReadings(byte readings[totSensors][numReadingTypes][numReadings]);
+
 void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sensorTrends[totSensors][numReadingTypes][2]);
 void LSRL(byte readings[numReadings], byte sensorTrends[2]);
-int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensor, int readingNo, float val);
+int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensNum, int readingType,, float val)
 void printQuickReadings(byte quickreadings[totSensors][numReadingTypes]);
+void storeReadingsCorrected(byte quickreadings[totSensors][numReadingTypes], byte reading[], int sensNum, int time, int sensType)
 
 void setup() {
 
@@ -170,6 +172,7 @@ void storeReadings(byte readings[totSensors][numReadingTypes][numReadings], byte
   }
 
 }
+
 
 void printReadings(byte readings[totSensors][numReadingTypes][numReadings]) {
   for (int sensor = 0; sensor < totSensors; sensor++) {
@@ -283,9 +286,9 @@ void retrieveTransform(byte sensorTransform[totSensors][numReadingTypes][3]) {
 }
 
 
-int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensor, int readingNo, float val) {
+int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensNum, int readingType,, float val) {
   // y2 = (y1-c1) x m2_m1 + c2
-  return (val - sensorTransform[sensor][readingNo][0]) * sensorTransform[sensor][readingNo][1] + sensorTransform[sensor][readingNo][2];
+  return (val - sensorTransform[sensNum][readingType,][0]) * sensorTransform[sensNum][readingType,][1] + sensorTransform[sensNum][readingType,][2];
 }
 
 
@@ -311,3 +314,24 @@ void printQuickReadings(byte quickreadings[totSensors][numReadingTypes]) {
 }
 
 
+void storeReadingsCorrected(byte quickreadings[totSensors][numReadingTypes], byte reading[], int sensNum, int time, int sensType) {
+  switch (sensType)
+  {
+  case 1:
+    readings[sensNum][0][time] = reading[0];
+    readings[sensNum][1][time] = transform(sensorTransform, sensNum, 1, (reading[3] << 8 | reading[4])/10);
+    readings[sensNum][2][time] = transform(sensorTransform, sensNum, 2, (reading[5] << 8 | reading[6])/10);
+    readings[sensNum][3][time] = transform(sensorTransform, sensNum, 3, (reading[7] << 8 | reading[8]));
+    readings[sensNum][4][time] = transform(sensorTransform, sensNum, 4, ((reading[9] << 8 | reading[10])/10));
+    break;
+  
+  case 2:
+    readings[sensNum][0][time] = reading[0];
+    readings[sensNum][1][time] = transform(sensorTransform, sensNum, 1, (reading[5] << 8 | reading[6])/10);
+    readings[sensNum][2][time] = transform(sensorTransform, sensNum, 2, (reading[3] << 8 | reading[4])/10);
+    readings[sensNum][3][time] = transform(sensorTransform, sensNum, 3, (reading[7] << 8 | reading[8]));
+    readings[sensNum][4][time] = transform(sensorTransform, sensNum, 4, (reading[9] << 8 | reading[10])/100);
+    break;
+  }
+
+}
