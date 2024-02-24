@@ -19,7 +19,7 @@
 // RS485 pins in use
 #define RX_PIN 16    // Soft Serial Receive pin, connected to RO // ! PINOUT TBC ONCE PCB ARRIVES
 #define TX_PIN 17    // Soft Serial Transmit pin, connected to DI // ! PINOUT TBC ONCE PCB ARRIVES
-#define CTRL_PIN 13  // RS485 Direction control, connected to RE and DE // ! PINOUT TBC ONCE PCB ARRIVES
+#define CTRL_PIN 26  // RS485 Direction control, connected to RE and DE // ! PINOUT TBC ONCE PCB ARRIVES
 
 #define baud_rate 9600
 
@@ -36,11 +36,11 @@ Config protocol = SWSERIAL_8N1;
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // CWT sensor addresses
-byte hexI[] {0x01, 0x02, 0x03, 0x04, 0x05};
+byte hexI[] = {0x01, 0x02, 0x03, 0x04, 0x05};
 byte reading[19];
 
 /* Private Constants -------------------------------------------------------- */
-uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8D, 0x54};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 // Insert your SSID
 constexpr char WIFI_SSID[] = "localize_project";
@@ -56,6 +56,7 @@ int32_t getWiFiChannel(const char *ssid) {
   return 0;
 }
 
+int MAC_now = 0;
 float temp_now = 0;
 float con_now = 0;
 float pH_now = 0;
@@ -65,6 +66,7 @@ float P_now = 0;
 float K_now = 0;
 
 typedef struct struct_sensor_reading {
+  int MAC = 0;
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
@@ -134,7 +136,7 @@ void setup() {
 
 void loop() {
   
-    for (int i=0; i<6; i++){
+  for (int i=0; i<6; i++){
 
     if (i<5){
     // Read and send CWT data
@@ -152,14 +154,14 @@ void loop() {
     packDataRika(reading);
     }     
 
-
-    temp_now = myData.temp;
-    con_now = myData.ECVal;
-    pH_now = myData.pHVal;
-    hum_now = myData.hum;
-    N_now = myData.N;
-    P_now = myData.P;
-    K_now = myData.K;
+    myData.MAC = MAC_now;
+    myData.temp = temp_now;
+    myData.ECVal = con_now;
+    myData.pHVal = pH_now;
+    myData.hum = hum_now;
+    myData.N = N_now;
+    myData.P = P_now;
+    myData.K = K_now;
     // Send message via ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
@@ -182,11 +184,13 @@ void loop() {
 
 void request_reading_CWT(byte address) {
   byte command[8] ={address, 0x03, 0x00, 0x00, 0x00, 0x07, 0x04, 0x08};
+  CWT_Sensor.add_crc(command, 0, 6);
   CWT_Sensor.request_reading(command, 8);
 }
 
 void request_reading_rika() {
   byte command[8] = {0x06, 0x03, 0x00, 0x00, 0x00, 0x04, 0x44, 0x09};
+  CWT_Sensor.add_crc(command, 0, 6);
   CWT_Sensor.request_reading(command, 8);
 }
 
@@ -195,18 +199,24 @@ void receive_reading(byte reading[], int num_bytes) {
 }
 
 void packDataCWT(byte reading[]) {
-  hum_now = (reading[3] << 8 | reading[4]) / 10;
+  delay(5000);
+
+  MAC_now = (int)(reading[0]);
   temp_now = (reading[5] << 8 | reading[6]) / 10;
   con_now = (reading[7] << 8 | reading[8]);
   pH_now = (reading[9] << 8 | reading[10]) / 10;
+  hum_now = (reading[3] << 8 | reading[4]) / 10;
   N_now = (reading[11] << 8 | reading[12]) / 10;
   P_now = (reading[13] << 8 | reading[14]) / 10;
   K_now = (reading[15] << 8 | reading[16]) / 10;
 }
 
 void packDataRika(byte reading[]) {
+  delay(5000);
+
+  MAC_now = 6;
   temp_now = (reading[3] << 8 | reading[4]) / 10;
-  hum_now = (reading[5] << 8 | reading[6]) / 10;
   con_now = (reading[7] << 8 | reading[8]);
   pH_now = (reading[9] << 8 | reading[10]) / 10;
+  hum_now = (reading[5] << 8 | reading[6]) / 10;
 }
