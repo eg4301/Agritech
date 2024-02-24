@@ -411,10 +411,10 @@ void loop(){
     is_send_data = false;
     }
   
-  timestamp = get_formatted_time();
-  mqttPublish(timestamp,1,2,3,4,5,6,7,8,9,10,11);
-  Serial.println("Sample published");
-  delay(10000);
+  // timestamp = get_formatted_time();
+  // mqttPublish(timestamp,1,2,3,4,5,6,7,8,9,10,11);
+  // Serial.println("Sample published");
+  // delay(10000);
 
   client.loop();
   server.handleClient();
