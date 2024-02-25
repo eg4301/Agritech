@@ -83,6 +83,8 @@ const char* host = "esp32";
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
 
+// AWS Reconnect
+long lastReconnectAttempt1;
 
 /**
  * @brief Returns the current datetime in a formatted string.
@@ -181,7 +183,16 @@ void connectAWS() {
   Serial.println("AWS IoT Connected!");
 }
  
+boolean AWS_reconnect() {
+  if (client.connect(THINGNAME)){
+    // Test Publish to AWS_IOT_PUBLISH_TOPIC
+    client.publish(AWS_IOT_PUBLISH_TOPIC, "Gateway successfully reconnected");
 
+    // Resub to subscribe topic
+    client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+  }
+  return client.connected();
+}
 
 
 typedef struct struct_sensor_reading {
@@ -329,6 +340,8 @@ void setup() {
   Serial.print("[NEW] ESP32 Board MAC Address:  ");
   Serial.println(WiFi.macAddress());
   
+  lastReconnectAttempt1 = 0;
+
   connectAWS();
 
   // setupRTC();
@@ -413,6 +426,18 @@ void loop(){
     WiFi.disconnect();
     connectAWS();
     previousMillis = currentMillis;
+  }
+
+  if ((WiFi.status() == WL_CONNECTED) && (!client.connected())){
+    long now = millis();
+    Serial.println("Client disconnected from IoT Core");
+    if (now - lastReconnectAttempt1 > 25000) {
+      lastReconnectAttempt1 = now;
+      if (AWS_reconnect()){
+        lastReconnectAttempt1 = 0;
+        Serial.println("Client successfully reconnected to IoT Core");
+      }
+    }
   }
 
  
