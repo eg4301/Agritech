@@ -77,9 +77,9 @@ void printReadings(byte readings[totSensors][numReadingTypes][numReadings]);
 
 void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sensorTrends[totSensors][numReadingTypes][2]);
 void LSRL(byte readings[numReadings], byte sensorTrends[2]);
-int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensNum, int readingType,, float val)
+int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensNum, int readingType, float val);
 void printQuickReadings(byte quickreadings[totSensors][numReadingTypes]);
-void storeReadingsCorrected(byte quickreadings[totSensors][numReadingTypes], byte reading[], int sensNum, int time, int sensType)
+void storeReadingsCorrected(byte quickreadings[totSensors][numReadingTypes], byte reading[], int sensNum, int time, int sensType);
 
 void setup() {
 
@@ -240,8 +240,8 @@ void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sen
 }
 
 int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensNum, int readingType, float val) {
-  // y2 = (y1-c1) x m2_m1 + c2
-  return (val - sensorTransform[sensNum][readingType,][0]) * sensorTransform[sensNum][readingType][1] + sensorTransform[sensNum][readingType,][2];
+  // y2 = (y1-c1) x (m2/m1) + c2
+  return (val - sensorTransform[sensNum][readingType][0]) * sensorTransform[sensNum][readingType][1] + sensorTransform[sensNum][readingType][2];
 }
 
 void storeTransform(byte sensorTrends[totSensors][numReadingTypes][2]) {
