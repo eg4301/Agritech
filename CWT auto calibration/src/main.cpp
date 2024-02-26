@@ -239,6 +239,10 @@ void calcTrend(byte readings[totSensors][numReadingTypes][numReadings], byte sen
   }
 }
 
+int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensNum, int readingType, float val) {
+  // y2 = (y1-c1) x m2_m1 + c2
+  return (val - sensorTransform[sensNum][readingType,][0]) * sensorTransform[sensNum][readingType][1] + sensorTransform[sensNum][readingType,][2];
+}
 
 void storeTransform(byte sensorTrends[totSensors][numReadingTypes][2]) {
   preferences.begin("Transform", false);
@@ -285,11 +289,6 @@ void retrieveTransform(byte sensorTransform[totSensors][numReadingTypes][3]) {
   preferences.end();
 }
 
-
-int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensNum, int readingType,, float val) {
-  // y2 = (y1-c1) x m2_m1 + c2
-  return (val - sensorTransform[sensNum][readingType,][0]) * sensorTransform[sensNum][readingType,][1] + sensorTransform[sensNum][readingType,][2];
-}
 
 
 void printQuickReadings(byte quickreadings[totSensors][numReadingTypes]) {
