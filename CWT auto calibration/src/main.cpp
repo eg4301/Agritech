@@ -118,7 +118,7 @@ void setup() {
     delay(1000);
 
     printReadings(readings);
-    delay(300000);
+    delay(10000);
   }
 
   // Calculate equations using linear regression for each sensor for all parameters
