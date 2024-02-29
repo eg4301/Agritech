@@ -33,7 +33,7 @@
 
 int ledStatus = LOW;
 // Set your new MAC Address
-uint8_t newMACAddress[] = {0x16, 0x16, 0x16, 0x16, 0x16, 0x05};
+uint8_t newMACAddress[] = {0x40, 0x22, 0xD8, 0x66, 0x7B, 0xF0};
 
 uint32_t lastReconnectAttempt = 0;
 uint16_t combinedhex = 0;
@@ -412,7 +412,7 @@ void setup() {
  
 void loop(){
   unsigned long currentMillis = millis();
-  
+    
   // Put ESP to deep sleep every 12h
   if (millis() >= 43200000) {
     esp_sleep_enable_timer_wakeup(20e6);
@@ -426,7 +426,7 @@ void loop(){
     connectAWS();
     previousMillis = currentMillis;
   }
-
+  
   if ((WiFi.status() == WL_CONNECTED) && (!client.connected())){
     long now = millis();
     Serial.println("Client disconnected from IoT Core");
@@ -445,10 +445,10 @@ void loop(){
     is_send_data = false;
     }
   
-  timestamp = get_formatted_time();
-  mqttPublish(timestamp,1,2,3,4,5,6,7,8,9,10,11);
-  Serial.println("Sample published");
-  delay(10000);
+  // timestamp = get_formatted_time();
+  // mqttPublish(timestamp,1,2,3,4,5,6,7,8,9,10,11);
+  // Serial.println("Sample published");
+  // delay(10000);
 
   client.loop();
   server.handleClient();
