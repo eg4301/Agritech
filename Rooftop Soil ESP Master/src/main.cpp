@@ -82,6 +82,9 @@ const char* host = "esp32";
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
 
+// AWS Reconnect
+long lastReconnectAttempt1;
+
 
 
 /**
@@ -230,6 +233,18 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 
   is_send_data = true;  
 }
+
+boolean AWS_reconnect() {
+  if (client.connect(THINGNAME)){
+    // Test Publish to AWS_IOT_PUBLISH_TOPIC
+    client.publish(AWS_IOT_PUBLISH_TOPIC, "Gateway successfully reconnected");
+
+    // Resub to subscribe topic
+    client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+  }
+  return client.connected();
+}
+
 
 
 
@@ -396,7 +411,13 @@ void setup() {
 }
  
 void loop(){
- unsigned long currentMillis = millis();
+  unsigned long currentMillis = millis();
+    
+  // Put ESP to deep sleep every 12h
+  if (millis() >= 43200000) {
+    esp_sleep_enable_timer_wakeup(20e6);
+  }
+
   // if WiFi is down, try reconnecting every CHECK_WIFI_TIME seconds
   if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
     Serial.print(millis());
@@ -405,6 +426,19 @@ void loop(){
     connectAWS();
     previousMillis = currentMillis;
   }
+  
+  if ((WiFi.status() == WL_CONNECTED) && (!client.connected())){
+    long now = millis();
+    Serial.println("Client disconnected from IoT Core");
+    if (now - lastReconnectAttempt1 > 25000) {
+      lastReconnectAttempt1 = now;
+      if (AWS_reconnect()){
+        lastReconnectAttempt1 = 0;
+        Serial.println("Client successfully reconnected to IoT Core");
+      }
+    }
+  }
+
   if (is_send_data)
     {
     mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now, atmtemp_now, hum_now, CO2_now, oxy_now, N_now, P_now, K_now);

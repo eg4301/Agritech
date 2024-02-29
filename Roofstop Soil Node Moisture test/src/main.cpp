@@ -151,7 +151,14 @@ void setup() {
 }
 
 void loop() {
-  
+  int32_t channel = getWiFiChannel(WIFI_SSID);
+  channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("WiFi Channel Not Found!");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
+
   for (int i=0; i<6; i++){
 
     if (i<5){
