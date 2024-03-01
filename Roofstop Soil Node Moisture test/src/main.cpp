@@ -158,7 +158,7 @@ void loop() {
     Serial.println("WiFi Channel Not Found!");
     channel = getWiFiChannel(WIFI_SSID);
   }
-
+ 
   for (int i=0; i<6; i++){
 
     if (i<5){

@@ -30,7 +30,7 @@
 #define RETURN_FUNCTIONCODE_IDX 1
 
 // Soil sensor constants
-#define totSensors 2  // Total number of sensors
+#define totSensors 6  // Total number of sensors
 #define numReadingTypes 5 // Number of readings types to be taken
 #define numReadings 5 // Number of readings to be taken
 
@@ -41,7 +41,7 @@ Preferences preferences;
 
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
-byte hexI[] {0x01};
+byte hexI[5] {0x01, 0x02, 0x03, 0x04, 0x05};
 // byte hexI[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 int numCWT = sizeof(hexI);
 
@@ -80,6 +80,7 @@ void LSRL(byte readings[numReadings], byte sensorTrends[2]);
 int transform(byte sensorTransform[totSensors][numReadingTypes][3], int sensNum, int readingType, float val);
 void printQuickReadings(byte quickreadings[totSensors][numReadingTypes]);
 void storeReadingsCorrected(byte quickreadings[totSensors][numReadingTypes], byte reading[], int sensNum, int time, int sensType);
+void storeTransform(byte sensorTrends[totSensors][numReadingTypes][2]);
 
 void setup() {
 
@@ -113,17 +114,18 @@ void setup() {
     request_reading_rika();
     receive_reading(reading,13);
 
-    storeReadings(readings, reading, 1, j, 2);
+    storeReadings(readings, reading, numCWT, j, 2);
 
     delay(1000);
 
     printReadings(readings);
-    delay(10000);
+    delay(20000);
   }
 
   // Calculate equations using linear regression for each sensor for all parameters
   // Stores it into sensorTrends[(sensors)][(parameters)][(slope,intercept)]
   calcTrend(readings, sensorTrends);
+  storeTransform(sensorTrends);
 
   // 
 }
@@ -134,16 +136,19 @@ void loop() {
 
 void request_reading_CWT(byte address) {
   byte command[8] ={address, 0x03, 0x00, 0x00, 0x00, 0x07, 0x04, 0x08};
+  CWT_Sensor.add_crc(command, 0, 6);
   CWT_Sensor.request_reading(command, 8);
 }
 
 void request_reading_rika() {
   byte command[8] = {0x06, 0x03, 0x00, 0x00, 0x00, 0x04, 0x45, 0xBE};
+  CWT_Sensor.add_crc(command, 0, 6);
   CWT_Sensor.request_reading(command, 8);
 }
 
 void request_reading_moisture() {
   byte command[8] = {0x07, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x6c};
+  CWT_Sensor.add_crc(command, 0, 6);
   CWT_Sensor.request_reading(command, 8);
 }
 
@@ -262,6 +267,7 @@ void storeTransform(byte sensorTrends[totSensors][numReadingTypes][2]) {
       preferences.putFloat(keyC1.c_str(), sensorTrends[sensor][readingType][0]);
       preferences.putFloat(keym2_m1.c_str(), m2/sensorTrends[sensor][readingType][1]);
       preferences.putFloat(keyC2.c_str(), c2);
+      Serial.println("trans stored");
     }
   }
 
