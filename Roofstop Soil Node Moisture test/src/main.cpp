@@ -225,10 +225,14 @@ void packDataCWT(byte reading[]) {
   delay(5000);
 
   MAC_now = (int)(reading[0]);
-  temp_now = transform(sensorTransform, MAC_now, 2, (reading[3] << 8 | reading[4]) / 10);
-  con_now = transform(sensorTransform, MAC_now, 3, (reading[7] << 8 | reading[8]));
-  pH_now = transform(sensorTransform, MAC_now, 4, (reading[9] << 8 | reading[10]) / 10);
-  hum_now = transform(sensorTransform, MAC_now, 1, (reading[5] << 8 | reading[6]) / 10);
+  // temp_now = transform(sensorTransform, MAC_now, 2, (reading[3] << 8 | reading[4]) / 10);
+  // con_now = transform(sensorTransform, MAC_now, 3, (reading[7] << 8 | reading[8]));
+  // pH_now = transform(sensorTransform, MAC_now, 4, (reading[9] << 8 | reading[10]) / 10);
+  // hum_now = transform(sensorTransform, MAC_now, 1, (reading[5] << 8 | reading[6]) / 10);
+  hum_now = (reading[3] << 8 | reading[4]) / 10;
+  con_now = (reading[7] << 8 | reading[8]);
+  pH_now = (reading[9] << 8 | reading[10]) / 10;
+  temp_now = (reading[5] << 8 | reading[6]) / 10;
   N_now = (reading[11] << 8 | reading[12]) / 10;
   P_now = (reading[13] << 8 | reading[14]) / 10;
   K_now = (reading[15] << 8 | reading[16]) / 10;
