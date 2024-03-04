@@ -70,21 +70,27 @@ int32_t getWiFiChannel(const char *ssid) {
   return 0;
 }
 
-int MAC_now = 0;
 float temp_now = 0;
 float con_now = 0;
 float pH_now = 0;
+float atmtemp_now = 0;
 float hum_now = 0;
+float CO2_now = 0;
+float oxy_now = 0;
 float N_now = 0;
 float P_now = 0;
 float K_now = 0;
+int MAC_now= 0;
 
 typedef struct struct_sensor_reading {
   int MAC = 0;
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
+  float atmtemp = 0;
   float hum = 0;
+  float CO2 = 0;
+  float Oxy = 0;
   float N = 0;
   float P = 0;
   float K = 0;
@@ -225,14 +231,14 @@ void packDataCWT(byte reading[]) {
   delay(5000);
 
   MAC_now = (int)(reading[0]);
-  // temp_now = transform(sensorTransform, MAC_now, 2, (reading[3] << 8 | reading[4]) / 10);
-  // con_now = transform(sensorTransform, MAC_now, 3, (reading[7] << 8 | reading[8]));
-  // pH_now = transform(sensorTransform, MAC_now, 4, (reading[9] << 8 | reading[10]) / 10);
-  // hum_now = transform(sensorTransform, MAC_now, 1, (reading[5] << 8 | reading[6]) / 10);
-  hum_now = (reading[3] << 8 | reading[4]) / 10;
-  con_now = (reading[7] << 8 | reading[8]);
-  pH_now = (reading[9] << 8 | reading[10]) / 10;
-  temp_now = (reading[5] << 8 | reading[6]) / 10;
+  hum_now = transform(sensorTransform, MAC_now, 1, (reading[3] << 8 | reading[4]) / 10);
+  con_now = transform(sensorTransform, MAC_now, 3, (reading[7] << 8 | reading[8]));
+  pH_now = transform(sensorTransform, MAC_now, 4, (reading[9] << 8 | reading[10]) / 10);
+  temp_now = transform(sensorTransform, MAC_now, 2, (reading[5] << 8 | reading[6]) / 10);
+  // hum_now = (reading[3] << 8 | reading[4]) / 10;
+  // con_now = (reading[7] << 8 | reading[8]);
+  // pH_now = (reading[9] << 8 | reading[10]) / 10;
+  // temp_now = (reading[5] << 8 | reading[6]) / 10;
   N_now = (reading[11] << 8 | reading[12]) / 10;
   P_now = (reading[13] << 8 | reading[14]) / 10;
   K_now = (reading[15] << 8 | reading[16]) / 10;
