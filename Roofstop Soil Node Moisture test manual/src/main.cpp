@@ -76,7 +76,7 @@ void setup() {
 
 void loop() {
   
-  for (int i = 0; i < 1; i++) {
+  for (int i = 0; i < 6; i++) {
     byte reading[19] {};
     for (int j = 0; j < sizeof(HexI); j++) {
     // Read and send CWT data
@@ -84,10 +84,14 @@ void loop() {
     request_reading_CWT(HexI[j]);
     receive_reading(reading,19);
 
-    int x1 = transform(sensorTransform, j, 2, (reading[5] << 8 | reading[6])/10);
-    int x2 = transform(sensorTransform, j, 1, (reading[3] << 8 | reading[4])/10);
-    int x3 = transform(sensorTransform, j, 3, reading[7] << 8 | reading[8]);
-    int x4 = transform(sensorTransform, j, 4, (reading[9] << 8 | reading[10])/10);
+    // int x1 = transform(sensorTransform, j, 2, (reading[5] << 8 | reading[6])/10);
+    // int x2 = transform(sensorTransform, j, 1, (reading[3] << 8 | reading[4])/10);
+    // int x3 = transform(sensorTransform, j, 3, reading[7] << 8 | reading[8]);
+    // int x4 = transform(sensorTransform, j, 4, (reading[9] << 8 | reading[10])/10);
+    int x1 = (reading[5] << 8 | reading[6])/10;
+    int x2 = (reading[3] << 8 | reading[4])/10;
+    int x3 = reading[7] << 8 | reading[8];
+    int x4 = (reading[9] << 8 | reading[10])/10;
 
     // print data for PLX DAQ
     Serial.print("DATA,");
@@ -97,9 +101,9 @@ void loop() {
     Serial.print((String)(x2)+",");
     Serial.print((String)(x3)+",");
     Serial.print((String)(x4)+",");
-    Serial.print((String)(reading[11] << 8 | reading[12])+",");
-    Serial.print((String)(reading[13] << 8 | reading[14])+",");
-    Serial.println((String)((reading[15]<< 8 | reading[16])/10));
+    // Serial.print((String)(reading[11] << 8 | reading[12])+",");
+    // Serial.print((String)(reading[13] << 8 | reading[14])+",");
+    // Serial.println((String)((reading[15]<< 8 | reading[16])/10));
 
     delay(1000);
     }

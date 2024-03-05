@@ -40,7 +40,7 @@ Preferences preferences;
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // CWT sensor addresses
-byte hexI[] = {0x01, 0x02, 0x03, 0x04, 0x05};
+byte hexI[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x07, 0x08, 0x09, 0x10};
 byte reading[19];
 
 byte sensorTransform[totSensors][numReadingTypes][3] {};
@@ -120,6 +120,9 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 void setup() {
 
   Serial.begin(9600);
+
+
+
   pinMode(EN_1, OUTPUT);
   digitalWrite(EN_1, HIGH);
   delay(100);
@@ -157,6 +160,10 @@ void setup() {
 }
 
 void loop() {
+
+  gpio_hold_dis(GPIO_NUM_2); 
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
   int32_t channel = getWiFiChannel(WIFI_SSID);
   channel = getWiFiChannel(WIFI_SSID);
   while (channel < 1) {
@@ -207,7 +214,17 @@ void loop() {
   }
   
   // 10min delay between readings
-  delay(600000);
+
+  Serial.println("Go to deep sleep");
+  // Turn off and keep off the built-in led during deep sleep
+  digitalWrite(LED_BUILTIN, LOW);   
+  gpio_hold_en(GPIO_NUM_2); 
+
+  // Set deep sleep duration
+  esp_sleep_enable_timer_wakeup(900 * 1000000ULL); 
+
+  // Switch to deep sleep mode
+  esp_deep_sleep_start(); 
 
 }
 

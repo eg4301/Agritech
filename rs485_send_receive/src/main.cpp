@@ -37,10 +37,11 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 //variables
 
 int baud_rate = 9600;
+int i = 0;
 byte address[] = {0x01,0x02,0x03,0x04,0x05,0x06,0xFF};
-byte command[] = {0x06, 0x03, 0x00, 0x00, 0x00, 0x04, 0x45, 0xBE};
+byte command[] = {0x01, 0x06, 0x07, 0xD0, 0x00, 0x07, 0x08, 0x86};
 
-int num_bytes = 13;
+int num_bytes = 8;
 
 // standard commands
 // CWT check slaveID {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59}
@@ -70,11 +71,10 @@ void setup() {
   digitalWrite(EN_1, HIGH);
   delay(100);
 
-  for (int i = 5; i < 6; i++) {
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, address[i], baud_rate, protocol);  // Serial connection setup
-    request_reading(i);
-    receive_reading(num_bytes);
-  }
+  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, address[i], baud_rate, protocol);  // Serial connection setup
+  request_reading(i);
+  receive_reading(num_bytes);
+
 
 
 }
