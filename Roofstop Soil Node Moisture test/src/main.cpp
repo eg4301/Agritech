@@ -29,7 +29,7 @@
 #define RS485_RECEIVE LOW
 
 // Soil sensor constants
-#define totSensors 2  // Total number of sensors
+#define totSensors 6  // Total number of sensors
 #define numReadingTypes 5 // Number of readings types to be taken
 #define numReadings 5 // Number of readings to be taken
 
@@ -220,8 +220,8 @@ void loop() {
   digitalWrite(LED_BUILTIN, LOW);   
   gpio_hold_en(GPIO_NUM_2); 
 
-  // Set deep sleep duration
-  esp_sleep_enable_timer_wakeup(900 * 1000000ULL); 
+  // Set deep sleep duration (3600s = 1hr)
+  esp_sleep_enable_timer_wakeup(3600 * 1000000ULL); 
 
   // Switch to deep sleep mode
   esp_deep_sleep_start(); 
