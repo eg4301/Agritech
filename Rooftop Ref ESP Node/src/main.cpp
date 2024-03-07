@@ -16,9 +16,9 @@
 
 
 // RS485 pins in use
-#define RX_PIN 16    // Soft Serial Receive pin, connected to RO //  
-#define TX_PIN 17    // Soft Serial Transmit pin, connected to DI // 
-#define CTRL_PIN 26  // RS485 Direction control, connected to RE and DE // 
+#define RX_PIN 12    // Soft Serial Receive pin, connected to RO //  
+#define TX_PIN 14    // Soft Serial Transmit pin, connected to DI // 
+#define CTRL_PIN 13  // RS485 Direction control, connected to RE and DE // 
 
 
 // RS485 Constants
@@ -35,14 +35,14 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // Declarations for Actuation (pumps + valve)
 // When changin pins, please also change the pin numbers manually in pumplist!!!
-#define PUMP_PIN_1 9
-#define PUMP_PIN_2 10
-#define PUMP_PIN_3 11
-#define PUMP_PIN_4 12
-#define PUMP_PIN_5 13
-#define PUMP_PIN_6 14
-#define PUMP_PIN_7 15
-#define VALVE_PIN 16
+#define HIGH_PERISTALTIC_PIN_1 4
+#define PERISTALTIC_PIN_1 5
+#define PERISTALTIC_PIN_2 6
+#define PERISTALTIC_PIN_3 7
+#define RECIRCULATING_PUMP 15
+#define IRRIGATION_PUMP 16
+#define WATER_VALVE 17
+#define SAMPLING_VALVE 18
 
 // Define length of time pumps and valves are open
 
@@ -50,14 +50,14 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 // #define VALVE_DURATION 5000
 
 #define PUMP_DURATION 120000
+#define HIGH_PUMP_DURATION 12000
 #define VALVE_DURATION 10000
+
 
 // #define PUMP_DURATION 480000
 // #define VALVE_DURATION 10000
 
-// Change here too!!!
-int pumplist[] = 
-{  9,  10,  11,  12,  13,  14};
+
 
 // Declarations for pH Sensor:
 #define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
@@ -84,7 +84,12 @@ float ecValue;
 // Declarations for Temp Sensor:
 const int oneWireBus = 7;     
 float temperature;
-// char MAC_address[17] = {1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7};
+
+// Declarations for Water Pressure Sensor:
+#define PRESSURE_PIN 8
+#define pressure_offset 0.5
+#define container_area 1
+float waterAmt;
 
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
@@ -92,8 +97,17 @@ DallasTemperature sensors(&oneWire);
 
 uint8_t broadcastAddress[] = {0xEC, 0xDA, 0x3B, 0x96, 0xF2, 0x14};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
+int MAC ;
+float pHVal = 0;
+float ECVal = 0;
+float temp = 0;
+float atmtemp = 0;
+float hum = 0;
+float CO2 = 0;
+float Oxy = 0;
+
 typedef struct struct_sensor_reading {
-  int MAC;
+  int MAC ;
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
@@ -157,11 +171,14 @@ void ecRead(){
 void tempRead(){
   sensors.requestTemperatures(); 
   temperature = sensors.getTempCByIndex(0);
-
-  //float temperatureF = sensors.getTempFByIndex(0);
-
   Serial.print(temperature);
   Serial.println("ºC");
+}
+
+void waterlevelRead(){
+  //calculates pressure in kPa (density accounted for in waterAmt calculation)
+  float pressure = (analogRead(PRESSURE_PIN) - pressure_offset) * (3.3 / 4096.0) * (1600 / (4.5 - pressure_offset));
+  waterAmt = pressure * container_area;
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
@@ -182,60 +199,56 @@ void watermeterClose() {
   CWT_Sensor.request_reading(command, 8); 
 }
 
+void fillChamber() {
+  //Filling of sampling chamber with clean water
+  digitalWrite(PERISTALTIC_PIN_3, HIGH);
+  delay(PUMP_DURATION);           
+  digitalWrite(PERISTALTIC_PIN_3, LOW);
+}
+
 // Sequence of events
 void sampling_seq() {
     
-  digitalWrite(VALVE_PIN, HIGH);
+  // Initial clearing of water
+  digitalWrite(SAMPLING_VALVE, HIGH);
   delay(VALVE_DURATION);           
-  digitalWrite(VALVE_PIN, LOW);
+  digitalWrite(SAMPLING_VALVE, LOW);
   
-  // for (int i = 0; i < (sizeof(pumplist)) / sizeof(pumplist[0]); i++) {
-  for (int i = 1; i < 2; i++) {
+  // Drawing of sample from mixing tank
+  digitalWrite(HIGH_PERISTALTIC_PIN_1, HIGH);
+  delay(HIGH_PUMP_DURATION);           
+  digitalWrite(HIGH_PERISTALTIC_PIN_1, LOW); 
 
-    digitalWrite(pumplist[i], HIGH);
-    delay(PUMP_DURATION);           
-    digitalWrite(pumplist[i], LOW); 
+  tempRead();
+  phRead();
+  ecRead();
 
-    tempRead();
-    DFRobot. ();
-    ecRead();
+  myData.temp = temperature;
+  myData.ECVal = ecValue;
+  myData.pHVal = pHValue;
 
-    myData.temp = temperature;
-    myData.ECVal = ecValue;
-    myData.pHVal = pHValue;
-
-    digitalWrite(VALVE_PIN, HIGH);
-    delay(VALVE_DURATION);           
-    digitalWrite(VALVE_PIN, LOW);
-
-    digitalWrite(int(PUMP_PIN_6), HIGH);
-    delay(PUMP_DURATION);           
-    digitalWrite(int(PUMP_PIN_6), LOW); 
-
-    if (i!=5){
-      digitalWrite(VALVE_PIN, HIGH);
-      delay(VALVE_DURATION);           
-      digitalWrite(VALVE_PIN, LOW);
-
-      Serial.println(pumplist[i]);
-    }
+  // Release sample back to mixing tank
+  digitalWrite(SAMPLING_VALVE, HIGH);
+  delay(VALVE_DURATION);           
+  digitalWrite(SAMPLING_VALVE, LOW);
 
 
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
+  // Send data to master
+  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
-    if (result == ESP_OK) {
-      Serial.println("Sent with success Pump #" + String(pumplist[i]));
+  if (result == ESP_OK) {
+    Serial.println("Sent with success Pump #" + String(pumplist[i]));
 
-    } else {
-      Serial.println("Error sending the data");
-    }
-    esp_now_register_send_cb(OnDataSent);
+  } else {
+    Serial.println("Error sending the data");
   }
+  esp_now_register_send_cb(OnDataSent);
 
-  digitalWrite(int(PUMP_PIN_6), HIGH);
-  delay(PUMP_DURATION);           
-  digitalWrite(int(PUMP_PIN_6), LOW); 
 
+  //Clearing of sampling chamber
+  digitalWrite(SAMPLING_VALVE, HIGH);
+  delay(VALVE_DURATION);           
+  digitalWrite(SAMPLING_VALVE, LOW); 
 }
 
 
@@ -282,27 +295,19 @@ void setup() {
 
 
   // Initialize pump pins
-  pinMode(PUMP_PIN_1, OUTPUT);
-  pinMode(PUMP_PIN_2, OUTPUT);
-  pinMode(PUMP_PIN_3, OUTPUT);
-  pinMode(PUMP_PIN_4, OUTPUT);
-  pinMode(PUMP_PIN_5, OUTPUT);
-  pinMode(PUMP_PIN_6, OUTPUT);
-  pinMode(PUMP_PIN_7, OUTPUT);
-  pinMode(VALVE_PIN, OUTPUT);
+  pinMode(HIGH_PERISTALTIC_PIN_1, OUTPUT);
+  pinMode(PERISTALTIC_PIN_1, OUTPUT);
+  pinMode(PERISTALTIC_PIN_2, OUTPUT);
+  pinMode(PERISTALTIC_PIN_3, OUTPUT);
+  pinMode(RECIRCULATING_PUMP, OUTPUT);
+  pinMode(IRRIGATION_PUMP, OUTPUT);
+  pinMode(WATER_VALVE, OUTPUT);
+  pinMode(SAMPLING_VALVE, OUTPUT);
 
 }
 
 void loop() {
 
-  // digitalWrite(PUMP_PIN_1, HIGH);
-  // digitalWrite(PUMP_PIN_2, HIGH);
-  // digitalWrite(PUMP_PIN_3, HIGH);
-  // digitalWrite(PUMP_PIN_4, HIGH);
-  // digitalWrite(PUMP_PIN_5, HIGH);
-  // digitalWrite(PUMP_PIN_6, HIGH);
-  // digitalWrite(PUMP_PIN_7, HIGH);
-  // digitalWrite(VALVE_PIN, HIGH);
   int32_t channel = getWiFiChannel(WIFI_SSID);
   channel = getWiFiChannel(WIFI_SSID);
   while (channel < 1) {
