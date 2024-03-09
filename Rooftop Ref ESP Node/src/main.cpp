@@ -45,21 +45,15 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 #define RECIRCULATING_PUMP 15 //Relay 4
 #define IRRIGATION_PUMP 16 //Relay 3
 #define WATER_VALVE 17  //Relay 2
-#define SAMPLING_VALVE 18  //Relay 1
+#define HIGH_PERISTALTIC_PIN_2 18  //Relay 1 (pumps water opposite direction)
 
 // Define length of time pumps and valves are open
 
-// #define PUMP_DURATION 5000
-// #define VALVE_DURATION 5000
-
-#define PUMP_DURATION 120000
-#define HIGH_PUMP_DURATION 12000
-#define VALVE_DURATION 10000
-
-
-// #define PUMP_DURATION 480000
-// #define VALVE_DURATION 10000
-
+#define PUMP_DURATION 120000 //time used to pump clean water in ms
+#define HIGH_PUMP_DURATION 6000 //time used to pump sample in ms
+#define CLEAR_DURATION 10000 //time used to clear sample in ms
+#define MIXING_DURATION 60000 //time used to mix sample in ms
+#define IRRIGATION_DURATION 120000 //time used to pump sample in ms
 
 
 // Declarations for pH Sensor:
@@ -96,7 +90,6 @@ float temperature;
 
 // Declarations for Water Switch:
 #define WATER_SWITCH_PIN 8
-bool waterFull = true;
 
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
@@ -217,9 +210,9 @@ void fillChamber() {
 void sampling_seq() {
     
   // Initial clearing of water
-  digitalWrite(SAMPLING_VALVE, HIGH);
-  delay(VALVE_DURATION);           
-  digitalWrite(SAMPLING_VALVE, LOW);
+  digitalWrite(HIGH_PERISTALTIC_PIN_2, HIGH);
+  delay(CLEAR_DURATION);           
+  digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
   
   // Drawing of sample from mixing tank
   digitalWrite(HIGH_PERISTALTIC_PIN_1, HIGH);
@@ -235,9 +228,9 @@ void sampling_seq() {
   myData.pHVal = pHValue;
 
   // Release sample back to mixing tank
-  digitalWrite(SAMPLING_VALVE, HIGH);
-  delay(VALVE_DURATION);           
-  digitalWrite(SAMPLING_VALVE, LOW);
+  digitalWrite(HIGH_PERISTALTIC_PIN_2, HIGH);
+  delay(CLEAR_DURATION);           
+  digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
 
 
   // Send data to master
@@ -252,12 +245,87 @@ void sampling_seq() {
   esp_now_register_send_cb(OnDataSent);
 
 
-  //Clearing of sampling chamber
-  digitalWrite(SAMPLING_VALVE, HIGH);
-  delay(VALVE_DURATION);           
-  digitalWrite(SAMPLING_VALVE, LOW); 
+  //Adding clean water to chamber
+  digitalWrite(PERISTALTIC_PIN_3, HIGH);
+  delay(PUMP_DURATION);           
+  digitalWrite(PERISTALTIC_PIN_3, LOW); 
 }
 
+void dosing_seq () {
+  // Get dosing requirements
+  // Dosing actuation
+
+  int doseDuration = 0;
+  bool correct_dose = false;
+  while (!correct_dose)
+  {
+    get_dosing_req();
+
+    // Adding of nutrient A 
+    digitalWrite(PERISTALTIC_PIN_1, HIGH);
+    delay(doseDuration);           
+    digitalWrite(PERISTALTIC_PIN_1, LOW); 
+
+    // Adding of nutrient B
+    digitalWrite(PERISTALTIC_PIN_2, HIGH);
+    delay(doseDuration);           
+    digitalWrite(PERISTALTIC_PIN_2, LOW); 
+
+    // Begin mixing
+    digitalWrite(RECIRCULATING_PUMP, HIGH);
+    delay(MIXING_DURATION); // Recirculating time
+    digitalWrite(RECIRCULATING_PUMP, LOW);
+
+    // Samples to obtain EC and pH values
+    sampling_seq();
+
+    // // Check if ONLY EC threshold is met
+    // 
+    // if() {
+    //   correct_dose = true;
+    //   break;
+    // }
+    // else {
+    //   continue;
+    // }
+  }
+  
+
+}
+
+int get_dosing_req() {
+  // Get difference in EC from master
+
+  // Calculates dosing requirements
+  if () {
+    // if receive
+    return 0;
+  }
+  else {
+    //if no receive
+    return 0;
+  }
+}
+
+// add timer function to start watering every morning
+
+void watering_seq() {
+  // 1. Fill mixing tank to full level
+  // 2. Dosing Sequence (interatively checks if dosing requirements met, then doses accordingly)
+  // 3. Pumps mixture out according to plant daily requirement
+
+  // Fill water level to full
+  while(digitalRead(WATER_SWITCH_PIN) == LOW) {
+    digitalWrite(IRRIGATION_PUMP, HIGH);
+  }
+
+  dosing_seq();
+
+  // Begin irrigation to plants
+  digitalWrite(IRRIGATION_PUMP, HIGH);
+  delay(IRRIGATION_DURATION); // Irrigation time
+  digitalWrite(IRRIGATION_PUMP, LOW);
+}
 
 
 void setup() {
@@ -303,7 +371,7 @@ void setup() {
   // }
 
 
-  // Initialize pump pins
+  // Initialize pins
   pinMode(HIGH_PERISTALTIC_PIN_1, OUTPUT);
   pinMode(PERISTALTIC_PIN_1, OUTPUT);
   pinMode(PERISTALTIC_PIN_2, OUTPUT);
@@ -311,7 +379,13 @@ void setup() {
   pinMode(RECIRCULATING_PUMP, OUTPUT);
   pinMode(IRRIGATION_PUMP, OUTPUT);
   pinMode(WATER_VALVE, OUTPUT);
-  pinMode(SAMPLING_VALVE, OUTPUT);
+  pinMode(HIGH_PERISTALTIC_PIN_2, OUTPUT);
+
+  pinMode(WATER_SWITCH_PIN, INPUT);
+  pinMode(PH_PIN, INPUT);
+  pinMode(EC_PIN, INPUT);
+  pinMode(oneWireBus, INPUT);
+
 
 
   tempRead();
@@ -337,7 +411,6 @@ void loop() {
 
 
   // delay(2400000);
-  delay(900000);
   
 }
 
