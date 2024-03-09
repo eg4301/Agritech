@@ -3,6 +3,8 @@
 
 #include <DFRobot_EC.h>
 
+#include <Sol16_RS485.h>
+#include <SoftwareSerial.h>
 #include <Wire.h>
 #include <WiFi.h>
 
@@ -14,6 +16,7 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
 
+#define baud_rate 9600
 
 // RS485 pins in use
 #define RX_PIN 12    // Soft Serial Receive pin, connected to RO //  
@@ -35,14 +38,14 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // Declarations for Actuation (pumps + valve)
 // When changin pins, please also change the pin numbers manually in pumplist!!!
-#define HIGH_PERISTALTIC_PIN_1 4
-#define PERISTALTIC_PIN_1 5
-#define PERISTALTIC_PIN_2 6
-#define PERISTALTIC_PIN_3 7
-#define RECIRCULATING_PUMP 15
-#define IRRIGATION_PUMP 16
-#define WATER_VALVE 17
-#define SAMPLING_VALVE 18
+#define HIGH_PERISTALTIC_PIN_1 4 //Relay 8
+#define PERISTALTIC_PIN_1 5 //Relay 7
+#define PERISTALTIC_PIN_2 6 //Relay 6
+#define PERISTALTIC_PIN_3 7 //Relay 5
+#define RECIRCULATING_PUMP 15 //Relay 4
+#define IRRIGATION_PUMP 16 //Relay 3
+#define WATER_VALVE 17  //Relay 2
+#define SAMPLING_VALVE 18  //Relay 1
 
 // Define length of time pumps and valves are open
 
@@ -60,15 +63,15 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 
 // Declarations for pH Sensor:
-#define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 15.78       // Flat deviation compensate
-#define scaleOff_ph -6       // Scale deviation compensate
+#define PH_PIN 9             // pH meter Analog output to Arduino Analog Input 0
+#define flatOff_ph 15.82       // Flat deviation compensate
+#define scaleOff_ph -5.66       // Scale deviation compensate
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
 
 
 // Declarations for EC Sensor:
-#define EC_PIN 6
+#define EC_PIN 10
 
   // Using DFRobot library
 // #define flatOff_ec 0.41                     // Flat deviation compensate
@@ -77,19 +80,23 @@ float pHValue = 0;            // Final pH Value
 // DFRobot_EC ec;
 
   // Own code
-#define ecLow 215
-#define ecHigh 1922
+#define ecLow 288
+#define ecHigh 2042
 float ecValue;
 
 // Declarations for Temp Sensor:
-const int oneWireBus = 7;     
+const int oneWireBus = 11;     
 float temperature;
 
-// Declarations for Water Pressure Sensor:
-#define PRESSURE_PIN 8
-#define pressure_offset 0.5
-#define container_area 1
-float waterAmt;
+// // Declarations for Water Pressure Sensor:
+// #define PRESSURE_PIN 8
+// #define pressure_offset 0.5
+// #define container_area 1
+// float waterAmt;
+
+// Declarations for Water Switch:
+#define WATER_SWITCH_PIN 8
+bool waterFull = true;
 
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
@@ -237,7 +244,7 @@ void sampling_seq() {
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
   if (result == ESP_OK) {
-    Serial.println("Sent with success Pump #" + String(pumplist[i]));
+    Serial.println("Sent with success");
 
   } else {
     Serial.println("Error sending the data");
@@ -254,44 +261,46 @@ void sampling_seq() {
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(baud_rate);
   // ec.begin();
   sensors.begin();
+
+  Serial.println("Initializing...");
   // memcpy(myData.MAC,MAC_address,17);
 
-  myData.MAC = 1;
+  // myData.MAC = 1;
 
-  WiFi.enableLongRange(true);
-  WiFi.mode(WIFI_STA);
-  WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  // WiFi.enableLongRange(true);
+  // WiFi.mode(WIFI_STA);
+  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
   
-  int32_t channel = getWiFiChannel(WIFI_SSID);
-  while (channel < 1) {
-    delay(1000);
-    Serial.println("WiFi Channel Not Found!");
-    channel = getWiFiChannel(WIFI_SSID);
-  }
+  // int32_t channel = getWiFiChannel(WIFI_SSID);
+  // while (channel < 1) {
+  //   delay(1000);
+  //   Serial.println("WiFi Channel Not Found!");
+  //   channel = getWiFiChannel(WIFI_SSID);
+  // }
 
-  WiFi.printDiag(Serial); // Uncomment to verify channel number before
-  esp_wifi_set_promiscuous(true);
-  esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
-  esp_wifi_set_promiscuous(false);
-  WiFi.printDiag(Serial); // Uncomment to verify channel change after
+  // WiFi.printDiag(Serial); // Uncomment to verify channel number before
+  // esp_wifi_set_promiscuous(true);
+  // esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+  // esp_wifi_set_promiscuous(false);
+  // WiFi.printDiag(Serial); // Uncomment to verify channel change after
 
-  // Init ESP-NOW
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-  }
+  // // Init ESP-NOW
+  // if (esp_now_init() != ESP_OK) {
+  //   Serial.println("Error initializing ESP-NOW");
+  // }
 
-  // Register peer
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  peerInfo.channel = 0;
-  peerInfo.encrypt = false;
+  // // Register peer
+  // memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  // peerInfo.channel = 0;
+  // peerInfo.encrypt = false;
 
-  // Add peer
-  if (esp_now_add_peer(&peerInfo) == ESP_OK) {
-    Serial.println("Peer Added");
-  }
+  // // Add peer
+  // if (esp_now_add_peer(&peerInfo) == ESP_OK) {
+  //   Serial.println("Peer Added");
+  // }
 
 
   // Initialize pump pins
@@ -304,19 +313,23 @@ void setup() {
   pinMode(WATER_VALVE, OUTPUT);
   pinMode(SAMPLING_VALVE, OUTPUT);
 
+
+  tempRead();
+  phRead();
+  ecRead();
 }
 
 void loop() {
 
-  int32_t channel = getWiFiChannel(WIFI_SSID);
-  channel = getWiFiChannel(WIFI_SSID);
-  while (channel < 1) {
-    delay(1000);
-    Serial.println("WiFi Channel Not Found!");
-    channel = getWiFiChannel(WIFI_SSID);
-  }
+  // int32_t channel = getWiFiChannel(WIFI_SSID);
+  // channel = getWiFiChannel(WIFI_SSID);
+  // while (channel < 1) {
+  //   delay(1000);
+  //   Serial.println("WiFi Channel Not Found!");
+  //   channel = getWiFiChannel(WIFI_SSID);
+  // }
 
-  sampling_seq();
+  // sampling_seq();
 
   // Once ESPNow is successfully Init, we will register for Send CB to
   // get the status of Trasnmitted packet;
