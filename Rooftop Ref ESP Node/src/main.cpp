@@ -60,23 +60,23 @@ int pumplist[] =
 {  9,  10,  11,  12,  13,  14};
 
 // Declarations for pH Sensor:
-#define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 15.78       // Flat deviation compensate
-#define scaleOff_ph -6       // Scale deviation compensate
-float avgRead_ph;             //Store the average value of the sensor feedback
+#define PH_PIN 5              // pH meter Analog output to Arduino Analog Input 0
+#define flatOff_ph 15.78      // Flat deviation compensate
+#define scaleOff_ph -6        // Scale deviation compensate
+float avgRead_ph;             // Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
 
 
 // Declarations for EC Sensor:
 #define EC_PIN 6
 
-  // Using DFRobot library
+// // Using DFRobot library
 // #define flatOff_ec 0.41                     // Flat deviation compensate
 // #define scaleOff_ec 1.07                    // Scale deviation compensate
 // float voltageRead,ecValue,temperature = 22;
 // DFRobot_EC ec;
 
-  // Own code
+// Own code
 #define ecLow 215
 #define ecHigh 1922
 float ecValue;
