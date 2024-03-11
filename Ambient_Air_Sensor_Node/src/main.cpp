@@ -118,6 +118,11 @@ void setup() {
   WiFi.mode(WIFI_STA);
   // WiFi.setTxPower(WIFI_POWER_19_5dBm);
   int32_t channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("channel reconnecting");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
 
   WiFi.printDiag(Serial); // Uncomment to verify channel number before
   esp_wifi_set_promiscuous(true);
@@ -145,6 +150,13 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  int32_t channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("channel reconnecting");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
+  
   getCO2HumTemp();
   getO2();
   myData.atmtemp = atmTemp;

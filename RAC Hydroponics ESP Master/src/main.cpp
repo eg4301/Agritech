@@ -76,10 +76,13 @@ float timezone;
 ESP32Time rtc;
 uint64_t seconds, minutes, hours, days, months, year;
 
+<<<<<<< Updated upstream
 // OTA
 const char* host = "esp32";
 
 // WiFi Reconnect
+=======
+>>>>>>> Stashed changes
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
 
@@ -409,6 +412,7 @@ void setup() {
  
 void loop(){
   unsigned long currentMillis = millis();
+<<<<<<< Updated upstream
 
   // Put ESP to deep sleep every 12h
   if (millis() >= 43200000) {
@@ -420,10 +424,14 @@ void loop(){
   delay(100);
   
   // if WiFi is down, try reconnecting
+=======
+  // if WiFi is down, try reconnecting every CHECK_WIFI_TIME seconds
+>>>>>>> Stashed changes
   if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
     Serial.print(millis());
     Serial.println("Reconnecting to WiFi...");
     WiFi.disconnect();
+<<<<<<< Updated upstream
     connectAWS();
     previousMillis = currentMillis;
   }
@@ -441,6 +449,11 @@ void loop(){
   }
 
  
+=======
+    WiFi.reconnect();
+    previousMillis = currentMillis;
+  }
+>>>>>>> Stashed changes
   if (is_send_data)
     {
     mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now, atmtemp_now, hum_now, CO2_now, oxy_now);
