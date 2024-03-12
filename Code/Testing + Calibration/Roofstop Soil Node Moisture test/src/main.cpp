@@ -144,7 +144,7 @@ void setup() {
     return;
   }
 
-  
+
 
   // Register peer
   memcpy(peerInfo.peer_addr, broadcastAddress, 6);
@@ -156,77 +156,75 @@ void setup() {
     Serial.println("Peer Added");
     return;
   }
-  
-}
 
-void loop() {
-  for (int j=0; j<6;j++){
-    gpio_hold_dis(GPIO_NUM_2); 
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH);
-    int32_t channel = getWiFiChannel(WIFI_SSID);
-    channel = getWiFiChannel(WIFI_SSID);
-    while (channel < 1) {
-      delay(1000);
-      Serial.println("WiFi Channel Not Found!");
-      channel = getWiFiChannel(WIFI_SSID);
-    }
-  
-    for (int i=0; i<6; i++){
-
-      if (i<5){
-      // Read and send CWT data
-      CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
-      request_reading_CWT(hexI[i]);
-      receive_reading(reading, 19);
-      packDataCWT(reading);
-      }    
-
-      else {
-      // Read and send Rika data
-      CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
-      request_reading_rika();
-      receive_reading(reading, 13);
-      packDataRika(reading);
-      }     
-
-      myData.MAC = MAC_now;
-      myData.temp = temp_now;
-      myData.ECVal = con_now;
-      myData.pHVal = pH_now;
-      myData.hum = hum_now;
-      myData.N = N_now;
-      myData.P = P_now;
-      myData.K = K_now;
-      // Send message via ESP-NOW
-      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
-
-      if (result == ESP_OK) {
-        Serial.println("Sent with success");
-      } else {
-        Serial.println("Error sending the data");
-      }
-      // Once ESPNow is successfully Init, we will register for Send CB to
-      // get the status of Trasnmitted packet
-      esp_now_register_send_cb(OnDataSent);
-
-      delay(5000);
-    }
-    
-    // 10min delay between readings
-
-    Serial.println("Go to deep sleep");
-    // Turn off and keep off the built-in led during deep sleep
-    digitalWrite(LED_BUILTIN, LOW);   
-    gpio_hold_en(GPIO_NUM_2); 
-
-    // Set deep sleep duration (3600s = 1hr)
-    esp_sleep_enable_timer_wakeup(300 * 1000000ULL); 
-
-    // Switch to deep sleep mode
-    esp_deep_sleep_start(); 
   }
-  delay(600000000);
+
+  void loop() {
+  gpio_hold_dis(GPIO_NUM_2); 
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  int32_t channel = getWiFiChannel(WIFI_SSID);
+  channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("WiFi Channel Not Found!");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
+
+  for (int i=1; i<6; i++){
+
+    if (i<5){
+    // Read and send CWT data
+    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
+    request_reading_CWT(hexI[i]);
+    receive_reading(reading, 19);
+    packDataCWT(reading);
+    }    
+
+    else {
+    // Read and send Rika data
+    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
+    request_reading_rika();
+    receive_reading(reading, 13);
+    packDataRika(reading);
+    }     
+
+    myData.MAC = MAC_now;
+    myData.temp = temp_now;
+    myData.ECVal = con_now;
+    myData.pHVal = pH_now;
+    myData.hum = hum_now;
+    myData.N = N_now;
+    myData.P = P_now;
+    myData.K = K_now;
+    // Send message via ESP-NOW
+    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
+
+    if (result == ESP_OK) {
+      Serial.println("Sent with success");
+    } else {
+      Serial.println("Error sending the data");
+    }
+    // Once ESPNow is successfully Init, we will register for Send CB to
+    // get the status of Trasnmitted packet
+    esp_now_register_send_cb(OnDataSent);
+
+    delay(5000);
+  }
+  
+  // 10min delay between readings
+
+  Serial.println("Go to deep sleep");
+  // Turn off and keep off the built-in led during deep sleep
+  digitalWrite(LED_BUILTIN, LOW);   
+  gpio_hold_en(GPIO_NUM_2); 
+
+  // Set deep sleep duration (3600s = 1hr)
+  esp_sleep_enable_timer_wakeup(300 * 1000000ULL); 
+
+  // Switch to deep sleep mode
+  esp_deep_sleep_start(); 
+
 }
 
 void request_reading_CWT(byte address) {
