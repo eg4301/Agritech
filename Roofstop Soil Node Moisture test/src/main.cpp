@@ -160,72 +160,73 @@ void setup() {
 }
 
 void loop() {
-
-  gpio_hold_dis(GPIO_NUM_2); 
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
-  int32_t channel = getWiFiChannel(WIFI_SSID);
-  channel = getWiFiChannel(WIFI_SSID);
-  while (channel < 1) {
-    delay(1000);
-    Serial.println("WiFi Channel Not Found!");
+  for (int j=0; j<6;j++){
+    gpio_hold_dis(GPIO_NUM_2); 
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
+    int32_t channel = getWiFiChannel(WIFI_SSID);
     channel = getWiFiChannel(WIFI_SSID);
-  }
- 
-  for (int i=0; i<6; i++){
-
-    if (i<5){
-    // Read and send CWT data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
-    request_reading_CWT(hexI[i]);
-    receive_reading(reading, 19);
-    packDataCWT(reading);
-    }    
-
-    else {
-    // Read and send Rika data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
-    request_reading_rika();
-    receive_reading(reading, 13);
-    packDataRika(reading);
-    }     
-
-    myData.MAC = MAC_now;
-    myData.temp = temp_now;
-    myData.ECVal = con_now;
-    myData.pHVal = pH_now;
-    myData.hum = hum_now;
-    myData.N = N_now;
-    myData.P = P_now;
-    myData.K = K_now;
-    // Send message via ESP-NOW
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
-
-    if (result == ESP_OK) {
-      Serial.println("Sent with success");
-    } else {
-      Serial.println("Error sending the data");
+    while (channel < 1) {
+      delay(1000);
+      Serial.println("WiFi Channel Not Found!");
+      channel = getWiFiChannel(WIFI_SSID);
     }
-    // Once ESPNow is successfully Init, we will register for Send CB to
-    // get the status of Trasnmitted packet
-    esp_now_register_send_cb(OnDataSent);
-
-    delay(5000);
-  }
   
-  // 10min delay between readings
+    for (int i=0; i<6; i++){
 
-  Serial.println("Go to deep sleep");
-  // Turn off and keep off the built-in led during deep sleep
-  digitalWrite(LED_BUILTIN, LOW);   
-  gpio_hold_en(GPIO_NUM_2); 
+      if (i<5){
+      // Read and send CWT data
+      CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
+      request_reading_CWT(hexI[i]);
+      receive_reading(reading, 19);
+      packDataCWT(reading);
+      }    
 
-  // Set deep sleep duration (3600s = 1hr)
-  esp_sleep_enable_timer_wakeup(3600 * 1000000ULL); 
+      else {
+      // Read and send Rika data
+      CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
+      request_reading_rika();
+      receive_reading(reading, 13);
+      packDataRika(reading);
+      }     
 
-  // Switch to deep sleep mode
-  esp_deep_sleep_start(); 
+      myData.MAC = MAC_now;
+      myData.temp = temp_now;
+      myData.ECVal = con_now;
+      myData.pHVal = pH_now;
+      myData.hum = hum_now;
+      myData.N = N_now;
+      myData.P = P_now;
+      myData.K = K_now;
+      // Send message via ESP-NOW
+      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
+      if (result == ESP_OK) {
+        Serial.println("Sent with success");
+      } else {
+        Serial.println("Error sending the data");
+      }
+      // Once ESPNow is successfully Init, we will register for Send CB to
+      // get the status of Trasnmitted packet
+      esp_now_register_send_cb(OnDataSent);
+
+      delay(5000);
+    }
+    
+    // 10min delay between readings
+
+    Serial.println("Go to deep sleep");
+    // Turn off and keep off the built-in led during deep sleep
+    digitalWrite(LED_BUILTIN, LOW);   
+    gpio_hold_en(GPIO_NUM_2); 
+
+    // Set deep sleep duration (3600s = 1hr)
+    esp_sleep_enable_timer_wakeup(300 * 1000000ULL); 
+
+    // Switch to deep sleep mode
+    esp_deep_sleep_start(); 
+  }
+  delay(600000000);
 }
 
 void request_reading_CWT(byte address) {
@@ -248,14 +249,14 @@ void packDataCWT(byte reading[]) {
   delay(5000);
 
   MAC_now = (int)(reading[0]);
-  hum_now = transform(sensorTransform, MAC_now, 1, (reading[3] << 8 | reading[4]) / 10);
-  con_now = transform(sensorTransform, MAC_now, 3, (reading[7] << 8 | reading[8]));
-  pH_now = transform(sensorTransform, MAC_now, 4, (reading[9] << 8 | reading[10]) / 10);
-  temp_now = transform(sensorTransform, MAC_now, 2, (reading[5] << 8 | reading[6]) / 10);
-  // hum_now = (reading[3] << 8 | reading[4]) / 10;
-  // con_now = (reading[7] << 8 | reading[8]);
-  // pH_now = (reading[9] << 8 | reading[10]) / 10;
-  // temp_now = (reading[5] << 8 | reading[6]) / 10;
+  // hum_now = transform(sensorTransform, MAC_now, 1, (reading[3] << 8 | reading[4]) / 10);
+  // con_now = transform(sensorTransform, MAC_now, 3, (reading[7] << 8 | reading[8]));
+  // pH_now = transform(sensorTransform, MAC_now, 4, (reading[9] << 8 | reading[10]) / 10);
+  // temp_now = transform(sensorTransform, MAC_now, 2, (reading[5] << 8 | reading[6]) / 10);
+  hum_now = (reading[3] << 8 | reading[4]) / 10;
+  con_now = (reading[7] << 8 | reading[8]);
+  pH_now = (reading[9] << 8 | reading[10]) / 10;
+  temp_now = (reading[5] << 8 | reading[6]) / 10;
   N_now = (reading[11] << 8 | reading[12]) / 10;
   P_now = (reading[13] << 8 | reading[14]) / 10;
   K_now = (reading[15] << 8 | reading[16]) / 10;
@@ -267,7 +268,7 @@ void packDataRika(byte reading[]) {
   MAC_now = 6;
   temp_now = (reading[3] << 8 | reading[4]) / 10;
   con_now = (reading[7] << 8 | reading[8]);
-  pH_now = (reading[9] << 8 | reading[10]) / 10;
+  pH_now = (reading[9] << 8 | reading[10]) / 100;
   hum_now = (reading[5] << 8 | reading[6]) / 10;
 }
 
