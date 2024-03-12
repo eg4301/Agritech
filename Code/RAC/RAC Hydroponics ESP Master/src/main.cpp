@@ -19,6 +19,11 @@
 #include <ESP32Ping.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include <Update.h>
  
  
 #define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"
@@ -28,23 +33,31 @@
 
 int ledStatus = LOW;
 // Set your new MAC Address
-uint8_t newMACAddress[] = {0x16, 0x16, 0x16, 0x16, 0x16, 0x05};
+uint8_t newMACAddress[] = {0x0E, 0x10, 0x04, 0x03, 0x00, 0x01};
 
 uint32_t lastReconnectAttempt = 0;
 uint16_t combinedhex = 0;
 uint16_t lastreceived;
 
-std::queue<float> temp = {};     // queue for temperature values 
-std::queue<float> conduct = {};  // queue for conductivity values
-std::queue<float> pH = {};       // queue for pH values
+// std::queue<float> temp = {};     // queue for temperature values 
+// std::queue<float> conduct = {};  // queue for conductivity values
+// std::queue<float> pH = {};       // queue for pH values
 
+// Variables for logging data
 float temp_now = 0;
 float con_now = 0;
 float pH_now = 0;
-String MAC_now;
+float atmtemp_now = 0;
+float hum_now = 0;
+float CO2_now = 0;
+float oxy_now = 0;
+int MAC_now = 0;
 
+/*Variables for HEX Concetenation*/
 uint16_t HEX_A;
 uint16_t HEX_B;
+
+/*Boolean to check if need to send data*/ 
 bool is_send_data = false;
 
 String formattedDate;
@@ -52,7 +65,7 @@ String daystamp;
 String timestamp;
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP,"sg.pool.ntp.org",0);
+NTPClient timeClient(ntpUDP,"pool.ntp.org",28800);
 
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
@@ -63,7 +76,12 @@ float timezone;
 ESP32Time rtc;
 uint64_t seconds, minutes, hours, days, months, year;
 
+// OTA
+const char* host = "esp32";
 
+// WiFi Reconnect
+unsigned long previousMillis = 0;
+unsigned long interval = 30000;
 
 
 /**
@@ -82,7 +100,7 @@ void hexconcat(uint16_t HEX_A, uint16_t HEX_B){
   
 }
 
-void mqttPublish(String timestamp, String MAC_now, float temp_now, float con_now, float pH_now)
+void mqttPublish(String timestamp, int MAC_now, float temp_now, float con_now, float pH_now, float atmtemp_now, float hum_now, float CO2_now, float oxy_now)
 {
   StaticJsonDocument<200> doc;
   doc["timestamp"] = timestamp;
@@ -90,6 +108,10 @@ void mqttPublish(String timestamp, String MAC_now, float temp_now, float con_now
   doc["temperature"] = temp_now;
   doc["conductivity"] = con_now;
   doc["pH"] = pH_now;
+  doc["atm_temperature"] = atmtemp_now;
+  doc["humidity"] = hum_now;
+  doc["CO2"] = CO2_now;
+  doc["O2"] = oxy_now;
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
 
@@ -144,7 +166,7 @@ void connectAWS() {
   while (!client.connect(THINGNAME))
   {
     Serial.print(".");
-    delay(100);
+    delay(1000);
   }
  
   if (!client.connected())
@@ -163,10 +185,14 @@ void connectAWS() {
 
 
 typedef struct struct_sensor_reading {
-  String MAC;
+  int MAC;
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
+  float atmtemp = 0;
+  float hum = 0;
+  float CO2 = 0;
+  float Oxy = 0;
 } struct_sensor_reading;
 
 struct_sensor_reading incoming_data;
@@ -181,40 +207,184 @@ struct_sensor_reading incoming_data;
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   Serial.println("Data Received");
   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
+  timeClient.update();
   timestamp = get_formatted_time();
   lastreceived = millis();
   
   temp_now = incoming_data.temp;
-  temp.push(temp_now);
+  // temp.push(temp_now);
 
   con_now = incoming_data.ECVal;
-  conduct.push(con_now);
+  // conduct.push(con_now);
 
   pH_now = incoming_data.pHVal;
-  pH.push(pH_now);
+  // pH.push(pH_now);
 
   MAC_now = incoming_data.MAC;
+
+  atmtemp_now = incoming_data.atmtemp;
+
+  hum_now = incoming_data.hum;
+
+  CO2_now = incoming_data.CO2;
+
+  oxy_now = incoming_data.Oxy;
   
   is_send_data = true;
   
   
 }
+
+WebServer server(80);
+
+/*
+ * Login page
+ */
+const char* loginIndex = 
+ "<form name='loginForm'>"
+    "<table width='20%' bgcolor='A09F9F' align='center'>"
+        "<tr>"
+            "<td colspan=2>"
+                "<center><font size=4><b>ESP32 Login Page</b></font></center>"
+                "<br>"
+            "</td>"
+            "<br>"
+            "<br>"
+        "</tr>"
+        "<td>Username:</td>"
+        "<td><input type='text' size=25 name='userid'><br></td>"
+        "</tr>"
+        "<br>"
+        "<br>"
+        "<tr>"
+            "<td>Password:</td>"
+            "<td><input type='Password' size=25 name='pwd'><br></td>"
+            "<br>"
+            "<br>"
+        "</tr>"
+        "<tr>"
+            "<td><input type='submit' onclick='check(this.form)' value='Login'></td>"
+        "</tr>"
+    "</table>"
+"</form>"
+"<script>"
+    "function check(form)"
+    "{"
+    "if(form.userid.value=='EG4301' && form.pwd.value=='agritech.1')"
+    "{"
+    "window.open('/serverIndex')"
+    "}"
+    "else"
+    "{"
+    " alert('Error Password or Username')/*displays error message*/"
+    "}"
+    "}"
+"</script>";
+ 
+/*
+ * Server Index Page
+ */
+ 
+const char* serverIndex = 
+"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
+"<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
+   "<input type='file' name='update'>"
+        "<input type='submit' value='Update'>"
+    "</form>"
+ "<div id='prg'>progress: 0%</div>"
+ "<script>"
+  "$('form').submit(function(e){"
+  "e.preventDefault();"
+  "var form = $('#upload_form')[0];"
+  "var data = new FormData(form);"
+  " $.ajax({"
+  "url: '/update',"
+  "type: 'POST',"
+  "data: data,"
+  "contentType: false,"
+  "processData:false,"
+  "xhr: function() {"
+  "var xhr = new window.XMLHttpRequest();"
+  "xhr.upload.addEventListener('progress', function(evt) {"
+  "if (evt.lengthComputable) {"
+  "var per = evt.loaded / evt.total;"
+  "$('#prg').html('progress: ' + Math.round(per*100) + '%');"
+  "}"
+  "}, false);"
+  "return xhr;"
+  "},"
+  "success:function(d, s) {"
+  "console.log('success!')" 
+ "},"
+ "error: function (a, b, c) {"
+ "}"
+ "});"
+ "});"
+ "</script>";
  
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200);  
+  Serial.print("[OLD] ESP32 Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
+  esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]);
+  Serial.print("[NEW] ESP32 Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
+  
   connectAWS();
 
   // setupRTC();
   timeClient.begin();
+  timeClient.update();
+  timeClient.setTimeOffset(28800);
 
   WiFi.enableLongRange(true);
   // WiFi.setTxPower(WIFI_POWER_19_5dBm);
-  
-  // Serial.print("[OLD] ESP32 Board MAC Address:  ");
-  Serial.println(WiFi.macAddress());
-  // esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]);
-  // Serial.print("[NEW] ESP32 Board MAC Address:  ");
-  // Serial.println(WiFi.macAddress());
+
+  // Start Web Server for OTA firmware flashing
+  /*use mdns for host name resolution*/
+  if (!MDNS.begin(host)) { //http://esp32.local
+    Serial.println("Error setting up MDNS responder!");
+    while (1) {
+      delay(1000);
+    }
+  }
+  Serial.println("mDNS responder started");
+  /*return index page which is stored in serverIndex */
+  server.on("/", HTTP_GET, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/html", loginIndex);
+  });
+  server.on("/serverIndex", HTTP_GET, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/html", serverIndex);
+  });
+  /*handling uploading firmware file */
+  server.on("/update", HTTP_POST, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+    ESP.restart();
+  }, []() {
+    HTTPUpload& upload = server.upload();
+    if (upload.status == UPLOAD_FILE_START) {
+      Serial.printf("Update: %s\n", upload.filename.c_str());
+      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
+        Update.printError(Serial);
+      }
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+      /* flashing firmware to ESP*/
+      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+        Update.printError(Serial);
+      }
+    } else if (upload.status == UPLOAD_FILE_END) {
+      if (Update.end(true)) { //true to set the size to the current progress
+        Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+      } else {
+        Update.printError(Serial);
+      }
+    }
+  });
+  server.begin();
+
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK)
   {
@@ -226,10 +396,24 @@ void setup() {
 }
  
 void loop(){
+  unsigned long currentMillis = millis();
+
+  if (millis() >= 43200000) {
+    esp_sleep_enable_timer_wakeup(20e6);
+  }
+  // if WiFi is down, try reconnecting
+  if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousMillis >=interval)) {
+    Serial.print(millis());
+    Serial.println("Reconnecting to WiFi...");
+    WiFi.disconnect();
+    connectAWS();
+    previousMillis = currentMillis;
+  }
+
  
   if (is_send_data)
     {
-    mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now);
+    mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now, atmtemp_now, hum_now, CO2_now, oxy_now);
     is_send_data = false;
     }
   
@@ -239,5 +423,6 @@ void loop(){
   // delay(10000);
 
   client.loop();
+  server.handleClient();
   delay(1000);
 }
