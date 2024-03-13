@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2024-03-12T13:39:04.631Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="KiT8Zab7ZxauPugdoIbv" version="21.7.5" type="device" pages="8">
+<mxfile host="Electron" modified="2024-03-11T13:31:11.041Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="3N8LJcvxzgtWD1cEpZ6q" version="21.7.5" type="device" pages="8">
   <diagram name="Overall" id="QVVg88YSjWete_qPwuQA">
-    <mxGraphModel dx="1548" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="1562" dy="917" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -930,7 +930,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="S2PRlzsnAcoiQ9KLgddb" name="Soil Sensor Node">
-    <mxGraphModel dx="448" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="650" dy="953" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -1012,7 +1012,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="pZXSNiL37Gl02LcEOVHI" name="Dosing + Actuation">
-    <mxGraphModel dx="9220" dy="6013" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="462" dy="917" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -2583,7 +2583,7 @@
         <mxCell id="PfacAhLC_ayFAaHqXNjZ-4" value="ESP" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
           <mxGeometry x="4895" y="960" width="90" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="djICriKouwVFqDvYMjDT-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.475;entryY=-0.013;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#fff2cc;strokeColor=#d6b656;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="PfacAhLC_ayFAaHqXNjZ-5" target="N7wlTfApILJZw2lFIPAm-1" edge="1">
+        <mxCell id="djICriKouwVFqDvYMjDT-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.475;entryY=-0.013;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#fff2cc;strokeColor=#d6b656;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="PfacAhLC_ayFAaHqXNjZ-5" target="N7wlTfApILJZw2lFIPAm-1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="5031" y="1030" />
@@ -2611,7 +2611,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="PfacAhLC_ayFAaHqXNjZ-7" value="Solenoid valve" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="4520" y="1229" width="60" height="30" as="geometry" />
+          <mxGeometry x="4530" y="1224" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="PfacAhLC_ayFAaHqXNjZ-10" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#6c8ebf;shadow=0;dashed=0;shape=mxgraph.ios7.icons.bell;rotation=-180;fillColor=#dae8fc;" parent="1" vertex="1">
           <mxGeometry x="4779.5" y="1070" width="140" height="148.1" as="geometry" />
@@ -2643,14 +2643,14 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="djICriKouwVFqDvYMjDT-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.499;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#dae8fc;strokeColor=#6c8ebf;startArrow=block;startFill=1;strokeWidth=3;" parent="1" source="PfacAhLC_ayFAaHqXNjZ-18" target="PfacAhLC_ayFAaHqXNjZ-10" edge="1">
+        <mxCell id="djICriKouwVFqDvYMjDT-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.499;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fillColor=#dae8fc;strokeColor=#6c8ebf;startArrow=block;startFill=1;strokeWidth=3;" edge="1" parent="1" source="PfacAhLC_ayFAaHqXNjZ-18" target="PfacAhLC_ayFAaHqXNjZ-10">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="4850" y="1235" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="djICriKouwVFqDvYMjDT-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;fillColor=#dae8fc;strokeColor=#6c8ebf;startArrow=block;startFill=1;" parent="1" source="PfacAhLC_ayFAaHqXNjZ-18" target="PfacAhLC_ayFAaHqXNjZ-2" edge="1">
+        <mxCell id="djICriKouwVFqDvYMjDT-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;fillColor=#dae8fc;strokeColor=#6c8ebf;startArrow=block;startFill=1;" edge="1" parent="1" source="PfacAhLC_ayFAaHqXNjZ-18" target="PfacAhLC_ayFAaHqXNjZ-2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="PfacAhLC_ayFAaHqXNjZ-18" value="" style="shape=mxgraph.pid.pumps_-_iso.pump_(gear);html=1;pointerEvents=1;align=center;verticalLabelPosition=bottom;verticalAlign=top;dashed=0;rotation=-90;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
@@ -2779,7 +2779,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="xnp2T5qJ75yGU63zwIHE-10" value="" style="verticalLabelPosition=bottom;align=center;html=1;verticalAlign=top;pointerEvents=1;dashed=0;shape=mxgraph.pid2valves.valve;valveType=gate;actuator=solenoid;fillColor=#f5f5f5;strokeColor=#666666;rotation=90;fontColor=#333333;" parent="1" vertex="1">
-          <mxGeometry x="4627" y="1259" width="90" height="60" as="geometry" />
+          <mxGeometry x="4637" y="1254" width="90" height="60" as="geometry" />
         </mxCell>
         <mxCell id="9H2AYKhyJNtN1XlcTNC8-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" source="xnp2T5qJ75yGU63zwIHE-12" target="PfacAhLC_ayFAaHqXNjZ-4" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -2817,7 +2817,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="9H2AYKhyJNtN1XlcTNC8-8" value="&lt;b&gt;Water Reservoir&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="4590" y="1089" width="140" height="95" as="geometry" />
+          <mxGeometry x="4600" y="1084" width="140" height="95" as="geometry" />
         </mxCell>
         <mxCell id="N7wlTfApILJZw2lFIPAm-1" value="" style="shape=mxgraph.pid.pumps_-_iso.pump_(gear);html=1;pointerEvents=1;align=center;verticalLabelPosition=bottom;verticalAlign=top;dashed=0;rotation=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
           <mxGeometry x="4747" y="1020" width="40" height="40" as="geometry" />
@@ -2827,7 +2827,7 @@
             <mxPoint x="4895" y="1089" as="sourcePoint" />
             <mxPoint x="5069" y="1125" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="4695" y="1040" />
+              <mxPoint x="4705" y="1040" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -2841,10 +2841,10 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="djICriKouwVFqDvYMjDT-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;fillColor=#fff2cc;strokeColor=#d6b656;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" parent="1" source="djICriKouwVFqDvYMjDT-1" target="PfacAhLC_ayFAaHqXNjZ-4" edge="1">
+        <mxCell id="djICriKouwVFqDvYMjDT-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1" source="djICriKouwVFqDvYMjDT-1" target="PfacAhLC_ayFAaHqXNjZ-4">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="4540" y="1173" />
+              <mxPoint x="4540" y="1160" />
               <mxPoint x="4540" y="1000" />
               <mxPoint x="4720" y="1000" />
               <mxPoint x="4720" y="940" />
@@ -2852,19 +2852,19 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="djICriKouwVFqDvYMjDT-1" value="" style="shape=offPageConnector;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;rotation=-180;" parent="1" vertex="1">
-          <mxGeometry x="4600.25" y="1150" width="30" height="30" as="geometry" />
+        <mxCell id="djICriKouwVFqDvYMjDT-1" value="" style="shape=offPageConnector;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;rotation=-180;" vertex="1" parent="1">
+          <mxGeometry x="4610.25" y="1145" width="30" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="djICriKouwVFqDvYMjDT-2" value="Water level switch" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="4580.5" y="1190" width="69.5" height="30" as="geometry" />
+        <mxCell id="djICriKouwVFqDvYMjDT-2" value="Water level switch" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="4590.5" y="1185" width="69.5" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="djICriKouwVFqDvYMjDT-6" value="&lt;b&gt;5 Sensors:&lt;/b&gt;&lt;br&gt;1 Water level switch (Water Reservoir)&lt;br&gt;1 Water Pressure Sensor (Mixing Tank)&lt;br&gt;3 pH,EC, Temperature sensor (Sampling chamber)&lt;br&gt;&lt;br&gt;&lt;b&gt;6 Pumps:&lt;/b&gt;&lt;br&gt;2 Dosing Peristaltic Pumps&lt;br&gt;1 Recirculating Pumps&lt;br&gt;1 Irrigation Pump&lt;br&gt;1 Valve into mixing tank&lt;br&gt;1 Valve into Water Reservoir (not shown)" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=3;" parent="1" vertex="1">
+        <mxCell id="djICriKouwVFqDvYMjDT-6" value="&lt;b&gt;5 Sensors:&lt;/b&gt;&lt;br&gt;1 Water level switch (Water Reservoir)&lt;br&gt;1 Water Pressure Sensor (Mixing Tank)&lt;br&gt;3 pH,EC, Temperature sensor (Sampling chamber)&lt;br&gt;&lt;br&gt;&lt;b&gt;6 Pumps:&lt;/b&gt;&lt;br&gt;2 Dosing Peristaltic Pumps&lt;br&gt;1 Recirculating Pumps&lt;br&gt;1 Irrigation Pump&lt;br&gt;1 Valve into mixing tank&lt;br&gt;1 Valve into Water Reservoir (not shown)" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=3;" vertex="1" parent="1">
           <mxGeometry x="5400" y="919" width="320" height="201" as="geometry" />
         </mxCell>
-        <mxCell id="djICriKouwVFqDvYMjDT-14" value="Peristaltic pump" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="djICriKouwVFqDvYMjDT-14" value="Peristaltic pump" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="4879.5" y="1240" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="djICriKouwVFqDvYMjDT-15" value="Peristaltic pump" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="djICriKouwVFqDvYMjDT-15" value="Peristaltic pump" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="4694" y="1010" width="53" height="20" as="geometry" />
         </mxCell>
       </root>
