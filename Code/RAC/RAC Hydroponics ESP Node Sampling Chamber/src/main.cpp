@@ -66,8 +66,8 @@ float pHValue = 0;            // Final pH Value
 // DFRobot_EC ec;
 
   // Own code
-#define ecLow 215
-#define ecHigh 1922
+#define ecLow 215 //1413 microSiemens/cm
+#define ecHigh 1922 //12.88 milliSiemens/cm
 float ecValue;
 
 // Declarations for Temp Sensor:
@@ -216,17 +216,9 @@ void sampling_seq() {
     delay(VALVE_DURATION);           
     digitalWrite(VALVE_PIN, LOW);
 
-    digitalWrite(int(PUMP_PIN_6), HIGH);
-    delay(PUMP_DURATION);           
-    digitalWrite(int(PUMP_PIN_6), LOW); 
-
-    if (i!=5){
-      digitalWrite(VALVE_PIN, HIGH);
-      delay(VALVE_DURATION);           
-      digitalWrite(VALVE_PIN, LOW);
-
-      Serial.println(pumplist[i]);
-    }
+    // digitalWrite(int(PUMP_PIN_6), HIGH);
+    // delay(PUMP_DURATION);           
+    // digitalWrite(int(PUMP_PIN_6), LOW); 
 
 
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
@@ -300,15 +292,6 @@ void setup() {
 }
 
 void loop() {
-
-  // digitalWrite(PUMP_PIN_1, HIGH);
-  // digitalWrite(PUMP_PIN_2, HIGH);
-  // digitalWrite(PUMP_PIN_3, HIGH);
-  // digitalWrite(PUMP_PIN_4, HIGH);
-  // digitalWrite(PUMP_PIN_5, HIGH);
-  // digitalWrite(PUMP_PIN_6, HIGH);
-  // digitalWrite(PUMP_PIN_7, HIGH);
-  // digitalWrite(VALVE_PIN, HIGH);
   int32_t channel = getWiFiChannel(WIFI_SSID);
   channel = getWiFiChannel(WIFI_SSID);
   while (channel < 1) {
@@ -325,6 +308,8 @@ void loop() {
 
 
   // delay(2400000);
+
+  // delay for 15 minutes
   delay(900000);
   
 }

@@ -37,21 +37,21 @@ Config protocol = SWSERIAL_8N1;
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // Declarations for Actuation (pumps + valve)
-// When changin pins, please also change the pin numbers manually in pumplist!!!
-#define HIGH_PERISTALTIC_PIN_1 4 //Relay 8
-#define PERISTALTIC_PIN_1 5 //Relay 7
-#define PERISTALTIC_PIN_2 6 //Relay 6
-#define PERISTALTIC_PIN_3 7 //Relay 5
-#define RECIRCULATING_PUMP 15 //Relay 4
-#define IRRIGATION_PUMP 16 //Relay 3
-#define WATER_VALVE 17  //Relay 2
+#define HIGH_PERISTALTIC_PIN_1 17 //Relay 2
 #define HIGH_PERISTALTIC_PIN_2 18  //Relay 1 (pumps water opposite direction)
+#define PERISTALTIC_PIN_1 7 //Relay 5
+#define PERISTALTIC_PIN_2 15 //Relay 4
+#define PERISTALTIC_PIN_3 16 //Relay 3
+#define RECIRCULATING_PUMP 6 //Relay 6
+#define IRRIGATION_PUMP 5 //Relay 7
+#define WATER_VALVE 4  //Relay 8
+
 
 // Define length of time pumps and valves are open
 
 #define PUMP_DURATION 120000 //time used to pump clean water in ms
 #define HIGH_PUMP_DURATION 6000 //time used to pump sample in ms
-#define CLEAR_DURATION 10000 //time used to clear sample in ms
+#define CLEAR_DURATION 20000 //time used to clear sample in ms
 #define MIXING_DURATION 60000 //time used to mix sample in ms
 #define IRRIGATION_DURATION 120000 //time used to pump sample in ms
 
@@ -82,11 +82,11 @@ float ecValue;
 const int oneWireBus = 11;     
 float temperature;
 
-// // Declarations for Water Pressure Sensor:
-// #define PRESSURE_PIN 8
-// #define pressure_offset 0.5
-// #define container_area 1
-// float waterAmt;
+// Declarations for Water Pressure Sensor:
+#define PRESSURE_PIN 21
+#define pressure_offset 0.5
+#define container_area 0.158 //m^2
+float waterAmt;
 
 // Declarations for Water Switch:
 #define WATER_SWITCH_PIN 8
@@ -151,12 +151,9 @@ void ecRead(){
   float grad;
   
   for(int i = 0; i<10; i++){
-    j += analogRead(EC_PIN)*3300/4096;
+    j += analogRead(EC_PIN)*3.3/4096;
   }
   V = j/10;
-  // Serial.print("Voltage = ");
-  // Serial.print(V);
-  // Serial.print("V      ");
 
   grad = 11.467/(ecHigh - ecLow);
   ecValue = 12.88 - (ecHigh - V)*grad;
@@ -176,9 +173,10 @@ void tempRead(){
 }
 
 void waterlevelRead(){
+  //calculates amount of water in m^3
   //calculates pressure in kPa (density accounted for in waterAmt calculation)
   float pressure = (analogRead(PRESSURE_PIN) - pressure_offset) * (3.3 / 4096.0) * (1600 / (4.5 - pressure_offset));
-  waterAmt = pressure * container_area;
+  waterAmt = pressure * container_area / 9.81;
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
@@ -214,6 +212,8 @@ void sampling_seq() {
   delay(CLEAR_DURATION);           
   digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
   
+  delay(5000);
+
   // Drawing of sample from mixing tank
   digitalWrite(HIGH_PERISTALTIC_PIN_1, HIGH);
   delay(HIGH_PUMP_DURATION);           
@@ -233,33 +233,33 @@ void sampling_seq() {
   digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
 
 
-  // Send data to master
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
+  // // Send data to master
+  // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
 
-  if (result == ESP_OK) {
-    Serial.println("Sent with success");
+  // if (result == ESP_OK) {
+  //   Serial.println("Sent with success");
 
-  } else {
-    Serial.println("Error sending the data");
-  }
-  esp_now_register_send_cb(OnDataSent);
+  // } else {
+  //   Serial.println("Error sending the data");
+  // }
+  // esp_now_register_send_cb(OnDataSent);
 
 
   //Adding clean water to chamber
-  digitalWrite(PERISTALTIC_PIN_3, HIGH);
-  delay(PUMP_DURATION);           
-  digitalWrite(PERISTALTIC_PIN_3, LOW); 
+  // digitalWrite(PERISTALTIC_PIN_3, HIGH);
+  // delay(PUMP_DURATION);           
+  // digitalWrite(PERISTALTIC_PIN_3, LOW); 
 }
 
 void dosing_seq () {
   // Get dosing requirements
   // Dosing actuation
 
-  int doseDuration = 0;
+  int doseDuration = 1000;
   bool correct_dose = false;
   while (!correct_dose)
   {
-    get_dosing_req();
+    // get_dosing_req();
 
     // Adding of nutrient A 
     digitalWrite(PERISTALTIC_PIN_1, HIGH);
@@ -293,19 +293,19 @@ void dosing_seq () {
 
 }
 
-int get_dosing_req() {
-  // Get difference in EC from master
+// int get_dosing_req() {
+//   // Get difference in EC from master
 
-  // Calculates dosing requirements
-  if () {
-    // if receive
-    return 0;
-  }
-  else {
-    //if no receive
-    return 0;
-  }
-}
+//   // Calculates dosing requirements
+//   if () {
+//     // if receive
+//     return 0;
+//   }
+//   else {
+//     //if no receive
+//     return 0;
+//   }
+// }
 
 // add timer function to start watering every morning
 
@@ -327,6 +327,13 @@ void watering_seq() {
   digitalWrite(IRRIGATION_PUMP, LOW);
 }
 
+void fillReservoir(){
+  while (digitalRead(WATER_SWITCH_PIN) == LOW) {
+    digitalWrite(WATER_VALVE, HIGH);
+    delay(1000);
+  }
+}
+
 
 void setup() {
   Serial.begin(baud_rate);
@@ -334,6 +341,7 @@ void setup() {
   sensors.begin();
 
   Serial.println("Initializing...");
+
   // memcpy(myData.MAC,MAC_address,17);
 
   // myData.MAC = 1;
@@ -382,19 +390,37 @@ void setup() {
   pinMode(HIGH_PERISTALTIC_PIN_2, OUTPUT);
 
   pinMode(WATER_SWITCH_PIN, INPUT);
+  pinMode(PRESSURE_PIN, INPUT);
   pinMode(PH_PIN, INPUT);
   pinMode(EC_PIN, INPUT);
   pinMode(oneWireBus, INPUT);
 
+  analogReadResolution(12);
 
 
-  tempRead();
-  phRead();
-  ecRead();
+  // sampling_seq();
+
 }
 
 void loop() {
 
+  Serial.println(analogRead(oneWireBus));
+  tempRead();
+
+  Serial.println(analogRead(PH_PIN));
+  phRead();
+
+  Serial.println(analogRead(EC_PIN));
+  ecRead();
+
+  // waterlevelRead();
+  delay(10000);
+  // digitalWrite(RECIRCULATING_PUMP, HIGH);
+  // delay(MIXING_DURATION); // Recirculating time
+  // digitalWrite(RECIRCULATING_PUMP, LOW);
+
+  // sampling_seq();
+  
   // int32_t channel = getWiFiChannel(WIFI_SSID);
   // channel = getWiFiChannel(WIFI_SSID);
   // while (channel < 1) {
