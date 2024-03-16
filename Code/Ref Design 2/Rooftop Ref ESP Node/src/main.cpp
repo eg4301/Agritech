@@ -79,7 +79,7 @@ float pHValue = 0;            // Final pH Value
 float ecValue;
 
 // Declarations for Temp Sensor:
-const int oneWireBus = 11;     
+const int oneWireBus = 12;     
 float temperature;
 
 // Declarations for Water Pressure Sensor:
@@ -393,7 +393,7 @@ void setup() {
   pinMode(PRESSURE_PIN, INPUT_PULLDOWN);
   pinMode(PH_PIN, INPUT_PULLDOWN);
   pinMode(EC_PIN, INPUT_PULLDOWN);
-  pinMode(oneWireBus, INPUT_PULLDOWN);
+  pinMode(oneWireBus, INPUT);
 
   analogReadResolution(12);
 
@@ -403,13 +403,15 @@ void setup() {
 }
 
 void loop() {
-
+  Serial.print("TemperatureV: ");
   Serial.println(analogRead(oneWireBus));
   tempRead();
 
+  Serial.print("pHV: ");
   Serial.println(analogRead(PH_PIN));
   phRead();
 
+  Serial.print("ECV: ");
   Serial.println(analogRead(EC_PIN));
   ecRead();
 
