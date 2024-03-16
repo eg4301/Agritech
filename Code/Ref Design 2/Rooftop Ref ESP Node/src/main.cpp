@@ -389,11 +389,11 @@ void setup() {
   pinMode(WATER_VALVE, OUTPUT);
   pinMode(HIGH_PERISTALTIC_PIN_2, OUTPUT);
 
-  pinMode(WATER_SWITCH_PIN, INPUT);
-  pinMode(PRESSURE_PIN, INPUT);
-  pinMode(PH_PIN, INPUT);
-  pinMode(EC_PIN, INPUT);
-  pinMode(oneWireBus, INPUT);
+  pinMode(WATER_SWITCH_PIN, INPUT_PULLDOWN);
+  pinMode(PRESSURE_PIN, INPUT_PULLDOWN);
+  pinMode(PH_PIN, INPUT_PULLDOWN);
+  pinMode(EC_PIN, INPUT_PULLDOWN);
+  pinMode(oneWireBus, INPUT_PULLDOWN);
 
   analogReadResolution(12);
 
