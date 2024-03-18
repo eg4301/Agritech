@@ -1,0 +1,147 @@
+<mxfile host="Electron" modified="2023-10-02T11:57:13.581Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="eQgPBc_LICtX5emsvebs" version="21.7.5" type="device" pages="2">
+  <diagram name="Rooftop" id="-n5BuSyl8oQ57r7p2RUt">
+    <mxGraphModel dx="1834" dy="1644" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-14" value="Stage 2.5&amp;nbsp;&lt;br&gt;Data collection" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="323.5" y="-494" width="161" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-1" value="Blynk relay control" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="-87" y="-159" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-3" value="Planter box installation" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="-87" y="-52" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-4" value="Blynk console setup" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="-87" y="-237" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-5" value="Germination and add soil" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="-87" y="31" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-6" value="Transferring plants to planter box" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="126" y="-52" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-7" value="Weather API" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="-87" y="-315" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-8" value="Irrigation setup&lt;br&gt;(1 box)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="-87" y="114" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-9" value="Stage 1&lt;br&gt;Prep&amp;nbsp;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="-107.5" y="-494" width="161" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-10" value="Stage 2&amp;nbsp;&lt;br&gt;1 box&lt;br&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="105.5" y="-494" width="161" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-11" value="Prep" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="-90" y="-406" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-12" value="Begin plant growing, look for issue with plant growing setup" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="128" y="-421" width="120" height="184" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-15" value="Sensor calibration" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="128" y="-159" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-16" value="Esp to database" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="128" y="-226" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-17" value="Begin plant growing, look for issue with sensor setup&lt;br&gt;Testing system architecture&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="346" y="-421" width="120" height="184" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-18" value="Database to UI" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="344" y="-159" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-19" value="UI setup" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="346" y="-226" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-20" value="Transfer from blynk to aws" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="344" y="-82" width="120" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-21" value="Stage 3&amp;nbsp;&lt;br&gt;6 box" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="541" y="-494" width="161" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-22" value="Expand parameters tested" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" parent="1" vertex="1">
+          <mxGeometry x="564" y="-421" width="120" height="184" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-23" value="Set up dosing system" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="344" y="-10" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="XQt3fgiY7ggpqSB3-yhE-24" value="Prepare irrigation system&lt;br&gt;(6box)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="1" vertex="1">
+          <mxGeometry x="344" y="58" width="120" height="89" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Veera" id="GjNz1zIKiDacd3ubmPmq">
+    <mxGraphModel dx="1834" dy="1644" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-0" />
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-1" parent="Ppjl6E2spC4C0ydrwaz2-0" />
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-2" value="Stage 2.5&amp;nbsp;&lt;br&gt;Data collection" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fontSize=16;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="323.5" y="-494" width="161" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-3" value="Blynk relay control" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="-87" y="-159" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-4" value="Planter box installation" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="-87" y="-52" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-5" value="Blynk console setup" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="-87" y="-237" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-6" value="Germination and add soil" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="-87" y="31" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-7" value="Transferring plants to planter box" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="126" y="-52" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-9" value="Irrigation setup&lt;br&gt;(1 box)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="-87" y="114" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-10" value="Stage 1&lt;br&gt;Prep&amp;nbsp;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fontSize=16;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="-107.5" y="-494" width="161" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-11" value="Stage 2&amp;nbsp;&lt;br&gt;1 box&lt;br&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fontSize=16;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="105.5" y="-494" width="161" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-12" value="Prep" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="-90" y="-406" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-13" value="Begin plant growing, look for issue with plant growing setup" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="128" y="-421" width="120" height="184" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-14" value="Sensor calibration" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="128" y="-159" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-15" value="Esp to database" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="128" y="-226" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-16" value="Begin plant growing, look for issue with sensor setup&lt;br&gt;Testing system architecture&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="346" y="-421" width="120" height="184" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-17" value="Database to UI" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="344" y="-159" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-18" value="UI setup" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="346" y="-226" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-19" value="Transfer from blynk to aws" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="344" y="-82" width="120" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-20" value="Stage 3&amp;nbsp;&lt;br&gt;6 box" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fontSize=16;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="541" y="-494" width="161" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-21" value="Expand parameters tested" style="rounded=0;whiteSpace=wrap;html=1;fontSize=16;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="564" y="-421" width="120" height="184" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-22" value="Set up dosing system" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="344" y="-10" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Ppjl6E2spC4C0ydrwaz2-23" value="Prepare irrigation system&lt;br&gt;(6box)" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" parent="Ppjl6E2spC4C0ydrwaz2-1" vertex="1">
+          <mxGeometry x="344" y="58" width="120" height="89" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
