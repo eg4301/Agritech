@@ -1,0 +1,298 @@
+#include <stdint.h>
+#include <Arduino.h>
+
+#include <DFRobot_EC.h>
+
+#include <Sol16_RS485.h>
+#include <SoftwareSerial.h>
+#include <Wire.h>
+#include <WiFi.h>
+
+#include "esp_wifi.h"
+#include "esp_adc_cal.h"
+#include <esp_now.h>
+#include "driver/gpio.h"
+
+#include "OneWire.h"
+#include "DallasTemperature.h"
+
+#define baud_rate 115200
+
+
+// Declarations for pH Sensor:
+#define PH_PIN 9             // pH meter Analog output to Arduino Analog Input 0
+#define flatOff_ph 10       // Flat deviation compensate
+#define scaleOff_ph -3       // Scale deviation compensate
+float avgRead_ph;             //Store the average value of the sensor feedback
+float pHValue = 0;            // Final pH Value
+
+
+// Declarations for EC Sensor:
+#define EC_PIN 10
+
+  // Using DFRobot library
+// #define flatOff_ec 0.41                     // Flat deviation compensate
+// #define scaleOff_ec 1.07                    // Scale deviation compensate
+// float voltageRead,ecValue,temperature = 22;
+// DFRobot_EC ec;
+
+  // Own code
+#define ecLow 750
+#define ecHigh 7200
+float ecValue;
+
+// Declarations for Temp Sensor:
+#define oneWireBus 11     
+float temperature;
+OneWire oneWire(oneWireBus);
+DallasTemperature sensors(&oneWire);
+
+// Declarations for Water Pressure Sensor:
+#define PRESSURE_PIN 12
+#define pressure_offset 0.5
+#define container_area 0.158 //m^2
+float waterAmt;
+
+
+
+uint8_t broadcastAddress[] = {0xEC, 0xDA, 0x3B, 0x96, 0xF2, 0x14};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+
+int MAC ;
+float pHVal = 0;
+float ECVal = 0;
+float temp = 0;
+float atmtemp = 0;
+float hum = 0;
+float CO2 = 0;
+float Oxy = 0;
+
+typedef struct struct_sensor_reading {
+  int MAC ;
+  float pHVal = 0;
+  float ECVal = 0;
+  float temp = 0;
+  float atmtemp = 0;
+  float hum = 0;
+  float CO2 = 0;
+  float Oxy = 0;
+} struct_sensor_reading;
+
+
+
+struct_sensor_reading myData;
+
+esp_now_peer_info_t peerInfo;
+
+// Insert your SSID
+constexpr char WIFI_SSID[] = "localize_project";
+
+int32_t getWiFiChannel(const char *ssid) {
+  if (int32_t n = WiFi.scanNetworks()) {
+      for (uint8_t i=0; i<n; i++) {
+          if (!strcmp(ssid, WiFi.SSID(i).c_str())) {
+              return WiFi.channel(i);
+          }
+      }
+  }
+  return 0;
+}
+
+// put function definitions here:
+void phRead(){
+  int j = 0;
+  for(int i = 0; i<10; i++){
+    j += analogRead(PH_PIN) * 3.3 / 4096.0;
+  }
+  pHValue = j/10;  
+  pHValue = scaleOff_ph * pHValue + flatOff_ph;             // Transform avgRead_ph to get pHValue
+  Serial.print(pHValue);
+  Serial.println(" pH");
+}
+
+void ecRead(){
+  float k = 0; 
+  float V = 0; 
+  float grad = 0;
+  
+  for(int i = 0; i<10; i++){
+    k += analogRead(EC_PIN) * 3.3;
+  }
+  V = k/10;  
+
+  grad = 11.467/(ecHigh - ecLow);
+  ecValue = 12.88 - (ecHigh - V)*grad;
+
+  Serial.print("EC V = ");
+  Serial.println(V/4096);
+  Serial.print("EC = ");
+  Serial.print(ecValue);
+  Serial.println("ms/cm^2");
+}
+
+void tempRead(){
+  sensors.requestTemperatures(); 
+  temperature = sensors.getTempCByIndex(0);
+  Serial.print(temperature);
+  Serial.println("ºC");
+}
+
+void waterlevelRead(){
+  //calculates amount of water in m^3
+  //calculates pressure in kPa (density accounted for in waterAmt calculation)
+  float pressure = (analogRead(PRESSURE_PIN) - pressure_offset) * (3.3 / 4096.0) * (1600 / (4.5 - pressure_offset));
+  waterAmt = pressure * container_area / 9.81;
+}
+
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+}
+
+
+
+// // Sequence of events
+// void sampling_seq() {
+    
+//   // Initial clearing of water
+//   digitalWrite(HIGH_PERISTALTIC_PIN_2, HIGH);
+//   delay(CLEAR_DURATION);           
+//   digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
+  
+//   delay(5000);
+
+//   // Drawing of sample from mixing tank
+//   digitalWrite(HIGH_PERISTALTIC_PIN_1, HIGH);
+//   delay(HIGH_PUMP_DURATION);           
+//   digitalWrite(HIGH_PERISTALTIC_PIN_1, LOW); 
+
+//   tempRead();
+//   phRead();
+//   ecRead();
+
+//   myData.temp = temperature;
+//   myData.ECVal = ecValue;
+//   myData.pHVal = pHValue;
+
+//   // Release sample back to mixing tank
+//   digitalWrite(HIGH_PERISTALTIC_PIN_2, HIGH);
+//   delay(CLEAR_DURATION);           
+//   digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
+
+
+//   // Send data to master
+//   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
+
+//   if (result == ESP_OK) {
+//     Serial.println("Sent with success");
+
+//   } else {
+//     Serial.println("Error sending the data");
+//   }
+//   esp_now_register_send_cb(OnDataSent);
+
+
+//   //Adding clean water to chamber
+//   digitalWrite(PERISTALTIC_PIN_3, HIGH);
+//   delay(PUMP_DURATION);           
+//   digitalWrite(PERISTALTIC_PIN_3, LOW); 
+// }
+
+// void fillReservoirSend(){
+//   while (digitalRead(WATER_SWITCH_PIN) == LOW) {
+//     digitalWrite(WATER_VALVE, HIGH);
+//     delay(1000);
+//   }
+// }
+
+
+void setup() {
+  Serial.begin(baud_rate);
+  // ec.begin();
+  sensors.begin();
+  Serial.println("DallasTemp initialized");
+
+  Serial.println("Initializing...");
+
+  // memcpy(myData.MAC,MAC_address,17);
+
+  // myData.MAC = 1;
+
+  // WiFi.enableLongRange(true);
+  // WiFi.mode(WIFI_STA);
+  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  
+  // int32_t channel = getWiFiChannel(WIFI_SSID);
+  // while (channel < 1) {
+  //   delay(1000);
+  //   Serial.println("WiFi Channel Not Found!");
+  //   channel = getWiFiChannel(WIFI_SSID);
+  // }
+
+  // WiFi.printDiag(Serial); // Uncomment to verify channel number before
+  // esp_wifi_set_promiscuous(true);
+  // esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+  // esp_wifi_set_promiscuous(false);
+  // WiFi.printDiag(Serial); // Uncomment to verify channel change after
+
+  // // Init ESP-NOW
+  // if (esp_now_init() != ESP_OK) {
+  //   Serial.println("Error initializing ESP-NOW");
+  // }
+
+  // // Register peer
+  // memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  // peerInfo.channel = 0;
+  // peerInfo.encrypt = false;
+
+  // // Add peer
+  // if (esp_now_add_peer(&peerInfo) == ESP_OK) {
+  //   Serial.println("Peer Added");
+  // }
+
+
+  // Initialize pins
+
+  pinMode(PRESSURE_PIN, INPUT);
+  pinMode(PH_PIN, INPUT);
+  pinMode(EC_PIN, INPUT);
+  // pinMode(oneWireBus, INPUT);
+
+  Serial.print("Temp sensor count ");
+  Serial.println(sensors.getDeviceCount());
+}
+
+void loop() {
+
+  Serial.println(analogRead(oneWireBus) * 3.3 / 4096.0);
+  tempRead();
+  phRead();
+  ecRead();
+
+  myData.temp = temperature;
+  myData.ECVal = ecValue;
+  myData.pHVal = pHValue;
+
+  // 1min delay
+  delay(60000);
+
+  // int32_t channel = getWiFiChannel(WIFI_SSID);
+  // channel = getWiFiChannel(WIFI_SSID);
+  // while (channel < 1) {
+  //   delay(1000);
+  //   Serial.println("WiFi Channel Not Found!");
+  //   channel = getWiFiChannel(WIFI_SSID);
+  // }
+
+  // sampling_seq();
+
+  // Once ESPNow is successfully Init, we will register for Send CB to
+  // get the status of Trasnmitted packet;
+  // esp_now_register_send_cb(OnDataSent);
+
+
+  // delay(2400000);
+  
+}
+
+
+

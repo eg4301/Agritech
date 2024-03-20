@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../../../../GitHub/Agritech"
+		},
+		{
+			"name": "231002-231647-dfrobot_firebeetle2_esp32e",
+			"path": "../../231002-231647-dfrobot_firebeetle2_esp32e"
+		},
+		{
+			"name": "RAC Hydroponics ESP Node",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"ph sensor dfrobot code v1": "cpp"
+		}
+	}
+}

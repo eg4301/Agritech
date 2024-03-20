@@ -50,8 +50,8 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 // Define length of time pumps and valves are open
 
 #define PUMP_DURATION 120000 //time used to pump clean water in ms
-#define HIGH_PUMP_DURATION 6000 //time used to pump sample in ms
-#define CLEAR_DURATION 20000 //time used to clear sample in ms
+#define HIGH_PUMP_DURATION 30000 //time used to pump sample in ms
+#define CLEAR_DURATION 30000 //time used to clear sample in ms
 #define MIXING_DURATION 60000 //time used to mix sample in ms
 #define IRRIGATION_DURATION 120000 //time used to pump sample in ms
 
@@ -81,6 +81,8 @@ float ecValue;
 // Declarations for Temp Sensor:
 const int oneWireBus = 12;     
 float temperature;
+OneWire oneWire(oneWireBus);
+DallasTemperature sensors(&oneWire);
 
 // Declarations for Water Pressure Sensor:
 #define PRESSURE_PIN 21
@@ -91,8 +93,7 @@ float waterAmt;
 // Declarations for Water Switch:
 #define WATER_SWITCH_PIN 8
 
-OneWire oneWire(oneWireBus);
-DallasTemperature sensors(&oneWire);
+
 
 
 uint8_t broadcastAddress[] = {0xEC, 0xDA, 0x3B, 0x96, 0xF2, 0x14};  // ! REPLACE WITH YOUR RECEIVER MAC Address
@@ -393,36 +394,39 @@ void setup() {
   pinMode(PRESSURE_PIN, INPUT_PULLDOWN);
   pinMode(PH_PIN, INPUT_PULLDOWN);
   pinMode(EC_PIN, INPUT_PULLDOWN);
-  pinMode(oneWireBus, INPUT);
 
   analogReadResolution(12);
 
+  // Serial.print("Temp sensor count ");
+  // Serial.println(sensors.getDeviceCount());
 
-  // sampling_seq();
+
 
 }
 
 void loop() {
-  Serial.print("TemperatureV: ");
-  Serial.println(analogRead(oneWireBus));
+
+  digitalWrite(RECIRCULATING_PUMP, HIGH);
+
+  digitalWrite(HIGH_PERISTALTIC_PIN_1, HIGH);
+  delay(HIGH_PUMP_DURATION);           
+  digitalWrite(HIGH_PERISTALTIC_PIN_1, LOW); 
+
   tempRead();
-
-  Serial.print("pHV: ");
-  Serial.println(analogRead(PH_PIN));
   phRead();
-
-  Serial.print("ECV: ");
-  Serial.println(analogRead(EC_PIN));
   ecRead();
 
-  // waterlevelRead();
-  delay(10000);
-  // digitalWrite(RECIRCULATING_PUMP, HIGH);
-  // delay(MIXING_DURATION); // Recirculating time
-  // digitalWrite(RECIRCULATING_PUMP, LOW);
+  myData.temp = temperature;
+  myData.ECVal = ecValue;
+  myData.pHVal = pHValue;
 
-  // sampling_seq();
-  
+  // Release sample back to mixing tank
+  digitalWrite(HIGH_PERISTALTIC_PIN_2, HIGH);
+  delay(CLEAR_DURATION);           
+  digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
+  // 1min delay
+  delay(60000);
+
   // int32_t channel = getWiFiChannel(WIFI_SSID);
   // channel = getWiFiChannel(WIFI_SSID);
   // while (channel < 1) {
