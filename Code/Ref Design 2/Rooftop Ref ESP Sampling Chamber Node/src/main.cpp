@@ -46,6 +46,8 @@ float ecValue;
 float temperature;
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors(&oneWire);
+DeviceAddress tempDeviceAddress;
+int numberOfDevices;
 
 // Declarations for Water Pressure Sensor:
 #define PRESSURE_PIN 12
@@ -148,6 +150,13 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
+void printHex(uint8_t num) {
+  char hexCar[2];
+
+  sprintf(hexCar, "%02X", num);
+  Serial.print(hexCar);
+  Serial.print(" ");
+}
 
 
 // // Sequence of events
@@ -208,10 +217,12 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 void setup() {
   Serial.begin(baud_rate);
   // ec.begin();
-  sensors.begin();
-  Serial.println("DallasTemp initialized");
 
   Serial.println("Initializing...");
+  delay(2000);
+  sensors.begin();
+  delay(2000);
+
 
   // memcpy(myData.MAC,MAC_address,17);
 
@@ -255,15 +266,45 @@ void setup() {
   pinMode(PRESSURE_PIN, INPUT);
   pinMode(PH_PIN, INPUT);
   pinMode(EC_PIN, INPUT);
-  // pinMode(oneWireBus, INPUT);
 
-  Serial.print("Temp sensor count ");
-  Serial.println(sensors.getDeviceCount());
+
+numberOfDevices = sensors.getDeviceCount();
+  
+  // locate devices on the bus
+  Serial.print("Locating devices...");
+  Serial.print("Found ");
+  Serial.print(numberOfDevices, DEC);
+  Serial.println(" devices.");
+
+  for(int i=0;i<numberOfDevices; i++) {
+    // Search the wire for address
+    if(sensors.getAddress(tempDeviceAddress, i)) {
+      Serial.print("Found device ");
+      Serial.print(i, DEC);
+      Serial.print(" with address: ");
+      for (int j=0; j<8; j++){
+        printHex(tempDeviceAddress[j]);
+      }
+      Serial.println();
+    } else {
+      Serial.print("Found ghost device at ");
+      Serial.print(i, DEC);
+      Serial.print(" but could not detect address. Check power and cabling");
+    }
+  }
+  
+  Serial.print("Device 0 ");
+  if (sensors.isConnected(tempDeviceAddress)){
+    Serial.print("IS ");
+  }
+  else {
+    Serial.print("IS NOT");
+  }
+  Serial.println("connected ");
 }
 
 void loop() {
 
-  Serial.println(analogRead(oneWireBus) * 3.3 / 4096.0);
   tempRead();
   phRead();
   ecRead();
