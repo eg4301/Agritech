@@ -159,61 +159,6 @@ void printHex(uint8_t num) {
 }
 
 
-// // Sequence of events
-// void sampling_seq() {
-    
-//   // Initial clearing of water
-//   digitalWrite(HIGH_PERISTALTIC_PIN_2, HIGH);
-//   delay(CLEAR_DURATION);           
-//   digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
-  
-//   delay(5000);
-
-//   // Drawing of sample from mixing tank
-//   digitalWrite(HIGH_PERISTALTIC_PIN_1, HIGH);
-//   delay(HIGH_PUMP_DURATION);           
-//   digitalWrite(HIGH_PERISTALTIC_PIN_1, LOW); 
-
-//   tempRead();
-//   phRead();
-//   ecRead();
-
-//   myData.temp = temperature;
-//   myData.ECVal = ecValue;
-//   myData.pHVal = pHValue;
-
-//   // Release sample back to mixing tank
-//   digitalWrite(HIGH_PERISTALTIC_PIN_2, HIGH);
-//   delay(CLEAR_DURATION);           
-//   digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
-
-
-//   // Send data to master
-//   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
-
-//   if (result == ESP_OK) {
-//     Serial.println("Sent with success");
-
-//   } else {
-//     Serial.println("Error sending the data");
-//   }
-//   esp_now_register_send_cb(OnDataSent);
-
-
-//   //Adding clean water to chamber
-//   digitalWrite(PERISTALTIC_PIN_3, HIGH);
-//   delay(PUMP_DURATION);           
-//   digitalWrite(PERISTALTIC_PIN_3, LOW); 
-// }
-
-// void fillReservoirSend(){
-//   while (digitalRead(WATER_SWITCH_PIN) == LOW) {
-//     digitalWrite(WATER_VALVE, HIGH);
-//     delay(1000);
-//   }
-// }
-
-
 void setup() {
   Serial.begin(baud_rate);
   // ec.begin();
@@ -224,41 +169,41 @@ void setup() {
   delay(2000);
 
 
-  // memcpy(myData.MAC,MAC_address,17);
+  memcpy(myData.MAC,MAC_address,17);
 
-  // myData.MAC = 1;
+  myData.MAC = 1;
 
-  // WiFi.enableLongRange(true);
-  // WiFi.mode(WIFI_STA);
-  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  WiFi.enableLongRange(true);
+  WiFi.mode(WIFI_STA);
+  WiFi.setTxPower(WIFI_POWER_19_5dBm);
   
-  // int32_t channel = getWiFiChannel(WIFI_SSID);
-  // while (channel < 1) {
-  //   delay(1000);
-  //   Serial.println("WiFi Channel Not Found!");
-  //   channel = getWiFiChannel(WIFI_SSID);
-  // }
+  int32_t channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("WiFi Channel Not Found!");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
 
-  // WiFi.printDiag(Serial); // Uncomment to verify channel number before
-  // esp_wifi_set_promiscuous(true);
-  // esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
-  // esp_wifi_set_promiscuous(false);
-  // WiFi.printDiag(Serial); // Uncomment to verify channel change after
+  WiFi.printDiag(Serial); // Uncomment to verify channel number before
+  esp_wifi_set_promiscuous(true);
+  esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+  esp_wifi_set_promiscuous(false);
+  WiFi.printDiag(Serial); // Uncomment to verify channel change after
 
-  // // Init ESP-NOW
-  // if (esp_now_init() != ESP_OK) {
-  //   Serial.println("Error initializing ESP-NOW");
-  // }
+  // Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+  }
 
-  // // Register peer
-  // memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  // peerInfo.channel = 0;
-  // peerInfo.encrypt = false;
+  // Register peer
+  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
 
-  // // Add peer
-  // if (esp_now_add_peer(&peerInfo) == ESP_OK) {
-  //   Serial.println("Peer Added");
-  // }
+  // Add peer
+  if (esp_now_add_peer(&peerInfo) == ESP_OK) {
+    Serial.println("Peer Added");
+  }
 
 
   // Initialize pins
@@ -305,6 +250,21 @@ numberOfDevices = sensors.getDeviceCount();
 
 void loop() {
 
+  int32_t channel = getWiFiChannel(WIFI_SSID);
+  channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("WiFi Channel Not Found!");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
+
+  sampling_seq();
+
+  // Once ESPNow is successfully Init, we will register for Send CB to
+  // get the status of Trasnmitted packet;
+  esp_now_register_send_cb(OnDataSent);
+
+  // Add sampling sequence here
   tempRead();
   phRead();
   ecRead();
@@ -313,25 +273,8 @@ void loop() {
   myData.ECVal = ecValue;
   myData.pHVal = pHValue;
 
-  // 1min delay
+  // add own delay
   delay(60000);
-
-  // int32_t channel = getWiFiChannel(WIFI_SSID);
-  // channel = getWiFiChannel(WIFI_SSID);
-  // while (channel < 1) {
-  //   delay(1000);
-  //   Serial.println("WiFi Channel Not Found!");
-  //   channel = getWiFiChannel(WIFI_SSID);
-  // }
-
-  // sampling_seq();
-
-  // Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet;
-  // esp_now_register_send_cb(OnDataSent);
-
-
-  // delay(2400000);
   
 }
 
