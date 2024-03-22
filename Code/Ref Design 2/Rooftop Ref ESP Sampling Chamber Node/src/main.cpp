@@ -67,6 +67,7 @@ float atmtemp = 0;
 float hum = 0;
 float CO2 = 0;
 float Oxy = 0;
+float waterLevel = 0;
 
 typedef struct struct_sensor_reading {
   int MAC ;
@@ -77,6 +78,7 @@ typedef struct struct_sensor_reading {
   float hum = 0;
   float CO2 = 0;
   float Oxy = 0;
+  float waterLevel = 0;
 } struct_sensor_reading;
 
 
@@ -266,10 +268,12 @@ void loop() {
   tempRead();
   phRead();
   ecRead();
+  waterlevelRead();
 
   myData.temp = temperature;
   myData.ECVal = ecValue;
   myData.pHVal = pHValue;
+  myData.waterLevel = waterAmt;
 
   // add own delay
   delay(60000);
