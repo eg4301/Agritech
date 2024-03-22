@@ -258,8 +258,6 @@ void loop() {
     channel = getWiFiChannel(WIFI_SSID);
   }
 
-  sampling_seq();
-
   // Once ESPNow is successfully Init, we will register for Send CB to
   // get the status of Trasnmitted packet;
   esp_now_register_send_cb(OnDataSent);
