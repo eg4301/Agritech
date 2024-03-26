@@ -48,7 +48,7 @@ int pumplist[] =
 
 // Declarations for pH Sensor:
 #define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 13.7       // Flat deviation compensate
+#define flatOff_ph 14.7       // Flat deviation compensate
 #define scaleOff_ph -6       // Scale deviation compensate
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
