@@ -51,7 +51,7 @@ int numberOfDevices;
 
 // Declarations for Water Pressure Sensor:
 #define PRESSURE_PIN 12
-#define pressure_offset 0.5
+#define pressureV_offset 0.5
 #define container_area 0.158 //m^2
 float waterAmt;
 
@@ -141,10 +141,22 @@ void tempRead(){
 }
 
 void waterlevelRead(){
+  float pressureV = 0;
+  float k = 0;
+  for(int i = 0; i<10; i++){
+    k += analogRead(PRESSURE_PIN) * 3.3;
+    delay(200);
+  }
+  pressureV = k/10;  
+  Serial.print("Pressure V = ");
+  Serial.println(pressureV/4096);
   //calculates amount of water in m^3
   //calculates pressure in kPa (density accounted for in waterAmt calculation)
-  float pressure = (analogRead(PRESSURE_PIN) - pressure_offset) * (3.3 / 4096.0) * (1600 / (4.5 - pressure_offset));
+
+  float pressure = (pressureV - pressureV_offset) * (1600 / (4.5 - pressureV_offset)) / 4096.0 ;
   waterAmt = pressure * container_area / 9.81;
+  Serial.print(waterAmt);
+  Serial.println("m^3");
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
@@ -170,42 +182,42 @@ void setup() {
   sensors.begin();
   delay(2000);
 
+  //uncomment
+  // memcpy(myData.MAC,MAC_address,17);
 
-  memcpy(myData.MAC,MAC_address,17);
+  // myData.MAC = 1;
 
-  myData.MAC = 1;
-
-  WiFi.enableLongRange(true);
-  WiFi.mode(WIFI_STA);
-  WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  // WiFi.enableLongRange(true);
+  // WiFi.mode(WIFI_STA);
+  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
   
-  int32_t channel = getWiFiChannel(WIFI_SSID);
-  while (channel < 1) {
-    delay(1000);
-    Serial.println("WiFi Channel Not Found!");
-    channel = getWiFiChannel(WIFI_SSID);
-  }
+  // int32_t channel = getWiFiChannel(WIFI_SSID);
+  // while (channel < 1) {
+  //   delay(1000);
+  //   Serial.println("WiFi Channel Not Found!");
+  //   channel = getWiFiChannel(WIFI_SSID);
+  // }
 
-  WiFi.printDiag(Serial); // Uncomment to verify channel number before
-  esp_wifi_set_promiscuous(true);
-  esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
-  esp_wifi_set_promiscuous(false);
-  WiFi.printDiag(Serial); // Uncomment to verify channel change after
+  // WiFi.printDiag(Serial); // Uncomment to verify channel number before
+  // esp_wifi_set_promiscuous(true);
+  // esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+  // esp_wifi_set_promiscuous(false);
+  // WiFi.printDiag(Serial); // Uncomment to verify channel change after
 
-  // Init ESP-NOW
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-  }
+  // // Init ESP-NOW
+  // if (esp_now_init() != ESP_OK) {
+  //   Serial.println("Error initializing ESP-NOW");
+  // }
 
-  // Register peer
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  peerInfo.channel = 0;
-  peerInfo.encrypt = false;
+  // // Register peer
+  // memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  // peerInfo.channel = 0;
+  // peerInfo.encrypt = false;
 
-  // Add peer
-  if (esp_now_add_peer(&peerInfo) == ESP_OK) {
-    Serial.println("Peer Added");
-  }
+  // // Add peer
+  // if (esp_now_add_peer(&peerInfo) == ESP_OK) {
+  //   Serial.println("Peer Added");
+  // }
 
 
   // Initialize pins
@@ -245,24 +257,25 @@ numberOfDevices = sensors.getDeviceCount();
     Serial.print("IS ");
   }
   else {
-    Serial.print("IS NOT");
+    Serial.print("IS NOT ");
   }
   Serial.println("connected ");
 }
 
 void loop() {
 
-  int32_t channel = getWiFiChannel(WIFI_SSID);
-  channel = getWiFiChannel(WIFI_SSID);
-  while (channel < 1) {
-    delay(1000);
-    Serial.println("WiFi Channel Not Found!");
-    channel = getWiFiChannel(WIFI_SSID);
-  }
+  //uncomment
+  // int32_t channel = getWiFiChannel(WIFI_SSID);
+  // channel = getWiFiChannel(WIFI_SSID);
+  // while (channel < 1) {
+  //   delay(1000);
+  //   Serial.println("WiFi Channel Not Found!");
+  //   channel = getWiFiChannel(WIFI_SSID);
+  // }
 
-  // Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet;
-  esp_now_register_send_cb(OnDataSent);
+  // // Once ESPNow is successfully Init, we will register for Send CB to
+  // // get the status of Trasnmitted packet;
+  // esp_now_register_send_cb(OnDataSent);
 
   // Add sampling sequence here
   tempRead();

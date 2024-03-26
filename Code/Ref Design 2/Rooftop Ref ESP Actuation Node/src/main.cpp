@@ -56,40 +56,6 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 #define IRRIGATION_DURATION 120000 //time used to pump sample in ms
 
 
-// Declarations for pH Sensor:
-#define PH_PIN 9             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 15.82       // Flat deviation compensate
-#define scaleOff_ph -5.66       // Scale deviation compensate
-float avgRead_ph;             //Store the average value of the sensor feedback
-float pHValue = 0;            // Final pH Value
-
-
-// Declarations for EC Sensor:
-#define EC_PIN 10
-
-  // Using DFRobot library
-// #define flatOff_ec 0.41                     // Flat deviation compensate
-// #define scaleOff_ec 1.07                    // Scale deviation compensate
-// float voltageRead,ecValue,temperature = 22;
-// DFRobot_EC ec;
-
-  // Own code
-#define ecLow 288
-#define ecHigh 2042
-float ecValue;
-
-// Declarations for Temp Sensor:
-const int oneWireBus = 12;     
-float temperature;
-OneWire oneWire(oneWireBus);
-DallasTemperature sensors(&oneWire);
-
-// Declarations for Water Pressure Sensor:
-#define PRESSURE_PIN 21
-#define pressure_offset 0.5
-#define container_area 0.158 //m^2
-float waterAmt;
-
 // Declarations for Water Switch:
 #define WATER_SWITCH_PIN 8
 
@@ -139,46 +105,7 @@ int32_t getWiFiChannel(const char *ssid) {
 }
 
 // put function definitions here:
-void phRead(){
-  pHValue = analogRead(PH_PIN) * 3.3 / 4096.0;  
-  pHValue = scaleOff_ph * pHValue + flatOff_ph;             // Transform avgRead_ph to get pHValue
-  Serial.print(pHValue);
-  Serial.println(" pH");
-}
 
-void ecRead(){
-  int j = 0; 
-  int V; 
-  float grad;
-  
-  for(int i = 0; i<10; i++){
-    j += analogRead(EC_PIN)*3.3/4096;
-  }
-  V = j/10;
-
-  grad = 11.467/(ecHigh - ecLow);
-  ecValue = 12.88 - (ecHigh - V)*grad;
-
-  Serial.print("EC V = ");
-  Serial.println(V);
-  Serial.print("EC = ");
-  Serial.print(ecValue);
-  Serial.println("ms/cm^2");
-}
-
-void tempRead(){
-  sensors.requestTemperatures(); 
-  temperature = sensors.getTempCByIndex(0);
-  Serial.print(temperature);
-  Serial.println("ºC");
-}
-
-void waterlevelRead(){
-  //calculates amount of water in m^3
-  //calculates pressure in kPa (density accounted for in waterAmt calculation)
-  float pressure = (analogRead(PRESSURE_PIN) - pressure_offset) * (3.3 / 4096.0) * (1600 / (4.5 - pressure_offset));
-  waterAmt = pressure * container_area / 9.81;
-}
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.print("\r\nLast Packet Send Status:\t");
@@ -397,35 +324,31 @@ void setup() {
 
   analogReadResolution(12);
 
-  // Serial.print("Temp sensor count ");
-  // Serial.println(sensors.getDeviceCount());
-
-
-
-}
-
-void loop() {
-
   digitalWrite(RECIRCULATING_PUMP, HIGH);
-
-  digitalWrite(HIGH_PERISTALTIC_PIN_1, HIGH);
-  delay(HIGH_PUMP_DURATION);           
-  digitalWrite(HIGH_PERISTALTIC_PIN_1, LOW); 
-
-  tempRead();
-  phRead();
-  ecRead();
-
-  myData.temp = temperature;
-  myData.ECVal = ecValue;
-  myData.pHVal = pHValue;
-
   // Release sample back to mixing tank
   digitalWrite(HIGH_PERISTALTIC_PIN_2, HIGH);
   delay(CLEAR_DURATION);           
   digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
-  // 1min delay
-  delay(60000);
+
+  digitalWrite(HIGH_PERISTALTIC_PIN_1, HIGH);
+  delay(HIGH_PUMP_DURATION);           
+  digitalWrite(HIGH_PERISTALTIC_PIN_1, LOW); 
+}
+
+void loop() {
+
+  // digitalWrite(RECIRCULATING_PUMP, HIGH);
+
+  // digitalWrite(HIGH_PERISTALTIC_PIN_1, HIGH);
+  // delay(HIGH_PUMP_DURATION);           
+  // digitalWrite(HIGH_PERISTALTIC_PIN_1, LOW); 
+
+  // // Release sample back to mixing tank
+  // digitalWrite(HIGH_PERISTALTIC_PIN_2, HIGH);
+  // delay(CLEAR_DURATION);           
+  // digitalWrite(HIGH_PERISTALTIC_PIN_2, LOW);
+  // // 1min delay
+  // delay(60000);
 
   // int32_t channel = getWiFiChannel(WIFI_SSID);
   // channel = getWiFiChannel(WIFI_SSID);

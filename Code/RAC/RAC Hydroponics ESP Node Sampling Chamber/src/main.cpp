@@ -26,16 +26,14 @@
 #define PUMP_PIN_7 15
 #define VALVE_PIN 16
 
-// Define length of time pumps and valves are open
+// Define lower EC limit (threshold)
+float  EC_threshold = 1.2 ;  //1200 microSiemens/cm
+#define DOSING_DURATION 10000
 
-// #define PUMP_DURATION 5000
-// #define VALVE_DURATION 5000
+// Define length of time pumps and valves are open
 
 #define PUMP_DURATION 120000
 #define VALVE_DURATION 10000
-
-// #define PUMP_DURATION 480000
-// #define VALVE_DURATION 10000
 
 // Change here too!!!
 int pumplist[] = 
@@ -50,7 +48,7 @@ int pumplist[] =
 
 // Declarations for pH Sensor:
 #define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 15.78       // Flat deviation compensate
+#define flatOff_ph 13.7       // Flat deviation compensate
 #define scaleOff_ph -6       // Scale deviation compensate
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
@@ -205,8 +203,11 @@ void sampling_seq() {
     digitalWrite(pumplist[i], LOW); 
 
     tempRead();
+    delay(1000);
     phRead();
+    delay(1000);
     ecRead();
+    delay(1000);
 
     myData.temp = temperature;
     myData.ECVal = ecValue;
@@ -215,10 +216,6 @@ void sampling_seq() {
     digitalWrite(VALVE_PIN, HIGH);
     delay(VALVE_DURATION);           
     digitalWrite(VALVE_PIN, LOW);
-
-    // digitalWrite(int(PUMP_PIN_6), HIGH);
-    // delay(PUMP_DURATION);           
-    // digitalWrite(int(PUMP_PIN_6), LOW); 
 
 
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *)&myData, sizeof(myData));
@@ -232,10 +229,22 @@ void sampling_seq() {
     esp_now_register_send_cb(OnDataSent);
   }
 
-  digitalWrite(int(PUMP_PIN_6), HIGH);
-  delay(PUMP_DURATION);           
-  digitalWrite(int(PUMP_PIN_6), LOW); 
 
+
+}
+
+bool dosing_seq(){
+  //return true if ecValue is lower than threshold
+  if (ecValue < EC_threshold){
+    digitalWrite(int(PUMP_PIN_6), HIGH);
+    delay(DOSING_DURATION);           
+    digitalWrite(int(PUMP_PIN_6), LOW); 
+    digitalWrite(VALVE_PIN, HIGH);
+    delay(VALVE_DURATION);           
+    digitalWrite(VALVE_PIN, LOW);
+    return true;
+  }
+  return false;
 }
 
 void setup() {
@@ -292,6 +301,8 @@ void setup() {
 }
 
 void loop() {
+  bool correctEC = false; 
+
   int32_t channel = getWiFiChannel(WIFI_SSID);
   channel = getWiFiChannel(WIFI_SSID);
   while (channel < 1) {
@@ -299,15 +310,19 @@ void loop() {
     Serial.println("WiFi Channel Not Found!");
     channel = getWiFiChannel(WIFI_SSID);
   }
-
+  
   sampling_seq();
-
-  // Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet;
-  // esp_now_register_send_cb(OnDataSent);
-
-
-  // delay(2400000);
+  correctEC = dosing_seq();
+  while(correctEC){
+    // delay 10min for mixing
+    delay(600000);
+    sampling_seq();
+    dosing_seq();
+  }
+      
+  digitalWrite(PUMP_PIN_2, HIGH);
+  delay(PUMP_DURATION);           
+  digitalWrite(PUMP_PIN_2, LOW); 
 
   // delay for 15 minutes
   delay(900000);
