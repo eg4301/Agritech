@@ -57,7 +57,7 @@ float pHValue = 0;            // Final pH Value
 // Declarations for EC Sensor:
 #define EC_PIN 6
 
-  // Using DFRobot library
+// // Using DFRobot library
 // #define flatOff_ec 0.41                     // Flat deviation compensate
 // #define scaleOff_ec 1.07                    // Scale deviation compensate
 // float voltageRead,ecValue,temperature = 22;

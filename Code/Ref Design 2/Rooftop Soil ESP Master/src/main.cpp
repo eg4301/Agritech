@@ -85,6 +85,28 @@ unsigned long interval = 30000;
 // AWS Reconnect
 long lastReconnectAttempt1;
 
+// Actuation system
+float chamber_volume = 0.2;           // in dm3 (cubic decimeters) aka litres
+float tank_volume = 30;               // in dm3 (cubic decimeters) aka litres
+float sol_A_N_conc = 21;              // in g/dm3
+float sol_B_N_conc = 5;               // in g/dm3
+float N_temp_store = 0;               // in g/dm3
+float soil_to_tank_transform = 0.67;  // Accounts for number of tank fills to distribute to entire patch
+float chamber_counter = 0;            // Keeps track of number of sampling chamber fills required per tank
+float tank_counter = 0;               // Keeps track of number of tank fills required to dose the patch
+float N_mass_tank = 0;                // Tank nitrogen mass counter
+float N_mass_required = 0;            // Required Nitrogen Mass
+float fert_volume = 0;
+float res_chamber = 0;
+
+
+
+// Thresholds
+float pH_desired = 0;
+float N_desired = 0;
+float EC_desired = 0;
+boolean updateThreshold = false;
+
 
 
 /**
@@ -133,11 +155,28 @@ void mqttCallback(char *topic, byte *payload, unsigned int len) {
     SerialMon.write(payload, len);
     SerialMon.println();
 
+    String messageTemp;
+  
+    for (int i = 0; i < len; i++) {
+      Serial.print((char)payload[i]);
+      messageTemp += (char)payload[i];
+    }
+    Serial.println();
+
     // Only proceed if incoming message's topic matches
     if (String(topic) == AWS_IOT_SUBSCRIBE_TOPIC) {
-        client.publish(AWS_IOT_PUBLISH_TOPIC, "Message Received");
-
+      client.publish(AWS_IOT_PUBLISH_TOPIC, "Thresholds Received");
+      if (updateThreshold){
+        pH_desired = messageTemp[3];
+        EC_desired = messageTemp[4];
+        N_desired = messageTemp[5];
+        SerialMon.print("Thresholds updated");
+        client.publish(AWS_IOT_PUBLISH_TOPIC, "Thresholds Updated");
+      }
     }
+    
+
+
 }
 
 
@@ -243,6 +282,22 @@ boolean AWS_reconnect() {
     client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
   }
   return client.connected();
+}
+
+void ActuationCalculator(){
+  SerialMon.print("Nitrogen concentration now is: ");
+  N_temp_store = N_now;
+  SerialMon.println(N_temp_store);
+  // Current N Mass
+  N_mass_tank = N_temp_store * tank_volume;
+
+  // Required N Mass
+  N_mass_required = N_desired * tank_volume;
+
+  // Required fertilizer volume and runs
+  fert_volume = (N_mass_required - N_mass_tank)/sol_A_N_conc;
+  chamber_counter = fert_volume/chamber_volume;
+
 }
 
 
