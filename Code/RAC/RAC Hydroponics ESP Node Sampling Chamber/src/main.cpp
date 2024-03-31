@@ -48,7 +48,7 @@ int pumplist[] =
 
 // Declarations for pH Sensor:
 #define PH_PIN 5             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 14.7       // Flat deviation compensate
+#define flatOff_ph 12.8       // Flat deviation compensate
 #define scaleOff_ph -6       // Scale deviation compensate
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
@@ -64,7 +64,7 @@ float pHValue = 0;            // Final pH Value
 // DFRobot_EC ec;
 
   // Own code
-#define ecLow 215 //1413 microSiemens/cm
+#define ecLow 200 //1413 microSiemens/cm
 #define ecHigh 1922 //12.88 milliSiemens/cm
 float ecValue;
 
@@ -313,19 +313,17 @@ void loop() {
   
   sampling_seq();
   correctEC = dosing_seq();
-  while(correctEC){
-    // delay 10min for mixing
-    delay(600000);
-    sampling_seq();
-    dosing_seq();
-  }
       
   digitalWrite(PUMP_PIN_2, HIGH);
   delay(PUMP_DURATION);           
   digitalWrite(PUMP_PIN_2, LOW); 
 
   // delay for 15 minutes
-  delay(900000);
+  unsigned long currentmillis = millis();
+  while (millis() - currentmillis < 900000)
+  {
+    delay(1000);
+  }
   
 }
 
