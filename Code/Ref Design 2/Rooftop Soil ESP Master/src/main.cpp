@@ -24,7 +24,12 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 #include <Update.h>
- 
+
+#include <SoftwareSerial.h>
+#include <Sol16_RS485.h>
+
+#include "esp_adc_cal.h"
+
  
 #define AWS_IOT_PUBLISH_TOPIC   "Soil1/pub"
 #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"
@@ -54,10 +59,14 @@ float N_now = 0;
 float P_now = 0;
 float K_now = 0;
 int MAC_now;
+float sample_temp,sample_pH,sample_ec = 0;
 
 uint16_t HEX_A;
 uint16_t HEX_B;
 bool is_send_data = false;
+bool is_sampling_data = false;
+bool is_fertilize = false;
+bool is_buffer = false;
 
 String formattedDate;
 String daystamp;
@@ -81,6 +90,12 @@ const char* host = "esp32";
 //WiFi Reconnect
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
+
+// Fertilizer Timer
+unsigned long fertilizeMillis = 0;
+unsigned long fert_timer = 900000;
+
+unsigned long buffMillis = 0;
 
 // AWS Reconnect
 long lastReconnectAttempt1;
@@ -106,6 +121,47 @@ float pH_desired = 0;
 float N_desired = 0;
 float EC_desired = 0;
 boolean updateThreshold = false;
+
+#define baud_rate 9600
+
+// RS485 pins in use
+#define RX_PIN 12    // Soft Serial Receive pin, connected to RO //  
+#define TX_PIN 14    // Soft Serial Transmit pin, connected to DI // 
+#define CTRL_PIN 13  // RS485 Direction control, connected to RE and DE // 
+
+
+// RS485 Constants
+#define RS485_TRANSMIT HIGH
+#define RS485_RECEIVE LOW
+
+// Norika water meter constants
+#define RETURN_ADDRESS_IDX 0
+#define RETURN_FUNCTIONCODE_IDX 1
+
+Config protocol = SWSERIAL_8N1;
+
+Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
+
+// Declarations for Actuation (pumps + valve)
+#define HIGH_PERISTALTIC_PIN_1 17 //Relay 2
+#define HIGH_PERISTALTIC_PIN_2 18  //Relay 1 (pumps water opposite direction)
+#define PERISTALTIC_PIN_1 7 //Relay 5
+#define PERISTALTIC_PIN_2 15 //Relay 4
+#define PERISTALTIC_PIN_3 16 //Relay 3
+#define RECIRCULATING_PUMP 6 //Relay 6
+#define IRRIGATION_PUMP 5 //Relay 7
+#define WATER_VALVE 4  //Relay 8
+
+// Declarations for Water Switch:
+#define WATER_SWITCH_PIN 8
+
+// Define length of time pumps and valves are open
+
+#define PUMP_DURATION 120000 //time used to pump clean water in ms
+#define HIGH_PUMP_DURATION 30000 //time used to pump sample in ms
+#define CLEAR_DURATION 30000 //time used to clear sample in ms
+#define MIXING_DURATION 60000 //time used to mix sample in ms
+#define IRRIGATION_DURATION 120000 //time used to pump sample in ms
 
 
 
@@ -155,25 +211,54 @@ void mqttCallback(char *topic, byte *payload, unsigned int len) {
     SerialMon.write(payload, len);
     SerialMon.println();
 
-    String messageTemp;
-  
-    for (int i = 0; i < len; i++) {
-      Serial.print((char)payload[i]);
-      messageTemp += (char)payload[i];
-    }
-    Serial.println();
+    StaticJsonBuffer<300> JSONBuffer2;
 
-    // Only proceed if incoming message's topic matches
-    if (String(topic) == AWS_IOT_SUBSCRIBE_TOPIC) {
-      client.publish(AWS_IOT_PUBLISH_TOPIC, "Thresholds Received");
-      if (updateThreshold){
-        pH_desired = messageTemp[3];
-        EC_desired = messageTemp[4];
-        N_desired = messageTemp[5];
-        SerialMon.print("Thresholds updated");
-        client.publish(AWS_IOT_PUBLISH_TOPIC, "Thresholds Updated");
-      }
+    JsonObject& parsed = JSONBuffer2.parseObject(payload);
+
+    if(!parsed.success()){
+      Serial.println("Message parsing failed");
+      client.publish(AWS_IOT_PUBLISH_TOPIC, "Threshold failed to parse");
     }
+
+    if (updateThreshold && parsed.success()) {
+      Serial.println("Message Parsed, updating Thresholds...");
+      Serial.print("Previous pH Threshold: ");
+      Serial.println(pH_desired);
+      pH_desired = parsed["pH"];
+      Serial.print("Current pH Threshold: ");
+      Serial.println(pH_desired);
+      Serial.print("Previous EC Threshold: ");
+      Serial.println(EC_desired);
+      EC_desired = parsed["EC"];
+      Serial.print("Current EC Threshold: ");
+      Serial.println(EC_desired);
+      Serial.print("Previous Nitrogen Threshold: ");
+      Serial.println(N_desired);
+      N_desired = parsed["Nitrogen"];
+      Serial.print("Current Nitrogen Threshold: ");
+      Serial.println(N_desired);
+      Serial.println("Thresholds updated");
+    }
+
+    // String messageTemp;
+  
+    // for (int i = 0; i < len; i++) {
+    //   Serial.print((char)payload[i]);
+    //   messageTemp += (char)payload[i];
+    // }
+    // Serial.println();
+
+    // // Only proceed if incoming message's topic matches
+    // if (String(topic) == AWS_IOT_SUBSCRIBE_TOPIC) {
+    //   client.publish(AWS_IOT_PUBLISH_TOPIC, "Thresholds Received");
+    //   if (updateThreshold){
+    //     pH_desired = messageTemp[3];
+    //     EC_desired = messageTemp[4];
+    //     N_desired = messageTemp[5];
+    //     SerialMon.print("Thresholds updated");
+    //     client.publish(AWS_IOT_PUBLISH_TOPIC, "Thresholds Updated");
+    //   }
+    // }
     
 
 
@@ -245,6 +330,15 @@ typedef struct struct_sensor_reading {
 
 struct_sensor_reading incoming_data;
 
+typedef struct struct_sample_reading {
+  int MAC;
+  float sam_pH = 0;
+  float sam_EC = 0;
+  float sam_Temp = 0;
+} struct_sample_reading;
+
+struct_sample_reading samplingData;
+
 // void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 //   Serial.println("Data Received");
 //   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
@@ -253,7 +347,9 @@ struct_sensor_reading incoming_data;
 //   is_send_data = true;
 // }
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
-  Serial.println("Data Received");
+  Serial.println("Data Received from: ");
+  Serial.println(mac);
+  if (incomingData.MAC < 6){
   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
   timestamp = get_formatted_time();
   lastreceived = millis();
@@ -270,7 +366,15 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   P_now = incoming_data.P;
   K_now = incoming_data.K;
 
-  is_send_data = true;  
+  is_send_data = true;}  
+
+  if (incomingData.MAC = 6){
+    memcpy(&samplingData, incomingData,sizeof(samplingData));
+    sample_ec = samplingData.sam_EC;
+    sample_pH = samplingData.sam_pH;
+    sample_temp = samplingData.sam_Temp;
+    
+  }
 }
 
 boolean AWS_reconnect() {
@@ -396,7 +500,21 @@ const char* serverIndex =
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
+
+  // Initialize pins
+  pinMode(HIGH_PERISTALTIC_PIN_1, OUTPUT);
+  pinMode(PERISTALTIC_PIN_1, OUTPUT);
+  pinMode(PERISTALTIC_PIN_2, OUTPUT);
+  pinMode(PERISTALTIC_PIN_3, OUTPUT);
+  pinMode(RECIRCULATING_PUMP, OUTPUT);
+  pinMode(IRRIGATION_PUMP, OUTPUT);
+  pinMode(WATER_VALVE, OUTPUT);
+  pinMode(HIGH_PERISTALTIC_PIN_2, OUTPUT);
+
+  pinMode(WATER_SWITCH_PIN, INPUT);
+
+
   connectAWS();
 
   // setupRTC();
@@ -463,10 +581,13 @@ void setup() {
   }
   esp_now_register_recv_cb(OnDataRecv);
   Serial.println("ESP-NOW initialized");
+
+  digitalWrite(RECIRCULATING_PUMP, HIGH);
 }
  
 void loop(){
   unsigned long currentMillis = millis();
+  
     
   // Put ESP to deep sleep every 12h
   if (millis() >= 43200000) {
@@ -499,11 +620,26 @@ void loop(){
     mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now, atmtemp_now, hum_now, CO2_now, oxy_now, N_now, P_now, K_now);
     is_send_data = false;
     }
+
+  if (sample_ec < EC_desired){
+    is_fertilize = true;
+  }
+
+  if (sample_pH < pH_desired){
+    is_buffer = true;
+  }
   
-  // timestamp = get_formatted_time();
-  // mqttPublish(timestamp,1,2,3,4,5,6,7,8,9,10,11);
-  // Serial.println("Sample published");
-  // delay(10000);
+  if (is_fertilize && (currentMillis - fertilizeMillis >= fert_timer)){
+    fert_seq();
+    fertilizeMillis = currentMillis;
+    is_fertilize = false;
+  }
+
+  if (is_buffer && (currentMillis - buffMillis >= fert_timer)) {
+    buff_seq();
+    buffMillis = currentMillis;
+    is_buffer = false;
+  }
 
   client.loop();
   server.handleClient();
