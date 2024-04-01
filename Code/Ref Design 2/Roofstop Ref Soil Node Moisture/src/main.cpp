@@ -15,12 +15,11 @@
 #define DEEPSLEEPDURATION (24 * 60 * 60)  // Time interval between readings, in seconds (default 24 hours)
 #define ADDRESS (0x01)                    // ! NEED TO CHANGE FOR EACH WATER METER
 
-#define EN_1 12
 
 // RS485 pins in use
-#define RX_PIN 16    // Soft Serial Receive pin, connected to RO // ! PINOUT TBC ONCE PCB ARRIVES
-#define TX_PIN 17    // Soft Serial Transmit pin, connected to DI // ! PINOUT TBC ONCE PCB ARRIVES
-#define CTRL_PIN 26  // RS485 Direction control, connected to RE and DE // ! PINOUT TBC ONCE PCB ARRIVES
+#define RX_PIN 4    // Soft Serial Receive pin, connected to RO //  
+#define TX_PIN 5    // Soft Serial Transmit pin, connected to DI // 
+#define CTRL_PIN 6  // RS485 Direction control, connected to RE and DE // 
 
 #define baud_rate 9600
 
@@ -120,12 +119,6 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 void setup() {
 
   Serial.begin(9600);
-
-
-
-  pinMode(EN_1, OUTPUT);
-  digitalWrite(EN_1, HIGH);
-  delay(100);
 
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
