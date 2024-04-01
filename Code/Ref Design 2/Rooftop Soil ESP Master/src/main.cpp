@@ -211,9 +211,9 @@ void mqttCallback(char *topic, byte *payload, unsigned int len) {
     SerialMon.write(payload, len);
     SerialMon.println();
 
-    StaticJsonBuffer<300> JSONBuffer2;
+    StaticJsonBuffer<300> JSONBuffer;
 
-    JsonObject& parsed = JSONBuffer2.parseObject(payload);
+    JsonObject& parsed = JSONBuffer.parseObject(payload);
 
     if(!parsed.success()){
       Serial.println("Message parsing failed");
