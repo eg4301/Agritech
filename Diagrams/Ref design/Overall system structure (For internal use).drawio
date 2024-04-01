@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2024-04-01T01:24:49.091Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="UMVEPAh4xtMzpSExeISp" version="21.7.5" type="device" pages="9">
+<mxfile host="Electron" modified="2024-04-01T04:25:31.549Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="RdZb2NFRo348DeqCgF0Z" version="21.7.5" type="device" pages="9">
   <diagram name="Overall" id="QVVg88YSjWete_qPwuQA">
     <mxGraphModel dx="1036" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
@@ -930,7 +930,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="S2PRlzsnAcoiQ9KLgddb" name="Soil Sensor Node">
-    <mxGraphModel dx="448" dy="902" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="-64" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -1012,11 +1012,11 @@
     </mxGraphModel>
   </diagram>
   <diagram id="pZXSNiL37Gl02LcEOVHI" name="Dosing + Actuation">
-    <mxGraphModel dx="119" dy="713" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="-64" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="jlKVzvDkb3JfCpmbEgdn-151" value="" style="rounded=0;whiteSpace=wrap;html=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="1" vertex="1">
+        <mxCell id="jlKVzvDkb3JfCpmbEgdn-151" value="" style="rounded=0;whiteSpace=wrap;html=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" vertex="1" parent="1">
           <mxGeometry x="5680" width="1280" height="760" as="geometry" />
         </mxCell>
         <mxCell id="FjZB1jUzJfM3nv7mkknC-1" value="" style="rounded=0;whiteSpace=wrap;html=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="1" vertex="1">
@@ -2870,28 +2870,28 @@
         <mxCell id="djICriKouwVFqDvYMjDT-15" value="Peristaltic pump" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="4694" y="1010" width="53" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="jlKVzvDkb3JfCpmbEgdn-79" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d2a32d;strokeColor=#835e01;perimeterSpacing=1;strokeWidth=3;" parent="1" vertex="1">
+        <mxCell id="jlKVzvDkb3JfCpmbEgdn-79" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d2a32d;strokeColor=#835e01;perimeterSpacing=1;strokeWidth=3;" vertex="1" parent="1">
           <mxGeometry x="6080" y="400" width="120" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="jlKVzvDkb3JfCpmbEgdn-165" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+        <mxCell id="jlKVzvDkb3JfCpmbEgdn-165" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
           <mxGeometry x="6115" y="475" width="10" height="10" as="geometry" />
         </mxCell>
-        <mxCell id="jlKVzvDkb3JfCpmbEgdn-169" value="Cai Xin" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" parent="1" vertex="1">
+        <mxCell id="jlKVzvDkb3JfCpmbEgdn-169" value="Cai Xin" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" vertex="1" parent="1">
           <mxGeometry x="5900" y="427" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="jlKVzvDkb3JfCpmbEgdn-170" value="Lettuce" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" parent="1" vertex="1">
+        <mxCell id="jlKVzvDkb3JfCpmbEgdn-170" value="Lettuce" style="rounded=0;whiteSpace=wrap;html=1;rotation=-90;" vertex="1" parent="1">
           <mxGeometry x="5900" y="226.5" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="jlKVzvDkb3JfCpmbEgdn-171" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+        <mxCell id="jlKVzvDkb3JfCpmbEgdn-171" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
           <mxGeometry x="5950" y="100.5" width="10" height="10" as="geometry" />
         </mxCell>
-        <mxCell id="jlKVzvDkb3JfCpmbEgdn-172" value="Plants" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="jlKVzvDkb3JfCpmbEgdn-172" value="Plants" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="5970" y="90.5" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="jlKVzvDkb3JfCpmbEgdn-173" value="" style="shape=sumEllipse;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+        <mxCell id="jlKVzvDkb3JfCpmbEgdn-173" value="" style="shape=sumEllipse;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="5950" y="123.5" width="10" height="10" as="geometry" />
         </mxCell>
-        <mxCell id="jlKVzvDkb3JfCpmbEgdn-174" value="Dripper/Sprinkler" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+        <mxCell id="jlKVzvDkb3JfCpmbEgdn-174" value="Dripper/Sprinkler" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="5970" y="113.5" width="100" height="30" as="geometry" />
         </mxCell>
         <mxCell id="LtcUia8wz1EA4cWsWY8Z-2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
@@ -3083,14 +3083,14 @@
         <mxCell id="LtcUia8wz1EA4cWsWY8Z-74" value="Minimal farming setup&lt;br&gt;- Hand watering&lt;br&gt;- To get a sense of how plants fare in current climate conditions" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=3;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
           <mxGeometry x="6460" y="533" width="160" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="LtcUia8wz1EA4cWsWY8Z-76" value="Actuation Setup&lt;br&gt;-&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=3;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+        <mxCell id="LtcUia8wz1EA4cWsWY8Z-76" value="Actuation Setup" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=3;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
           <mxGeometry x="6060" y="536" width="160" height="80" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram id="tZ6JhoyIoE1Xs9jzpcEB" name="Sensor Calibration">
-    <mxGraphModel dx="334" dy="884" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
+    <mxGraphModel dx="-64" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
