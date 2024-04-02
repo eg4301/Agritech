@@ -18,8 +18,8 @@
 
 // RS485 pins in use
 #define RX_PIN 4    // Soft Serial Receive pin, connected to RO //  
-#define TX_PIN 5    // Soft Serial Transmit pin, connected to DI // 
-#define CTRL_PIN 6  // RS485 Direction control, connected to RE and DE // 
+#define TX_PIN 6    // Soft Serial Transmit pin, connected to DI // 
+#define CTRL_PIN 5  // RS485 Direction control, connected to RE and DE // 
 
 #define baud_rate 9600
 
@@ -39,7 +39,7 @@ Preferences preferences;
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // CWT sensor addresses
-byte hexI[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x07, 0x08, 0x09, 0x10};
+byte hexI[] = {0x03, 0x04, 0x05, 0x06};
 byte reading[19];
 
 byte sensorTransform[totSensors][numReadingTypes][3] {};
@@ -164,23 +164,13 @@ void setup() {
     channel = getWiFiChannel(WIFI_SSID);
   }
 
-  for (int i=1; i<6; i++){
+  for (int i=0; i<4; i++){
 
-    if (i<5){
-    // Read and send CWT data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
-    request_reading_CWT(hexI[i]);
-    receive_reading(reading, 19);
-    packDataCWT(reading);
-    }    
-
-    else {
-    // Read and send Rika data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
-    request_reading_rika();
-    receive_reading(reading, 13);
-    packDataRika(reading);
-    }     
+  // Read and send CWT data
+  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
+  request_reading_CWT(hexI[i]);
+  receive_reading(reading, 19);
+  packDataCWT(reading);
 
     myData.MAC = MAC_now;
     myData.temp = temp_now;

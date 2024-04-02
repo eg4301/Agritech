@@ -10,16 +10,10 @@
 #include "Sol16_RS485.h"
 #include "SoftwareSerial.h"
 
-
-/* Public defines ----------------------------------------------------------- */
-#define DEEPSLEEPDURATION (24 * 60 * 60)  // Time interval between readings, in seconds (default 24 hours)
-
-#define EN_1 12
-
 // RS485 pins in use
 #define RX_PIN 4    // Soft Serial Receive pin, connected to RO //  
-#define TX_PIN 5    // Soft Serial Transmit pin, connected to DI // 
-#define CTRL_PIN 6  // RS485 Direction control, connected to RE and DE // 
+#define TX_PIN 6    // Soft Serial Transmit pin, connected to DI // 
+#define CTRL_PIN 5  // RS485 Direction control, connected to RE and DE // 
 
 
 // RS485 Constants
@@ -37,9 +31,9 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 //variables
 
 int baud_rate = 9600;
-byte command[] = {0x02, 0x06, 0x07, 0xD0, 0x00, 0x06, 0x08, 0x86};
+byte command[] = {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59};
 
-int num_bytes = 8;
+int num_bytes = 7;
 
 // standard commands
 // CWT check slaveID {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59}
@@ -65,8 +59,6 @@ void receive_reading(int num_bytes);
 void setup() {
 
   Serial.begin(baud_rate);
-  pinMode(EN_1, OUTPUT);
-  digitalWrite(EN_1, HIGH);
   delay(100);
 
   CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, command[0], baud_rate, protocol);  // Serial connection setup
