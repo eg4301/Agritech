@@ -20,15 +20,15 @@
 
 
 // Declarations for pH Sensor:
-#define PH_PIN 9             // pH meter Analog output to Arduino Analog Input 0
-#define flatOff_ph 10       // Flat deviation compensate
-#define scaleOff_ph -3       // Scale deviation compensate
+#define PH_PIN 10             // pH meter Analog output to Arduino Analog Input 0
+#define flatOff_ph 13.22       // Flat deviation compensate
+#define scaleOff_ph -6       // Scale deviation compensate
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
 
 
 // Declarations for EC Sensor:
-#define EC_PIN 10
+#define EC_PIN 9
 
   // Using DFRobot library
 // #define flatOff_ec 0.41                     // Flat deviation compensate
@@ -37,8 +37,8 @@ float pHValue = 0;            // Final pH Value
 // DFRobot_EC ec;
 
   // Own code
-#define ecLow 750
-#define ecHigh 7200
+#define ecLow 267
+#define ecHigh 1851
 float ecValue;
 
 // Declarations for Temp Sensor:
@@ -119,9 +119,9 @@ void ecRead(){
   float grad = 0;
   
   for(int i = 0; i<10; i++){
-    k += analogRead(EC_PIN) * 3.3;
+    k += analogRead(EC_PIN)*3300/4096;
   }
-  V = k/10;  
+  V = k/10;
 
   grad = 11.467/(ecHigh - ecLow);
   ecValue = 12.88 - (ecHigh - V)*grad;
