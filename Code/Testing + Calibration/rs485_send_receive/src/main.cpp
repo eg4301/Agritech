@@ -11,9 +11,9 @@
 #include "SoftwareSerial.h"
 
 // RS485 pins in use
-#define RX_PIN 4    // Soft Serial Receive pin, connected to RO //  
-#define TX_PIN 6    // Soft Serial Transmit pin, connected to DI // 
-#define CTRL_PIN 5  // RS485 Direction control, connected to RE and DE // 
+#define RX_PIN 12    // Soft Serial Receive pin, connected to RO //  
+#define TX_PIN 14    // Soft Serial Transmit pin, connected to DI // 
+#define CTRL_PIN 13  // RS485 Direction control, connected to RE and DE // 
 
 
 // RS485 Constants
@@ -31,9 +31,9 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 //variables
 
 int baud_rate = 9600;
-byte command[] = {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59};
+byte command[] = {0x63, 0x05, 0x00, 0x01, 0x00, 0x00, 0x94, 0x48};
 
-int num_bytes = 7;
+int num_bytes = 8;
 
 // standard commands
 // CWT check slaveID {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59}
@@ -50,8 +50,8 @@ int num_bytes = 7;
 // Norika 9 Byte return
 // Norika water meter Open {0x63, 0x05, 0x00, 0x01, 0x00, 0xFF, 0xD4, 0x08}
 // Norika water meter Close {0x63, 0x05, 0x00, 0x01, 0x00, 0x00, 0x94, 0x48}
+// Read valve status {0x63, 0x01, 0x00, 0x01, 0x00, 0x01, 0xA4, 0x48}
 
-//{0x01, 0x06, 0x00, 0x30, 0x00, 0x07, 0x08, 0x86}
 
 void request_reading();
 void receive_reading(int num_bytes);
