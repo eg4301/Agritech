@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <Arduino.h>
 
-#include <DFRobot_EC.h>
 
 #include <Sol16_RS485.h>
 #include <SoftwareSerial.h>
@@ -26,17 +25,8 @@
 float avgRead_ph;             //Store the average value of the sensor feedback
 float pHValue = 0;            // Final pH Value
 
-
 // Declarations for EC Sensor:
 #define EC_PIN 10
-
-  // Using DFRobot library
-// #define flatOff_ec 0.41                     // Flat deviation compensate
-// #define scaleOff_ec 1.07                    // Scale deviation compensate
-// float voltageRead,ecValue,temperature = 22;
-// DFRobot_EC ec;
-
-  // Own code
 #define ecLow 750
 #define ecHigh 7200
 float ecValue;
@@ -55,33 +45,27 @@ int numberOfDevices;
 #define container_area 0.158 //m^2
 float waterAmt;
 
+bool sampling = false;
+bool is_send_data = false;
+
+// Declarations for Peristaltic Pump and Valve
+#define HIGH_PERISTALTIC_PIN_1 17  // Relay 2 (Fill Chamber)
+#define HIGH_PERISTALTIC_PIN_2 18  // Relay 1 (Drain Chamber)
+#define PERISTALTIC_PIN_3 16       // Relay 3 (Fill with reservoir water)
+
+unsigned long EMPTY_DURATION = 40000;
+unsigned long FILL_DURATION = 30000;
+
+uint8_t broadcastAddress[] = {0x68, 0xB6, 0xB3, 0x51, 0xD3, 0x28};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 
-uint8_t broadcastAddress[] = {0xEC, 0xDA, 0x3B, 0x96, 0xF2, 0x14};  // ! REPLACE WITH YOUR RECEIVER MAC Address
-
-int MAC ;
-float pHVal = 0;
-float ECVal = 0;
-float temp = 0;
-float atmtemp = 0;
-float hum = 0;
-float CO2 = 0;
-float Oxy = 0;
-float waterLevel = 0;
 
 typedef struct struct_sensor_reading {
   int MAC ;
   float pHVal = 0;
   float ECVal = 0;
   float temp = 0;
-  float atmtemp = 0;
-  float hum = 0;
-  float CO2 = 0;
-  float Oxy = 0;
-  float waterLevel = 0;
 } struct_sensor_reading;
-
-
 
 struct_sensor_reading myData;
 
@@ -101,7 +85,7 @@ int32_t getWiFiChannel(const char *ssid) {
   return 0;
 }
 
-// put function definitions here:
+// Function definitions:
 void phRead(){
   int j = 0;
   for(int i = 0; i<10; i++){
@@ -159,6 +143,16 @@ void waterlevelRead(){
   Serial.println("m^3");
 }
 
+void sampling_sequence(){
+  ecRead();
+  phRead();
+  tempRead();
+
+  myData.ECVal = ecValue;
+  myData.pHVal = pHValue;
+  myData.temp = temperature;
+}
+
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.print("\r\nLast Packet Send Status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
@@ -172,52 +166,59 @@ void printHex(uint8_t num) {
   Serial.print(" ");
 }
 
+void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
+  Serial.println("Data Received");
+  is_send_data = true;
+  sampling = true;
+  Serial.println("Starting Sampling Sequence...");
+}
+
 
 void setup() {
   Serial.begin(baud_rate);
-  // ec.begin();
 
   Serial.println("Initializing...");
   delay(2000);
   sensors.begin();
   delay(2000);
 
-  //uncomment
-  // memcpy(myData.MAC,MAC_address,17);
+  myData.MAC = 8;
 
-  // myData.MAC = 1;
-
-  // WiFi.enableLongRange(true);
-  // WiFi.mode(WIFI_STA);
-  // WiFi.setTxPower(WIFI_POWER_19_5dBm);
+  WiFi.enableLongRange(true);
+  WiFi.mode(WIFI_STA);
+  WiFi.setTxPower(WIFI_POWER_19_5dBm);
   
-  // int32_t channel = getWiFiChannel(WIFI_SSID);
-  // while (channel < 1) {
-  //   delay(1000);
-  //   Serial.println("WiFi Channel Not Found!");
-  //   channel = getWiFiChannel(WIFI_SSID);
-  // }
+  int32_t channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("WiFi Channel Not Found!");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
 
-  // WiFi.printDiag(Serial); // Uncomment to verify channel number before
-  // esp_wifi_set_promiscuous(true);
-  // esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
-  // esp_wifi_set_promiscuous(false);
-  // WiFi.printDiag(Serial); // Uncomment to verify channel change after
+  WiFi.printDiag(Serial); // Uncomment to verify channel number before
+  esp_wifi_set_promiscuous(true);
+  esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
+  esp_wifi_set_promiscuous(false);
+  WiFi.printDiag(Serial); // Uncomment to verify channel change after
+  Serial.println(WiFi.macAddress());
 
-  // // Init ESP-NOW
-  // if (esp_now_init() != ESP_OK) {
-  //   Serial.println("Error initializing ESP-NOW");
-  // }
+  // Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+  }
+  esp_now_register_recv_cb(OnDataRecv);
+  esp_now_register_send_cb(OnDataSent);
+  Serial.println("ESP NOW Initialized");
 
-  // // Register peer
-  // memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  // peerInfo.channel = 0;
-  // peerInfo.encrypt = false;
+  // Register peer
+  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
 
-  // // Add peer
-  // if (esp_now_add_peer(&peerInfo) == ESP_OK) {
-  //   Serial.println("Peer Added");
-  // }
+  // Add peer
+  if (esp_now_add_peer(&peerInfo) == ESP_OK) {
+    Serial.println("Peer Added");
+  }
 
 
   // Initialize pins
@@ -225,71 +226,124 @@ void setup() {
   pinMode(PRESSURE_PIN, INPUT);
   pinMode(PH_PIN, INPUT);
   pinMode(EC_PIN, INPUT);
+  pinMode(HIGH_PERISTALTIC_PIN_1, OUTPUT);
+  pinMode(HIGH_PERISTALTIC_PIN_2, OUTPUT);
+  pinMode(PERISTALTIC_PIN_3, OUTPUT);
 
 
-numberOfDevices = sensors.getDeviceCount();
+
+
+
+// numberOfDevices = sensors.getDeviceCount();
   
-  // locate devices on the bus
-  Serial.print("Locating devices...");
-  Serial.print("Found ");
-  Serial.print(numberOfDevices, DEC);
-  Serial.println(" devices.");
+//   // locate devices on the bus
+//   Serial.print("Locating devices...");
+//   Serial.print("Found ");
+//   Serial.print(numberOfDevices, DEC);
+//   Serial.println(" devices.");
 
-  for(int i=0;i<numberOfDevices; i++) {
-    // Search the wire for address
-    if(sensors.getAddress(tempDeviceAddress, i)) {
-      Serial.print("Found device ");
-      Serial.print(i, DEC);
-      Serial.print(" with address: ");
-      for (int j=0; j<8; j++){
-        printHex(tempDeviceAddress[j]);
-      }
-      Serial.println();
-    } else {
-      Serial.print("Found ghost device at ");
-      Serial.print(i, DEC);
-      Serial.print(" but could not detect address. Check power and cabling");
-    }
-  }
+//   for(int i=0;i<numberOfDevices; i++) {
+//     // Search the wire for address
+//     if(sensors.getAddress(tempDeviceAddress, i)) {
+//       Serial.print("Found device ");
+//       Serial.print(i, DEC);
+//       Serial.print(" with address: ");
+//       for (int j=0; j<8; j++){
+//         printHex(tempDeviceAddress[j]);
+//       }
+//       Serial.println();
+//     } else {
+//       Serial.print("Found ghost device at ");
+//       Serial.print(i, DEC);
+//       Serial.print(" but could not detect address. Check power and cabling");
+//     }
+//   }
   
-  Serial.print("Device 0 ");
-  if (sensors.isConnected(tempDeviceAddress)){
-    Serial.print("IS ");
-  }
-  else {
-    Serial.print("IS NOT ");
-  }
-  Serial.println("connected ");
+//   Serial.print("Device 0 ");
+//   if (sensors.isConnected(tempDeviceAddress)){
+//     Serial.print("IS ");
+//   }
+//   else {
+//     Serial.print("IS NOT ");
+//   }
+//   Serial.println("connected ");
 }
 
 void loop() {
+  unsigned long currentMillis = millis();
+  unsigned long F1StartMillis;
+  unsigned long E1StartMillis;
+  unsigned long F2StartMillis;
 
-  //uncomment
-  // int32_t channel = getWiFiChannel(WIFI_SSID);
-  // channel = getWiFiChannel(WIFI_SSID);
-  // while (channel < 1) {
-  //   delay(1000);
-  //   Serial.println("WiFi Channel Not Found!");
-  //   channel = getWiFiChannel(WIFI_SSID);
-  // }
+  // Maintain WiFi connection
+  int32_t channel = getWiFiChannel(WIFI_SSID);
+  channel = getWiFiChannel(WIFI_SSID);
+  while (channel < 1) {
+    delay(1000);
+    Serial.println("WiFi Channel Not Found!");
+    channel = getWiFiChannel(WIFI_SSID);
+  }
 
-  // // Once ESPNow is successfully Init, we will register for Send CB to
-  // // get the status of Trasnmitted packet;
-  // esp_now_register_send_cb(OnDataSent);
+  if(sampling){
+    digitalWrite(HIGH_PERISTALTIC_PIN_2,HIGH);
+    E1StartMillis = millis();
+    Serial.print("Emptying Sampling Chamber");
+    while((currentMillis - E1StartMillis)<EMPTY_DURATION){
+      currentMillis = millis();
+      Serial.print(".");
+    }
+    digitalWrite(HIGH_PERISTALTIC_PIN_2,LOW);
 
-  // Add sampling sequence here
-  tempRead();
-  phRead();
-  ecRead();
-  waterlevelRead();
+    digitalWrite(HIGH_PERISTALTIC_PIN_1,HIGH);
+    F1StartMillis = millis();
+    Serial.print("Filling Sampling Chamber");
+    while((currentMillis - F1StartMillis)<FILL_DURATION){
+      currentMillis = millis();
+      Serial.print(".");
+    }
+    digitalWrite(HIGH_PERISTALTIC_PIN_1,LOW);
 
-  myData.temp = temperature;
-  myData.ECVal = ecValue;
-  myData.pHVal = pHValue;
-  myData.waterLevel = waterAmt;
+    sampling_sequence();
 
-  // add own delay
-  delay(60000);
+    digitalWrite(HIGH_PERISTALTIC_PIN_2,HIGH);
+    E1StartMillis = millis();
+    Serial.print("Emptying Sampling Chamber");
+    while((currentMillis - E1StartMillis)<EMPTY_DURATION){
+      currentMillis = millis();
+      Serial.print(".");
+    }
+    digitalWrite(HIGH_PERISTALTIC_PIN_2,LOW);
+
+    digitalWrite(PERISTALTIC_PIN_3,HIGH);
+    F2StartMillis = millis();
+    Serial.print("Filling Sampling Chamber again");
+    while((currentMillis - F2StartMillis)<EMPTY_DURATION){
+      currentMillis = millis();
+      Serial.print(".");
+    }
+    digitalWrite(PERISTALTIC_PIN_3,LOW);
+
+    Serial.println("Sampling Complete");
+    sampling = false;
+  }
+  
+  if(is_send_data){
+    esp_err_t result = esp_now_send(0, (uint8_t*) &myData, sizeof(myData));
+    if (result == ESP_OK) {
+      Serial.println("Sent with success");
+      is_send_data = false;
+    }
+    else {
+      Serial.println("Error sending the data");
+    }
+  }
+
+
+
+  // Once ESPNow is successfully Init, we will register for Send CB to
+  // get the status of Trasnmitted packet;
+  esp_now_register_send_cb(OnDataSent);
+  delay(1000);
   
 }
 

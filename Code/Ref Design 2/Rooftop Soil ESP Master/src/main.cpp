@@ -43,6 +43,9 @@ uint8_t newMACAddress[] = {0x40, 0x22, 0xD8, 0x66, 0x7B, 0xF0};
 uint32_t lastReconnectAttempt = 0;
 uint16_t combinedhex = 0;
 uint16_t lastreceived;
+unsigned long sampleMillis;
+unsigned long sample_timer = 1800000;
+
 
 // std::queue<float> temp = {};     // queue for temperature values 
 // std::queue<float> conduct = {};  // queue for conductivity values
@@ -63,6 +66,7 @@ float sample_temp,sample_pH,sample_ec = 0;
 
 uint16_t HEX_A;
 uint16_t HEX_B;
+
 bool is_send_data = false;
 bool is_sampling_data = false;
 bool is_fertilize = false;
@@ -114,13 +118,13 @@ float N_mass_required = 0;            // Required Nitrogen Mass
 float fert_volume = 0;
 float res_chamber = 0;
 
-
+uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x87, 0xE0};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 // Thresholds
 float pH_desired = 0;
 float N_desired = 0;
 float EC_desired = 0;
-boolean updateThreshold = false;
+boolean updateThreshold = true;
 
 #define baud_rate 9600
 
@@ -190,7 +194,7 @@ void mqttPublish(String timestamp, int MAC_now, float temp_now, float con_now, f
   doc["conductivity"] = con_now;
   doc["pH"] = pH_now;
   doc["atm_temperature"] = atmtemp_now;
-  doc["humidity"] = hum_now;
+  doc["moisture"] = hum_now;
   doc["CO2"] = CO2_now;
   doc["O2"] = oxy_now;
   doc["Nitrogen"] = N_now;
@@ -211,16 +215,16 @@ void mqttCallback(char *topic, byte *payload, unsigned int len) {
     SerialMon.write(payload, len);
     SerialMon.println();
 
-    StaticJsonBuffer<300> JSONBuffer2;
+    StaticJsonDocument<200> parsed;
 
-    JsonObject& parsed = JSONBuffer2.parseObject(payload);
+    auto parsederror = deserializeJson(parsed, payload);
 
-    if(!parsed.success()){
+    if(parsederror){
       Serial.println("Message parsing failed");
       client.publish(AWS_IOT_PUBLISH_TOPIC, "Threshold failed to parse");
     }
 
-    if (updateThreshold && parsed.success()) {
+    if (updateThreshold && !parsederror) {
       Serial.println("Message Parsed, updating Thresholds...");
       Serial.print("Previous pH Threshold: ");
       Serial.println(pH_desired);
@@ -339,6 +343,8 @@ typedef struct struct_sample_reading {
 
 struct_sample_reading samplingData;
 
+esp_now_peer_info_t peerInfo;
+
 // void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 //   Serial.println("Data Received");
 //   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
@@ -347,12 +353,13 @@ struct_sample_reading samplingData;
 //   is_send_data = true;
 // }
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
-  Serial.println("Data Received from: ");
-  Serial.println(mac);
-  if (incomingData.MAC < 6){
+  int recvMac = *mac;
+  if (recvMac < 8){
   memcpy(&incoming_data, incomingData, sizeof(incoming_data));
   timestamp = get_formatted_time();
   lastreceived = millis();
+  Serial.println("Data Received from: ");
+  SerialMon.println(incoming_data.MAC);
 
   temp_now = incoming_data.temp;
   con_now = incoming_data.ECVal;
@@ -368,13 +375,18 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 
   is_send_data = true;}  
 
-  if (incomingData.MAC = 6){
+  if (recvMac = 8){
     memcpy(&samplingData, incomingData,sizeof(samplingData));
     sample_ec = samplingData.sam_EC;
     sample_pH = samplingData.sam_pH;
     sample_temp = samplingData.sam_Temp;
     
   }
+}
+
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
 boolean AWS_reconnect() {
@@ -404,6 +416,13 @@ void ActuationCalculator(){
 
 }
 
+void buff_seq(){
+  Serial.print("Buffer Added");
+}
+
+void fert_seq(){
+  Serial.print("Fertilizer Added");
+}
 
 
 
@@ -530,6 +549,8 @@ void setup() {
   // esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]);
   // Serial.print("[NEW] ESP32 Board MAC Address:  ");
   // Serial.println(WiFi.macAddress());
+
+
   /*use mdns for host name resolution*/
   if (!MDNS.begin(host)) { //http://esp32.local
     Serial.println("Error setting up MDNS responder!");
@@ -574,18 +595,26 @@ void setup() {
   });
   server.begin();
   // Init ESP-NOW
-  if (esp_now_init() != ESP_OK)
-  {
+  if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
-    return;
   }
   esp_now_register_recv_cb(OnDataRecv);
-  Serial.println("ESP-NOW initialized");
+  esp_now_register_send_cb(OnDataSent);
+  Serial.println("ESP NOW Initialized");
 
+  // Register peer
+  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
+
+  // Add peer
+  if (esp_now_add_peer(&peerInfo) == ESP_OK) {
+    Serial.println("Peer Added");
+  }
   digitalWrite(RECIRCULATING_PUMP, HIGH);
 }
  
-void loop(){
+void loop() {
   unsigned long currentMillis = millis();
   
     
@@ -606,7 +635,7 @@ void loop(){
   if ((WiFi.status() == WL_CONNECTED) && (!client.connected())){
     long now = millis();
     Serial.println("Client disconnected from IoT Core");
-    if (now - lastReconnectAttempt1 > 25000) {
+    if ((now - lastReconnectAttempt1) > 25000) {
       lastReconnectAttempt1 = now;
       if (AWS_reconnect()){
         lastReconnectAttempt1 = 0;
@@ -615,30 +644,39 @@ void loop(){
     }
   }
 
-  if (is_send_data)
-    {
+  if (is_send_data) {
     mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now, atmtemp_now, hum_now, CO2_now, oxy_now, N_now, P_now, K_now);
     is_send_data = false;
     }
 
-  if (sample_ec < EC_desired){
+  if (sample_ec < EC_desired) {
     is_fertilize = true;
   }
 
-  if (sample_pH < pH_desired){
+  if (sample_pH < pH_desired) {
     is_buffer = true;
   }
   
-  if (is_fertilize && (currentMillis - fertilizeMillis >= fert_timer)){
+  if (is_fertilize && ((currentMillis - fertilizeMillis) >= fert_timer)){
     fert_seq();
     fertilizeMillis = currentMillis;
     is_fertilize = false;
   }
 
-  if (is_buffer && (currentMillis - buffMillis >= fert_timer)) {
+  if (is_buffer && ((currentMillis - buffMillis) >= fert_timer)) {
     buff_seq();
     buffMillis = currentMillis;
     is_buffer = false;
+  }
+
+  if ((currentMillis - sampleMillis) >= sample_timer) {
+    esp_err_t result = esp_now_send(0, (uint8_t*) &samplingData, sizeof(samplingData));
+    if (result == ESP_OK) {
+      Serial.println("Sent with success");
+    }
+    else {
+      Serial.println("Error sending the data");
+    }
   }
 
   client.loop();

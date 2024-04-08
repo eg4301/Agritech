@@ -142,7 +142,7 @@ void phRead(){
 }
 
 void ecRead(){
-    //Using DFRobot Library
+  //Using DFRobot Library
   // voltageRead = (analogRead(EC_PIN)*3300)/4096.0;       // Read voltage for EC  
   // ecValue = ec.readEC(voltageRead,temperature);       // Convert voltage to EC Value
 
@@ -150,15 +150,17 @@ void ecRead(){
   // Serial.print(ecValue);
   // Serial.println(" ms/cm");
 
-    //Using Own code
+  // Using Own code
   int j = 0; 
   int V; 
   float grad;
   
+  // Sum 10 readings from the sensor
   for(int i = 0; i<10; i++){
     j += analogRead(EC_PIN)*3300/4096;
   }
-  V = j/10;
+  // Take the average
+  V = j / 10;
   // Serial.print("Voltage = ");
   // Serial.print(V);
   // Serial.print("V      ");
