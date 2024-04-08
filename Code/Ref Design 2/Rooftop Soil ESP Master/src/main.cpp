@@ -211,16 +211,17 @@ void mqttCallback(char *topic, byte *payload, unsigned int len) {
     SerialMon.write(payload, len);
     SerialMon.println();
 
-    StaticJsonBuffer<300> JSONBuffer;
+    StaticJsonDocument<300> doc;
 
-    JsonObject& parsed = JSONBuffer.parseObject(payload);
+    auto error = deserializeJson(doc,payload);
+    
 
-    if(!parsed.success()){
+    if(error){
       Serial.println("Message parsing failed");
       client.publish(AWS_IOT_PUBLISH_TOPIC, "Threshold failed to parse");
     }
 
-    if (updateThreshold && parsed.success()) {
+    if (updateThreshold && !error) {
       Serial.println("Message Parsed, updating Thresholds...");
       Serial.print("Previous pH Threshold: ");
       Serial.println(pH_desired);
