@@ -20,7 +20,6 @@ DFRobot_OxygenSensor oxygen;
 
 
 
-
 #define flatOff_temp 0            // Flat deviation compensate
 #define scaleOff_temp 1           // Scale deviation compensate
 #define flatOff_hum 0            // Flat deviation compensate
@@ -75,7 +74,9 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
 // put function definitions here:
 void getCO2HumTemp(){
+  // Checks if the CO2 Sensor is discoverable on the I2C bus
   if (scd30.isAvailable()){
+    // Requests from CO2 Sensor (slave)
     scd30.getCarbonDioxideConcentration(result);
     CO2 = result[0];
     Serial.println(CO2);
@@ -85,6 +86,7 @@ void getCO2HumTemp(){
     Serial.println(atmHum);
   }
 }
+
 
 void getO2(){
   O2 = oxygen.getOxygenData(COLLECT_NUMBER);
