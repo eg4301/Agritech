@@ -14,9 +14,9 @@
 #define EN_1 12
 
 // RS485 pins in use
-#define RX_PIN 16    // Soft Serial Receive pin, connected to RO // ! PINOUT TBC ONCE PCB ARRIVES
-#define TX_PIN 17    // Soft Serial Transmit pin, connected to DI // ! PINOUT TBC ONCE PCB ARRIVES
-#define CTRL_PIN 26  // RS485 Direction control, connected to RE and DE // ! PINOUT TBC ONCE PCB ARRIVES
+#define RX_PIN 4    // Soft Serial Receive pin, connected to RO // ! PINOUT TBC ONCE PCB ARRIVES
+#define TX_PIN 6    // Soft Serial Transmit pin, connected to DI // ! PINOUT TBC ONCE PCB ARRIVES
+#define CTRL_PIN 5  // RS485 Direction control, connected to RE and DE // ! PINOUT TBC ONCE PCB ARRIVES
 
 #define baud_rate 9600
 
@@ -39,7 +39,7 @@ Preferences preferences;
 
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
-byte HexI[] = {0x01, 0x02, 0x03, 0x04, 0x05};
+byte HexI[] = {0x03, 0x04, 0x05, 0x06};
 
 byte sensorTransform[totSensors][numReadingTypes][3] {};
 // sensorTrends[i][j][0] = c1;
@@ -76,7 +76,7 @@ void setup() {
 
 void loop() {
   
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 4; i++) {
     byte reading[19] {};
     for (int j = 0; j < sizeof(HexI); j++) {
     // Read and send CWT data
@@ -109,19 +109,19 @@ void loop() {
     }
 
 
-    // Read and send Rika all in one data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
-    request_reading_rika();
-    receive_reading(reading,13);
-    Serial.print("DATA,");
-    Serial.print(millis()/60000);
-    Serial.print("," + (String)(reading[0]) + ",");
-    Serial.print((String)((reading[3] << 8 | reading[4])/10)+",");
-    Serial.print((String)((reading[5] << 8 | reading[6])/10)+",");
-    Serial.print((String)(reading[7] << 8 | reading[8])+",");
-    Serial.println((String)((reading[9] << 8 | reading[10])/100));
+    // // Read and send Rika all in one data
+    // CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
+    // request_reading_rika();
+    // receive_reading(reading,13);
+    // Serial.print("DATA,");
+    // Serial.print(millis()/60000);
+    // Serial.print("," + (String)(reading[0]) + ",");
+    // Serial.print((String)((reading[3] << 8 | reading[4])/10)+",");
+    // Serial.print((String)((reading[5] << 8 | reading[6])/10)+",");
+    // Serial.print((String)(reading[7] << 8 | reading[8])+",");
+    // Serial.println((String)((reading[9] << 8 | reading[10])/100));
 
-    delay(1000);
+    // delay(1000);
 
     // // Read and send Rika moisture data
     // CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x07, baud_rate, protocol);  // Serial connection setup

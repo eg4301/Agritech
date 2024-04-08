@@ -15,12 +15,11 @@
 #define DEEPSLEEPDURATION (24 * 60 * 60)  // Time interval between readings, in seconds (default 24 hours)
 #define ADDRESS (0x01)                    // ! NEED TO CHANGE FOR EACH WATER METER
 
-#define EN_1 12
 
 // RS485 pins in use
-#define RX_PIN 16    // Soft Serial Receive pin, connected to RO // ! PINOUT TBC ONCE PCB ARRIVES
-#define TX_PIN 17    // Soft Serial Transmit pin, connected to DI // ! PINOUT TBC ONCE PCB ARRIVES
-#define CTRL_PIN 26  // RS485 Direction control, connected to RE and DE // ! PINOUT TBC ONCE PCB ARRIVES
+#define RX_PIN 4    // Soft Serial Receive pin, connected to RO //  
+#define TX_PIN 6    // Soft Serial Transmit pin, connected to DI // 
+#define CTRL_PIN 5  // RS485 Direction control, connected to RE and DE // 
 
 #define baud_rate 9600
 
@@ -40,7 +39,7 @@ Preferences preferences;
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // CWT sensor addresses
-byte hexI[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x07, 0x08, 0x09, 0x10};
+byte hexI[] = {0x03, 0x04, 0x05, 0x06};
 byte reading[19];
 
 byte sensorTransform[totSensors][numReadingTypes][3] {};
@@ -54,7 +53,7 @@ byte sensorTransform[totSensors][numReadingTypes][3] {};
 // readings[i][4] = PH;
 
 /* Private Constants -------------------------------------------------------- */
-uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x8F, 0x58};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0x68, 0xB6, 0xB3, 0x51, 0xD3, 0x28};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 // Insert your SSID
 constexpr char WIFI_SSID[] = "localize_project";
@@ -121,12 +120,6 @@ void setup() {
 
   Serial.begin(9600);
 
-
-
-  pinMode(EN_1, OUTPUT);
-  digitalWrite(EN_1, HIGH);
-  delay(100);
-
   WiFi.enableLongRange(true);
   WiFi.mode(WIFI_STA);
   // WiFi.setTxPower(WIFI_POWER_19_5dBm);
@@ -171,23 +164,13 @@ void setup() {
     channel = getWiFiChannel(WIFI_SSID);
   }
 
-  for (int i=1; i<6; i++){
+  for (int i=0; i<4; i++){
 
-    if (i<5){
-    // Read and send CWT data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
-    request_reading_CWT(hexI[i]);
-    receive_reading(reading, 19);
-    packDataCWT(reading);
-    }    
-
-    else {
-    // Read and send Rika data
-    CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, 0x06, baud_rate, protocol);  // Serial connection setup
-    request_reading_rika();
-    receive_reading(reading, 13);
-    packDataRika(reading);
-    }     
+  // Read and send CWT data
+  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, hexI[i], baud_rate, protocol);  // Serial connection setup
+  request_reading_CWT(hexI[i]);
+  receive_reading(reading, 19);
+  packDataCWT(reading);
 
     myData.MAC = MAC_now;
     myData.temp = temp_now;

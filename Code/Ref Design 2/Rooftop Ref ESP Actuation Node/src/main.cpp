@@ -18,6 +18,8 @@
 
 #define baud_rate 9600
 
+// #define EN_1 12
+
 // RS485 pins in use
 #define RX_PIN 12    // Soft Serial Receive pin, connected to RO //  
 #define TX_PIN 14    // Soft Serial Transmit pin, connected to DI // 

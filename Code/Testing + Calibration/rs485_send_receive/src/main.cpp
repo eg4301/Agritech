@@ -10,16 +10,10 @@
 #include "Sol16_RS485.h"
 #include "SoftwareSerial.h"
 
-
-/* Public defines ----------------------------------------------------------- */
-#define DEEPSLEEPDURATION (24 * 60 * 60)  // Time interval between readings, in seconds (default 24 hours)
-
-#define EN_1 12
-
 // RS485 pins in use
-#define RX_PIN 16    // Soft Serial Receive pin, connected to RO //  
-#define TX_PIN 17    // Soft Serial Transmit pin, connected to DI // 
-#define CTRL_PIN 26  // RS485 Direction control, connected to RE and DE // 
+#define RX_PIN 12    // Soft Serial Receive pin, connected to RO //  
+#define TX_PIN 14    // Soft Serial Transmit pin, connected to DI // 
+#define CTRL_PIN 13  // RS485 Direction control, connected to RE and DE // 
 
 
 // RS485 Constants
@@ -37,9 +31,7 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 //variables
 
 int baud_rate = 9600;
-int i = 6;
-byte address[] = {0x01,0x02,0x03,0x04,0x05,0x06,0xFF};
-byte command[] = {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59};
+byte command[] = {0x63, 0x05, 0x00, 0x01, 0x00, 0x00, 0x94, 0x48};
 
 int num_bytes = 8;
 
@@ -58,21 +50,19 @@ int num_bytes = 8;
 // Norika 9 Byte return
 // Norika water meter Open {0x63, 0x05, 0x00, 0x01, 0x00, 0xFF, 0xD4, 0x08}
 // Norika water meter Close {0x63, 0x05, 0x00, 0x01, 0x00, 0x00, 0x94, 0x48}
+// Read valve status {0x63, 0x01, 0x00, 0x01, 0x00, 0x01, 0xA4, 0x48}
 
-//{0x01, 0x06, 0x00, 0x30, 0x00, 0x07, 0x08, 0x86}
 
-void request_reading(int i);
+void request_reading();
 void receive_reading(int num_bytes);
 
 void setup() {
 
   Serial.begin(baud_rate);
-  pinMode(EN_1, OUTPUT);
-  digitalWrite(EN_1, HIGH);
   delay(100);
 
-  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, address[i], baud_rate, protocol);  // Serial connection setup
-  request_reading(i);
+  CWT_Sensor.setup(CTRL_PIN, RX_PIN, TX_PIN, command[0], baud_rate, protocol);  // Serial connection setup
+  request_reading();
   receive_reading(num_bytes);
 
 
@@ -83,9 +73,8 @@ void loop() {
 
 }
 
-void request_reading(int i) {
+void request_reading() {
 
-  command[0] = address[i];
   CWT_Sensor.add_crc(command, 0, 6);
   CWT_Sensor.request_reading(command, 8);
 }
