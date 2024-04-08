@@ -49,9 +49,9 @@ bool sampling = false;
 bool is_send_data = false;
 
 // Declarations for Peristaltic Pump and Valve
-#define HIGH_PERISTALTIC_PIN_1 17  // Relay 2 (Fill Chamber)
-#define HIGH_PERISTALTIC_PIN_2 18  // Relay 1 (Drain Chamber)
-#define PERISTALTIC_PIN_3 16       // Relay 3 (Fill with reservoir water)
+#define HIGH_PERISTALTIC_PIN_1 3  // Relay 2 (Fill Chamber)
+#define HIGH_PERISTALTIC_PIN_2 4  // Relay 1 (Drain Chamber)
+#define PERISTALTIC_PIN_3 5       // Relay 3 (Fill with reservoir water)
 
 unsigned long EMPTY_DURATION = 40000;
 unsigned long FILL_DURATION = 30000;
