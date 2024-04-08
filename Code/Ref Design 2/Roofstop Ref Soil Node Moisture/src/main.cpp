@@ -53,7 +53,7 @@ byte sensorTransform[totSensors][numReadingTypes][3] {};
 // readings[i][4] = PH;
 
 /* Private Constants -------------------------------------------------------- */
-uint8_t broadcastAddress[] = {0x68, 0xB6, 0xB3, 0x51, 0xD3, 0x28};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x87, 0xE0};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 // Insert your SSID
 constexpr char WIFI_SSID[] = "localize_project";
