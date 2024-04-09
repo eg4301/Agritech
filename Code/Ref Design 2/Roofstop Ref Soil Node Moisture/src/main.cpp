@@ -53,7 +53,7 @@ byte sensorTransform[totSensors][numReadingTypes][3] {};
 // readings[i][4] = PH;
 
 /* Private Constants -------------------------------------------------------- */
-uint8_t broadcastAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x87, 0xE0};  // ! REPLACE WITH YOUR RECEIVER MAC Address
+uint8_t broadcastAddress[] = {0x68, 0xB6, 0xB3, 0x51, 0xD3, 0x28};  // ! REPLACE WITH YOUR RECEIVER MAC Address
 
 // Insert your SSID
 constexpr char WIFI_SSID[] = "localize_project";
@@ -203,7 +203,7 @@ void setup() {
   gpio_hold_en(GPIO_NUM_2); 
 
   // Set deep sleep duration (3600s = 1hr)
-  esp_sleep_enable_timer_wakeup(300 * 1000000ULL); 
+  esp_sleep_enable_timer_wakeup(1200 * 1000000ULL); 
 
   // Switch to deep sleep mode
   esp_deep_sleep_start(); 
@@ -234,13 +234,13 @@ void packDataCWT(byte reading[]) {
   // con_now = transform(sensorTransform, MAC_now, 3, (reading[7] << 8 | reading[8]));
   // pH_now = transform(sensorTransform, MAC_now, 4, (reading[9] << 8 | reading[10]) / 10);
   // temp_now = transform(sensorTransform, MAC_now, 2, (reading[5] << 8 | reading[6]) / 10);
-  hum_now = (reading[3] << 8 | reading[4]) / 10;
-  con_now = (reading[7] << 8 | reading[8]);
-  pH_now = (reading[9] << 8 | reading[10]) / 10;
-  temp_now = (reading[5] << 8 | reading[6]) / 10;
-  N_now = (reading[11] << 8 | reading[12]) / 10;
-  P_now = (reading[13] << 8 | reading[14]) / 10;
-  K_now = (reading[15] << 8 | reading[16]) / 10;
+  hum_now = (reading[3] << 8 | reading[4]) / 10.0;
+  con_now = (reading[7] << 8 | reading[8]) / 1000.0;
+  pH_now = (reading[9] << 8 | reading[10]) / 10.0;
+  temp_now = (reading[5] << 8 | reading[6]) / 10.0;
+  N_now = (reading[11] << 8 | reading[12]) / 10.0;
+  P_now = (reading[13] << 8 | reading[14]) / 10.0;
+  K_now = (reading[15] << 8 | reading[16]) / 10.0;
 }
 
 void packDataRika(byte reading[]) {

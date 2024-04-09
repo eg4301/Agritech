@@ -161,7 +161,7 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 #define HIGH_PUMP_DURATION 30000 //time used to pump sample in ms
 #define CLEAR_DURATION 30000 //time used to clear sample in ms
 #define MIXING_DURATION 60000 //time used to mix sample in ms
-#define IRRIGATION_DURATION 120000 // Time used to pump sample in ms
+#define IRRIGATION_DURATION 900000 // Time used to pump sample in ms
 #define RESERVOIR_DURATION 120000 // Time used for filling reservoir
 
 
@@ -583,6 +583,16 @@ void setup() {
   Serial.println("ESP-NOW initialized");
 
   digitalWrite(RECIRCULATING_PUMP, HIGH);
+
+    digitalWrite(WATER_VALVE, HIGH);
+    Serial.println("Reservoir valve");
+    delay(RESERVOIR_DURATION);           
+    digitalWrite(WATER_VALVE, LOW);
+
+    digitalWrite(IRRIGATION_PUMP, HIGH);
+    Serial.println("Irrigation pump");
+    delay(IRRIGATION_DURATION);           
+    digitalWrite(IRRIGATION_PUMP, LOW);
 }
  
 void loop(){
