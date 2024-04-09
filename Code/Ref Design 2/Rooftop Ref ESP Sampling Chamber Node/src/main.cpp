@@ -288,8 +288,8 @@ void loop() {
     digitalWrite(HIGH_PERISTALTIC_PIN_2,HIGH);
     E1StartMillis = millis();
     Serial.print("Emptying Sampling Chamber");
-    while((currentMillis - E1StartMillis)<EMPTY_DURATION){
-      currentMillis = millis();
+    while((millis() - E1StartMillis)<EMPTY_DURATION){
+      delay(100);
       Serial.print(".");
     }
     digitalWrite(HIGH_PERISTALTIC_PIN_2,LOW);
@@ -297,8 +297,8 @@ void loop() {
     digitalWrite(HIGH_PERISTALTIC_PIN_1,HIGH);
     F1StartMillis = millis();
     Serial.print("Filling Sampling Chamber");
-    while((currentMillis - F1StartMillis)<FILL_DURATION){
-      currentMillis = millis();
+    while((millis() - F1StartMillis)<FILL_DURATION){
+      delay(100);
       Serial.print(".");
     }
     digitalWrite(HIGH_PERISTALTIC_PIN_1,LOW);
@@ -308,8 +308,8 @@ void loop() {
     digitalWrite(HIGH_PERISTALTIC_PIN_2,HIGH);
     E1StartMillis = millis();
     Serial.print("Emptying Sampling Chamber");
-    while((currentMillis - E1StartMillis)<EMPTY_DURATION){
-      currentMillis = millis();
+    while((millis() - E1StartMillis)<EMPTY_DURATION){
+      delay(100);
       Serial.print(".");
     }
     digitalWrite(HIGH_PERISTALTIC_PIN_2,LOW);
@@ -317,8 +317,8 @@ void loop() {
     digitalWrite(PERISTALTIC_PIN_3,HIGH);
     F2StartMillis = millis();
     Serial.print("Filling Sampling Chamber again");
-    while((currentMillis - F2StartMillis)<EMPTY_DURATION){
-      currentMillis = millis();
+    while((millis() - F2StartMillis)<EMPTY_DURATION){
+      delay(100);
       Serial.print(".");
     }
     digitalWrite(PERISTALTIC_PIN_3,LOW);
