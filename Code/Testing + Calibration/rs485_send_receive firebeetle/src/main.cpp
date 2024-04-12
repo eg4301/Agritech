@@ -30,7 +30,7 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 //variables
 
-int baud_rate = 9600;
+int baud_rate = 4800;
 byte command[] = {0xFF, 0x03, 0x07, 0xD0, 0x00, 0x01, 0x91, 0x59};
 
 int num_bytes = 7;
