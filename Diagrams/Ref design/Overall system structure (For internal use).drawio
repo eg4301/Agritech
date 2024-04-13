@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2024-04-01T04:56:24.268Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="G8gVoEchUgrAi3oiqOEX" version="21.7.5" type="device" pages="9">
+<mxfile host="Electron" modified="2024-04-12T11:32:48.846Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="PSKZHP90P0sPpvDYiiMY" version="21.7.5" type="device" pages="10">
   <diagram name="Overall" id="QVVg88YSjWete_qPwuQA">
-    <mxGraphModel dx="1036" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="1436" dy="886" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -3241,7 +3241,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="TwH4JxIcN7u6suVt83Ki" name="Action Sequence">
-    <mxGraphModel dx="1034" dy="605" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="1436" dy="886" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -3441,6 +3441,86 @@
         </UserObject>
         <mxCell id="HUuNPHq2cDrOh0GgnPx1-49" value="Prevents sensors from being exposed ot air" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=3;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
           <mxGeometry x="800" y="1390" width="190" height="70" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="tKW5O7dWfx8D6Os4oN6Q" name="Page-10">
+    <mxGraphModel dx="1197" dy="738" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-1" target="3z9I3FV2_0Rxe9XEp_vc-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-1" value="Sequence Begins" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-2" target="3z9I3FV2_0Rxe9XEp_vc-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-2" value="Drains&amp;nbsp;&lt;br&gt;any water&lt;br&gt;into&lt;br&gt;Mixing tank" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="200" y="410" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-4" target="3z9I3FV2_0Rxe9XEp_vc-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-4" value="Draws 300ml from&amp;nbsp;&lt;br&gt;Mixing Tank&lt;br&gt;into&amp;nbsp;&lt;br&gt;Sampling Chamber" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="360" y="410" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-6" target="3z9I3FV2_0Rxe9XEp_vc-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-6" target="3z9I3FV2_0Rxe9XEp_vc-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-6" value="Sensors Detect&lt;br&gt;pH, EC, Temperature" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="520" y="410" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-8" value="Results sent to AWS" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="520" y="290" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-10" target="3z9I3FV2_0Rxe9XEp_vc-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-10" target="3z9I3FV2_0Rxe9XEp_vc-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-10" value="Is the&lt;br&gt;EC&lt;br&gt;below the threshold?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="680" y="360" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-12" target="3z9I3FV2_0Rxe9XEp_vc-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-12" value="Drain&lt;br&gt;Sampling chamber&lt;br&gt;into&lt;br&gt;Mixing Tank" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="700" y="570" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-14" target="3z9I3FV2_0Rxe9XEp_vc-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-14" value="Pump&lt;br&gt;Clean Water&lt;br&gt;into&lt;br&gt;Sampling Chamber" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="520" y="570" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-16" target="3z9I3FV2_0Rxe9XEp_vc-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-16" value="Pump&lt;br&gt;50ml Dosing Solution&lt;br&gt;into&lt;br&gt;Sampling chamber" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="880" y="410" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3z9I3FV2_0Rxe9XEp_vc-18" target="3z9I3FV2_0Rxe9XEp_vc-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-18" value="Drain&lt;br&gt;Sampling Chamber&lt;br&gt;into&lt;br&gt;Mixing tank" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="880" y="570" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-21" value="System goes to sleep until next cycle" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="360" y="560" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-23" value="&lt;font color=&quot;#82b366&quot;&gt;Yes&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="820" y="410" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3z9I3FV2_0Rxe9XEp_vc-24" value="&lt;font color=&quot;#b85450&quot;&gt;No&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="710" y="520" width="60" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
