@@ -96,6 +96,7 @@ unsigned long fertilizeMillis = 0;
 unsigned long fert_timer = 900000;
 
 unsigned long buffMillis = 0;
+unsigned long sampleMillis = 0;
 
 // AWS Reconnect
 long lastReconnectAttempt1;
@@ -143,25 +144,28 @@ Config protocol = SWSERIAL_8N1;
 Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // Declarations for Actuation (pumps + valve)
-#define HIGH_PERISTALTIC_PIN_1 17 //Relay 2
-#define HIGH_PERISTALTIC_PIN_2 18  //Relay 1 (pumps water opposite direction)
-#define PERISTALTIC_PIN_1 7 //Relay 5
-#define PERISTALTIC_PIN_2 15 //Relay 4
-#define PERISTALTIC_PIN_3 16 //Relay 3
-#define RECIRCULATING_PUMP 6 //Relay 6
-#define IRRIGATION_PUMP 5 //Relay 7
-#define WATER_VALVE 4  //Relay 8
+#define HIGH_PERISTALTIC_PIN_1 17   //Relay 2
+#define HIGH_PERISTALTIC_PIN_2 18   //Relay 1 (pumps water opposite direction)
+#define PERISTALTIC_PIN_1 7         //Relay 5
+#define PERISTALTIC_PIN_2 15        //Relay 4 [Buffer]
+#define PERISTALTIC_PIN_3 16        //Relay 3 [Fertilizer]
+#define RECIRCULATING_PUMP 6        //Relay 6
+#define IRRIGATION_PUMP 5           //Relay 7
+#define WATER_VALVE 4               //Relay 8
 
 // Declarations for Water Switch:
 #define WATER_SWITCH_PIN 8
 
 // Define length of time pumps and valves are open
 
-#define PUMP_DURATION 120000 //time used to pump clean water in ms
-#define HIGH_PUMP_DURATION 30000 //time used to pump sample in ms
-#define CLEAR_DURATION 30000 //time used to clear sample in ms
-#define MIXING_DURATION 60000 //time used to mix sample in ms
-#define IRRIGATION_DURATION 120000 //time used to pump sample in ms
+#define PUMP_DURATION 120000        // Time used to pump clean water in ms
+#define HIGH_PUMP_DURATION 30000    // Time used to pump sample in ms
+#define CLEAR_DURATION 30000        // Time used to clear sample in ms
+#define MIXING_DURATION 60000       // Time used to mix sample in ms
+#define IRRIGATION_DURATION 120000  // Time used to pump sample in ms
+#define FERT_DURATION 60000         // Time used to pump fertilizer into mixing tank in ms
+#define BUFF_DURATION 60000         // Time used to pump buffer into mixing tank in ms
+#define SAMPLE_DURATION 900000      // Time between sampling chamber runs in ms
 
 
 
@@ -225,17 +229,17 @@ void mqttCallback(char *topic, byte *payload, unsigned int len) {
       Serial.println("Message Parsed, updating Thresholds...");
       Serial.print("Previous pH Threshold: ");
       Serial.println(pH_desired);
-      pH_desired = parsed["pH"];
+      pH_desired = doc["pH"];
       Serial.print("Current pH Threshold: ");
       Serial.println(pH_desired);
       Serial.print("Previous EC Threshold: ");
       Serial.println(EC_desired);
-      EC_desired = parsed["EC"];
+      EC_desired = doc["EC"];
       Serial.print("Current EC Threshold: ");
       Serial.println(EC_desired);
       Serial.print("Previous Nitrogen Threshold: ");
       Serial.println(N_desired);
-      N_desired = parsed["Nitrogen"];
+      N_desired = doc["Nitrogen"];
       Serial.print("Current Nitrogen Threshold: ");
       Serial.println(N_desired);
       Serial.println("Thresholds updated");
@@ -339,6 +343,7 @@ typedef struct struct_sample_reading {
 } struct_sample_reading;
 
 struct_sample_reading samplingData;
+struct_sample_reading myData;
 
 // void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 //   Serial.println("Data Received");
@@ -347,35 +352,54 @@ struct_sample_reading samplingData;
 //   Serial.println(timestamp);
 //   is_send_data = true;
 // }
+
+void checkThreshold(){
+  if (sample_ec < EC_desired){
+    is_fertilize = true;
+    Serial.println("Need to fertilize!");
+  }
+
+  if (sample_pH < pH_desired){
+    is_buffer = true;
+    Serial.println("Need to add Buffer!");
+  }
+}
+
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
+  int RecMAC = *mac;
   Serial.println("Data Received from: ");
-  Serial.println(mac);
-  if (incomingData.MAC < 6){
-  memcpy(&incoming_data, incomingData, sizeof(incoming_data));
-  timestamp = get_formatted_time();
-  lastreceived = millis();
+  Serial.println(RecMAC);
+  if (len > 10){
+    memcpy(&incoming_data, incomingData, sizeof(incoming_data));
+    timestamp = get_formatted_time();
+    lastreceived = millis();
 
-  temp_now = incoming_data.temp;
-  con_now = incoming_data.ECVal;
-  pH_now = incoming_data.pHVal;
-  MAC_now = incoming_data.MAC;
-  atmtemp_now = incoming_data.atmtemp;
-  hum_now = incoming_data.hum;
-  CO2_now = incoming_data.CO2;
-  oxy_now = incoming_data.Oxy;
-  N_now = incoming_data.N;
-  P_now = incoming_data.P;
-  K_now = incoming_data.K;
+    temp_now = incoming_data.temp;
+    con_now = incoming_data.ECVal;
+    pH_now = incoming_data.pHVal;
+    MAC_now = incoming_data.MAC;
+    atmtemp_now = incoming_data.atmtemp;
+    hum_now = incoming_data.hum;
+    CO2_now = incoming_data.CO2;
+    oxy_now = incoming_data.Oxy;
+    N_now = incoming_data.N;
+    P_now = incoming_data.P;
+    K_now = incoming_data.K;
 
-  is_send_data = true;}  
+    is_send_data = true;}  
 
-  if (incomingData.MAC = 6){
+  if (len < 10){
     memcpy(&samplingData, incomingData,sizeof(samplingData));
     sample_ec = samplingData.sam_EC;
     sample_pH = samplingData.sam_pH;
     sample_temp = samplingData.sam_Temp;
-    
+    checkThreshold();
   }
+}
+
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
 boolean AWS_reconnect() {
@@ -389,23 +413,30 @@ boolean AWS_reconnect() {
   return client.connected();
 }
 
-void ActuationCalculator(){
-  SerialMon.print("Nitrogen concentration now is: ");
-  N_temp_store = N_now;
-  SerialMon.println(N_temp_store);
-  // Current N Mass
-  N_mass_tank = N_temp_store * tank_volume;
 
-  // Required N Mass
-  N_mass_required = N_desired * tank_volume;
-
-  // Required fertilizer volume and runs
-  fert_volume = (N_mass_required - N_mass_tank)/sol_A_N_conc;
-  chamber_counter = fert_volume/chamber_volume;
-
+void fert_seq(){
+  Serial.println("Starting Fertilisation Sequence");
+  digitalWrite(PERISTALTIC_PIN_3,HIGH);
+  Serial.print("Fertilizing for: ");
+  Serial.print(FERT_DURATION);
+  Serial.println(" ms");
+  delay(FERT_DURATION);
+  digitalWrite(PERISTALTIC_PIN_3,LOW);
+  Serial.println("Fertilising Complete");
 }
 
+void buff_seq(){
+  Serial.println("Starting Buffer adding Sequence");
+  digitalWrite(PERISTALTIC_PIN_2,HIGH);
+  Serial.print("Adding Buffer for: ");
+  Serial.print(BUFF_DURATION);
+  Serial.println(" ms");
+  delay(BUFF_DURATION);
+  digitalWrite(PERISTALTIC_PIN_2,LOW);
+  Serial.println("Buffer adding Complete");
+}
 
+esp_now_peer_info_t peerInfo;
 
 
 WebServer server(80);
@@ -575,19 +606,29 @@ void setup() {
   });
   server.begin();
   // Init ESP-NOW
-  if (esp_now_init() != ESP_OK)
-  {
+  if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
-    return;
   }
   esp_now_register_recv_cb(OnDataRecv);
-  Serial.println("ESP-NOW initialized");
+  esp_now_register_send_cb(OnDataSent);
+  Serial.println("ESP NOW Initialized");
+
+  // Register peer
+  memcpy(peerInfo.peer_addr, newMACAddress, 6);
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
+
+  // Add peer
+  if (esp_now_add_peer(&peerInfo) == ESP_OK) {
+    Serial.println("Peer Added");
+  }
 
   digitalWrite(RECIRCULATING_PUMP, HIGH);
 }
  
 void loop(){
   unsigned long currentMillis = millis();
+  
   
     
   // Put ESP to deep sleep every 12h
@@ -616,19 +657,24 @@ void loop(){
     }
   }
 
+  if (currentMillis - sampleMillis > SAMPLE_DURATION){
+    esp_err_t result = esp_now_send(0, (uint8_t*) &myData, sizeof(myData));
+    if (result == ESP_OK) {
+      Serial.println("Sent with success");
+      is_send_data = false;
+    }
+    else {
+      Serial.println("Error sending the data");
+    }
+  }
+
   if (is_send_data)
     {
     mqttPublish(timestamp, MAC_now, temp_now, con_now, pH_now, atmtemp_now, hum_now, CO2_now, oxy_now, N_now, P_now, K_now);
     is_send_data = false;
     }
 
-  if (sample_ec < EC_desired){
-    is_fertilize = true;
-  }
-
-  if (sample_pH < pH_desired){
-    is_buffer = true;
-  }
+  
   
   if (is_fertilize && (currentMillis - fertilizeMillis >= fert_timer)){
     fert_seq();
@@ -644,5 +690,6 @@ void loop(){
 
   client.loop();
   server.handleClient();
+  esp_now_register_send_cb(OnDataSent);
   delay(1000);
 }
