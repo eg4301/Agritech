@@ -38,7 +38,7 @@
 
 int ledStatus = LOW;
 // Set your new MAC Address
-uint8_t newMACAddress[] = {0x40, 0x22, 0xD8, 0x66, 0x7B, 0xF0};
+uint8_t newMACAddress[] = {0x48, 0x27, 0xE2, 0x61, 0x87, 0xE0};
 
 uint32_t lastReconnectAttempt = 0;
 uint16_t combinedhex = 0;
@@ -146,9 +146,9 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 // Declarations for Actuation (pumps + valve)
 #define HIGH_PERISTALTIC_PIN_1 17   //Relay 2
 #define HIGH_PERISTALTIC_PIN_2 18   //Relay 1 (pumps water opposite direction)
-#define PERISTALTIC_PIN_1 7         //Relay 5
-#define PERISTALTIC_PIN_2 15        //Relay 4 [Buffer]
-#define PERISTALTIC_PIN_3 16        //Relay 3 [Fertilizer]
+#define PERISTALTIC_PIN_2 7         //Relay 5 [Buffer]
+#define PERISTALTIC_PIN_3 15        //Relay 4 [Fertilizer]
+#define PERISTALTIC_PIN_1 16        //Relay3 
 #define RECIRCULATING_PUMP 6        //Relay 6
 #define IRRIGATION_PUMP 5           //Relay 7
 #define WATER_VALVE 4               //Relay 8
@@ -160,13 +160,15 @@ Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 #define PUMP_DURATION 120000        // Time used to pump clean water in ms
 #define HIGH_PUMP_DURATION 30000    // Time used to pump sample in ms
-#define CLEAR_DURATION 30000        // Time used to clear sample in ms
+#define CLEAR_DURATION 60000        // Time used to clear sample in ms
 #define MIXING_DURATION 60000       // Time used to mix sample in ms
 #define IRRIGATION_DURATION 120000  // Time used to pump sample in ms
 #define FERT_DURATION 60000         // Time used to pump fertilizer into mixing tank in ms
 #define BUFF_DURATION 60000         // Time used to pump buffer into mixing tank in ms
 #define SAMPLE_DURATION 900000      // Time between sampling chamber runs in ms
-
+#define RESERVOIR_DURATION 120000 // Time used for filling reservoir
+#define IRRI_DURATION 43200000
+unsigned long irriMillis = 0;
 
 
 /**
@@ -546,7 +548,6 @@ void setup() {
 
   pinMode(WATER_SWITCH_PIN, INPUT);
 
-
   connectAWS();
 
   // setupRTC();
@@ -629,7 +630,16 @@ void setup() {
 void loop(){
   unsigned long currentMillis = millis();
   
-  
+  if(currentMillis - irriMillis > IRRI_DURATION){
+    digitalWrite(WATER_VALVE, HIGH);
+    delay(RESERVOIR_DURATION);           
+    digitalWrite(WATER_VALVE, LOW);
+
+    digitalWrite(IRRIGATION_PUMP, HIGH);
+    delay(IRRIGATION_DURATION);           
+    digitalWrite(IRRIGATION_PUMP, LOW);
+    irriMillis = currentMillis;
+  }
     
   // Put ESP to deep sleep every 12h
   if (millis() >= 43200000) {
