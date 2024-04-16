@@ -625,6 +625,11 @@ void setup() {
   }
 
   digitalWrite(RECIRCULATING_PUMP, HIGH);
+
+    digitalWrite(IRRIGATION_PUMP, HIGH);
+    Serial.println("watering plants");
+    delay(IRRIGATION_DURATION);           
+    digitalWrite(IRRIGATION_PUMP, LOW);
 }
  
 void loop(){
@@ -632,10 +637,12 @@ void loop(){
   
   if(currentMillis - irriMillis > IRRI_DURATION){
     digitalWrite(WATER_VALVE, HIGH);
+    Serial.println("valve open");
     delay(RESERVOIR_DURATION);           
     digitalWrite(WATER_VALVE, LOW);
 
     digitalWrite(IRRIGATION_PUMP, HIGH);
+    Serial.println("watering plants");
     delay(IRRIGATION_DURATION);           
     digitalWrite(IRRIGATION_PUMP, LOW);
     irriMillis = currentMillis;
