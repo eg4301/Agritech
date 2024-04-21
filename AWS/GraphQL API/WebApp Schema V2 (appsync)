@@ -1,0 +1,199 @@
+type Actuation {
+	Setup: String!
+	Variable: String!
+	Max: Float
+	Min: Float
+}
+
+type CO2_Data {
+	timestamp: String!
+	CO2: Float
+}
+
+type CO2_MData {
+	Datas: [CO2_Data]
+	nextToken: String
+}
+
+type Data {
+	MAC: Int!
+	timestamp: String!
+	atm_temperature: Float
+	CO2: Float
+	conductivity: Float
+	humidity: Float
+	O2: Float
+	pH: Float
+	temperature: Float
+}
+
+type MultipleData {
+	Datas: [Data]
+	nextToken: String
+}
+
+type O2_Data {
+	timestamp: String!
+	O2: Float
+}
+
+type O2_MData {
+	Datas: [O2_Data]
+	nextToken: String
+}
+
+type atm_MData {
+	Datas: [atm_temperature_Data]
+	nextToken: String
+}
+
+type atm_temperature_Data {
+	timestamp: String!
+	atm_temperature: Float
+}
+
+type conductivity_Data {
+	timestamp: String!
+	conductivity: Float
+}
+
+type conductivity_MData {
+	Datas: [conductivity_Data]
+	nextToken: String
+}
+
+type humidity_Data {
+	timestamp: String!
+	humidity: Float
+}
+
+type humidity_MData {
+	Datas: [humidity_Data]
+	nextToken: String
+}
+
+type pH_Data {
+	timestamp: String!
+	pH: Float
+}
+
+type pH_MData {
+	Datas: [pH_Data]
+	nextToken: String
+}
+
+type temperature_Data {
+	timestamp: String!
+	temperature: Float
+}
+
+type temperature_MData {
+	Datas: [temperature_Data]
+	nextToken: String
+}
+
+type Mutation {
+	addData(
+		MAC: Int!,
+		timestamp: String!,
+		atm_temperature: Float,
+		CO2: Float,
+		conductivity: Float,
+		humidity: Float,
+		O2: Float,
+		pH: Float,
+		temperature: Float
+	): Data!
+	addActuate(
+		Setup: String!,
+		Variable: String!,
+		Max: Float,
+		Min: Float
+	): Actuation!
+	deleteData(MAC: Int!, timestamp: String!): Data!
+	deleteActuate(Setup: String!, Variable: String!): Actuation!
+	updateData(
+		MAC: Int!,
+		timestamp: String!,
+		atm_temperature: Float,
+		CO2: Float,
+		conductivity: Float,
+		humidity: Float,
+		O2: Float,
+		pH: Float,
+		temperature: Float
+	): Data!
+	updateActuate(
+		Setup: String!,
+		Variable: String!,
+		Max: Float,
+		Min: Float
+	): Actuation!
+}
+
+type Query {
+	getData(MAC: Int!, timestamp: String!): Data
+	allData(limit: Int, nextToken: String): MultipleData!
+	allDatasByMAC(
+		MAC: Int!,
+		limit: Int,
+		nextToken: String,
+		start: String,
+		end: String
+	): MultipleData!
+	allDataD(MAC: Int!, limit: Int, nextToken: String): MultipleData
+	allDatasByMAC_atm_temperature(
+		MAC: Int!,
+		limit: Int,
+		nextToken: String,
+		start: String,
+		end: String
+	): atm_MData!
+	allDatasByMAC_CO2(
+		MAC: Int!,
+		limit: Int,
+		nextToken: String,
+		start: String,
+		end: String
+	): CO2_MData!
+	allDatasByMAC_conductivity(
+		MAC: Int!,
+		limit: Int,
+		nextToken: String,
+		start: String,
+		end: String
+	): conductivity_MData!
+	allDatasByMAC_humidity(
+		MAC: Int!,
+		limit: Int,
+		nextToken: String,
+		start: String,
+		end: String
+	): humidity_MData!
+	allDatasByMAC_O2(
+		MAC: Int!,
+		limit: Int,
+		nextToken: String,
+		start: String,
+		end: String
+	): O2_MData!
+	allDatasByMAC_pH(
+		MAC: Int!,
+		limit: Int,
+		nextToken: String,
+		start: String,
+		end: String
+	): pH_MData!
+	allDatasByMAC_temperature(
+		MAC: Int!,
+		limit: Int,
+		nextToken: String,
+		start: String,
+		end: String
+	): temperature_MData!
+}
+
+schema {
+	query: Query
+	mutation: Mutation
+}
