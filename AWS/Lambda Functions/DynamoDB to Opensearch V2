@@ -1,0 +1,55 @@
+from opensearchpy import OpenSearch, RequestsHttpConnection
+import boto3
+import requests
+from requests_aws4auth import AWS4Auth
+from dynamodb_json import json_util as json
+
+region = 'us-east-2' # e.g. us-east-1
+service = 'es'
+credentials = boto3.Session().get_credentials()
+awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
+
+host = 'xxxxxxxxx' # the OpenSearch Service domain, e.g. https://search-mydomain.us-west-1.es.amazonaws.com
+index = 'rac_sensors'
+datatype = '_doc'
+url = host + '/' + index + '/' + datatype + '/'
+headers = { "Content-Type": "application/json" }
+
+def handler(event, context):
+    
+    count = 0
+    for record in event['Records']:
+        # Get the primary key for use as the OpenSearch ID
+        id = record['dynamodb']['Keys']['timestamp']['S']
+
+        if record['eventName'] == 'REMOVE':
+            r = requests.delete(url + id, auth=awsauth)
+        else:
+            try:
+                document = {
+                  "timestamp": record['dynamodb']['NewImage']['timestamp']['S'],
+                  "MAC": record['dynamodb']['NewImage']['MAC']['N'],
+                  "temperature": record['dynamodb']['NewImage']['temperature']['N'],
+                  "conductivity": record['dynamodb']['NewImage']['conductivity']['N'],
+                  "pH": record['dynamodb']['NewImage']['pH']['N'],
+                  "O2": record['dynamodb']['NewImage']['O2']['N'],
+                  "CO2": record['dynamodb']['NewImage']['CO2']['N'],
+                  "atm_temperature": record['dynamodb']['NewImage']['atm_temperature']['N'],
+                  "humidity": record['dynamodb']['NewImage']['humidity']['N']
+                }
+                r = requests.put(url + id, auth=awsauth, json=document, headers=headers)
+            except:
+                document = {
+                  "timestamp": record['dynamodb']['NewImage']['timestamp']['S'],
+                  "MAC": record['dynamodb']['NewImage']['MAC']['N'],
+                  "temperature": record['dynamodb']['NewImage']['temperature']['S'],
+                  "conductivity": record['dynamodb']['NewImage']['conductivity']['S'],
+                  "pH": record['dynamodb']['NewImage']['pH']['S'],
+                  "O2": record['dynamodb']['NewImage']['O2']['S'],
+                  "CO2": record['dynamodb']['NewImage']['CO2']['S'],
+                  "atm_temperature": record['dynamodb']['NewImage']['atm_temperature']['S'],
+                  "humidity": record['dynamodb']['NewImage']['humidity']['S']
+                }
+                r = requests.put(url + id, auth=awsauth, json=document, headers=headers)
+        count += 1
+    return str(count) + ' records processed.'
