@@ -1,0 +1,42 @@
+import json
+import boto3
+from evidently.dashboard import Dashboard
+from evidently.tabs import DriftTab
+from evidently.model_profile import Profile
+from evidently.model_profile import Profile
+from datetime import datetime
+
+# Initialize AWS clients
+dynamodb = boto3.client('dynamodb')
+sns = boto3.client('sns')
+
+def lambda_handler(event, context):
+    # Load DynamoDB record
+    for record in event['Records']:
+        if record['eventName'] == 'INSERT':  # Assuming new records are inserted
+            # Parse DynamoDB record
+            new_image = record['dynamodb']['NewImage']
+            sensor_id = new_image['sensor_id']['S']  # Assuming sensor_id is a string attribute
+            sensor_data = json.loads(new_image['sensor_data']['S'])  # Assuming sensor_data is stored as JSON string
+            
+            # Perform drift analysis using Evidently
+            profile = Profile.from_predictions(sensor_data)  # Create profile from sensor data
+            dashboard = Dashboard(tabs=[DriftTab])
+            dashboard.calculate(profile, profile)
+            drift_tab = dashboard.tabs[0]
+
+            # Check for sensor drift
+            drift_value = drift_tab.tabs['target_drift']['value']
+            if drift_value > 0.8:  # Example threshold for high drift
+                # Send notification to SNS topic
+                message = f"Sensor {sensor_id} has a high likelihood of drift at {datetime.now()}. Drift Value: {drift_value}"
+                sns.publish(
+                    TopicArn='YOUR_SNS_TOPIC_ARN',
+                    Message=message,
+                    Subject='High Sensor Drift Alert'
+                )
+
+    return {
+        'statusCode': 200,
+        'body': 'Drift analysis complete'
+    }
