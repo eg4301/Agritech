@@ -1,0 +1,99 @@
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  ScanCommand,
+  PutCommand,
+  GetCommand,
+  DeleteCommand,
+  QueryCommand,
+} from "@aws-sdk/lib-dynamodb";
+
+const client = new DynamoDBClient({});
+
+const dynamo = DynamoDBDocumentClient.from(client);
+
+const tableName = "RAC_Sensors_Hydroponic";
+
+export const handler = async (event, context) => {
+  let body;
+  let statusCode = 200;
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  try {
+    switch (event.routeKey) {
+      case "DELETE /items/{timestamp}":
+        await dynamo.send(
+          new DeleteCommand({
+            TableName: tableName,
+            Key: {
+              stamptime: event.pathParameters.timestamp,
+            },
+          })
+        );
+        body = `Deleted item ${event.pathParameters.timestamp}`;
+        break;
+      case "GET /items/{timestamp}":
+        body = await dynamo.send(
+          new GetCommand({
+            TableName: tableName,
+            Key: {
+              timestamp: event.pathParameters.timestamp,
+            },
+          })
+        );
+        body = body.Item;
+        break;
+      case "GET /items":
+        body = await dynamo.send(
+          new ScanCommand({ TableName: tableName })
+        );
+        body = body.Items;
+        break;
+      case "PUT /items":
+        let requestJSON = JSON.parse(event.body);
+        await dynamo.send(
+          new PutCommand({
+            TableName: tableName,
+            Item: {
+              MAC: requestJSON.MAC,
+              stamptime: requestJSON.timestamp,
+              temperature: requestJSON.temperature,
+              humidity: requestJSON.humidity,
+              ec: requestJSON.ec,
+              pH: requestJSON.pH,
+            },
+          })
+        );
+        body = `Put item ${requestJSON.timestamp}`;
+        break;
+      default:
+        body = await dynamo.send(
+          new QueryCommand(
+            {
+    TableName: tableName,
+    KeyConditionExpression: 'MAC = :MAC',
+    ExpressionAttributeValues: {
+                ':MAC': '1',
+                ':MAC': '2'
+            },
+    ScanIndexForward: false,
+    Limit: 1,
+           })
+        );
+        body = body.Items;
+    }
+  } catch (err) {
+    statusCode = 400;
+    body = err.message;
+  } finally {
+    body = JSON.stringify(body);
+  }
+
+  return {
+    statusCode,
+    body,
+    headers,
+  };
+};

@@ -12,7 +12,7 @@
 /*
  * Base class for RS485 Sensors
  */
-class Sol16_RS485Sensor : virtual public SoftwareSerial{
+class RS485Sensor : virtual public SoftwareSerial{
   public:
     // Copy base constructor
     using SoftwareSerial::SoftwareSerial;

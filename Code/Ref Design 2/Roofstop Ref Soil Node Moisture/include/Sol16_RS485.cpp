@@ -2,7 +2,7 @@
 #include "Crc16.h"
 #include <SoftwareSerial.h>
 
-unsigned short Sol16_RS485Sensor::calc_crc(byte reading[], int start, int size) {
+unsigned short RS485Sensor::calc_crc(byte reading[], int start, int size) {
   Crc16 _crc;
   unsigned short calculated_crc = _crc.Modbus(reading, start, size);
   calculated_crc = (lowByte(calculated_crc) << 8) | highByte(calculated_crc); // swap the byte pos
@@ -13,7 +13,7 @@ unsigned short Sol16_RS485Sensor::calc_crc(byte reading[], int start, int size) 
   return calculated_crc;
 }
 
-void Sol16_RS485Sensor::add_crc(byte reading[], int start, int size) {
+void RS485Sensor::add_crc(byte reading[], int start, int size) {
   Crc16 crc;
   unsigned short calculated_crc = crc.Modbus(reading, start, size);
   reading[size] = lowByte(calculated_crc);
@@ -21,14 +21,14 @@ void Sol16_RS485Sensor::add_crc(byte reading[], int start, int size) {
   // calculated_crc = (lowByte(calculated_crc) << 8) | highByte(calculated_crc); // swap the byte pos
 }
 
-void Sol16_RS485Sensor::serial_flush() {
+void RS485Sensor::serial_flush() {
   Serial.println("Flushing sensor serial");
   while(this->available() > 0) {
     char t = this->read();
   }
 }
 
-void Sol16_RS485Sensor::setup(int control_pin, int rx_pin, int tx_pin, byte address, uint32_t baud_rate, Config protocol) {
+void RS485Sensor::setup(int control_pin, int rx_pin, int tx_pin, byte address, uint32_t baud_rate, Config protocol) {
   _ctrl_pin = control_pin;
   Serial.printf("Setting control pin to GPIO %i\n", _ctrl_pin);
   _rx_pin = rx_pin;
@@ -45,7 +45,7 @@ void Sol16_RS485Sensor::setup(int control_pin, int rx_pin, int tx_pin, byte addr
   this->begin(baud_rate, protocol); // Start the RS485 software serial port
 }
 
-void Sol16_RS485Sensor::request_reading(byte command[], int size) {
+void RS485Sensor::request_reading(byte command[], int size) {
   // Check if setup is completed first
   if (_ctrl_pin == -1 || _rx_pin == -1 || _tx_pin == -1) {
     Serial.println("GPIO pins not declared yet. Call setup() first");
@@ -67,7 +67,7 @@ void Sol16_RS485Sensor::request_reading(byte command[], int size) {
   Serial.println("RS485 put back into receive mode");
 }
 
-bool Sol16_RS485Sensor::receive_reading(int num_bytes, int return_address_idx, int function_code_idx, byte reading[]) {
+bool RS485Sensor::receive_reading(int num_bytes, int return_address_idx, int function_code_idx, byte reading[]) {
   // Check if setup is completed first
   if (_ctrl_pin == -1 || _rx_pin == -1 || _tx_pin == -1) {
     Serial.println("GPIO pins not declared yet. Call setup() first");

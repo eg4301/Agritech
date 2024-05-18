@@ -1,0 +1,148 @@
+import boto3
+import requests
+import json
+from boto3.dynamodb.conditions import Key
+from decimal import Decimal
+
+
+region = 'us-east-2' 
+
+MaxTable = 'ActuationMax-7jdwgyuaa5fqdhfq2qrgneob2i-production'
+MinTable = 'ActuationMin-7jdwgyuaa5fqdhfq2qrgneob2i-production'
+TempTable = 'Temporary_Storage_RAC'
+
+# Creating the DynamoDB Table Resource
+dynamodb = boto3.resource('dynamodb', region_name="us-east-2")
+tableMax = dynamodb.Table(MaxTable)
+tableMin = dynamodb.Table(MinTable)
+tabletemp = dynamodb.Table(TempTable)
+
+Conditem = tableMax.get_item(
+    Key={
+        'Setup': 'Soil 1',
+        'Variable': 'conductivity'
+    }
+)
+Conditem2 = tableMin.get_item(
+    Key={
+        'Setup': 'Soil 1',
+        'Variable': 'conductivity'
+    }
+)
+CondMax = (Conditem['Item']['Max'])
+CondMin = (Conditem2['Item']['Min'])
+CondPesudoMax = (Conditem['Item']['PesudoMax'])
+CondPesudoMin = (Conditem2['Item']['PesudoMin'])
+CondHalf = (CondMax - CondMin)/2
+CondMid = (CondMax + CondMin)/2
+
+pHitem = tableMax.get_item(
+    Key={
+        'Setup': 'Soil 1',
+        'Variable': 'pH'
+    }
+)
+pHitem2 = tableMin.get_item(
+    Key={
+        'Setup': 'Soil 1',
+        'Variable': 'pH'
+    }
+)
+
+pHMax = (pHitem['Item']['Max'])
+pHMin = (pHitem2['Item']['Min'])
+pHPesudoMax = (pHitem['Item']['PesudoMax'])
+pHPesudoMin = (pHitem2['Item']['PesudoMin'])
+pHMid = (pHMax + pHMin)/2
+pHHalf = (pHMax - pHMin)/2
+
+pHDecreasingitem = tabletemp.get_item(
+    Key={
+        'MAC': 1,
+        'timestamp': '2'
+    }
+)
+pHDecreasingRate = (pHDecreasingitem['Item']['average_decrease'])
+
+if pHDecreasingRate > pHHalf:
+    pHCalMin = pHMid
+else:
+    pHCalMin = pHMin + pHDecreasingRate*Decimal('1.2')
+
+CondDecreasingitem = tabletemp.get_item(
+    Key={
+        'MAC': 1,
+        'timestamp': '1'
+    }
+)
+CondDecreasingRate = (CondDecreasingitem['Item']['average_decrease'])
+
+if CondDecreasingRate > CondHalf:
+    CondCalMin = CondMid
+else:
+    CondCalMin = CondMin + CondDecreasingRate*Decimal('1.2')
+#due to app not allowing for removal of table values thus 100000 chosen as value to disable manual override    
+if pHPesudoMin == 100000:
+    pHPesudoMin = pHCalMin
+else:
+    pHPesudoMin = pHPesudoMin
+if CondPesudoMin == 100000:
+    CondPesudoMin = CondCalMin
+else:
+    CondPesudoMin = CondPesudoMin
+    
+
+
+def lambda_handler(event, context):
+    for record in event['Records']:
+        MAC = record['dynamodb']['NewImage']['MAC']['N']
+        timestamp = record['dynamodb']['NewImage']['timestamp']['S']
+        temperature = Decimal(record['dynamodb']['NewImage']['temperature']['N'])
+        conductivity = Decimal(record['dynamodb']['NewImage']['conductivity']['N'])
+        pH = Decimal(record['dynamodb']['NewImage']['pH']['N'])
+        O2 = Decimal(record['dynamodb']['NewImage']['O2']['N'])
+        CO2 = Decimal(record['dynamodb']['NewImage']['CO2']['N'])
+        atm_temperature = Decimal(record['dynamodb']['NewImage']['atm_temperature']['N'])
+        humidity = Decimal(record['dynamodb']['NewImage']['humidity']['N'])
+        
+    cond_msg, cond_diff, actuatec = get_message_and_diff(conductivity, CondMin, CondMax,CondPesudoMin,CondPesudoMax, 1)
+    pH_msg, pH_diff, actuatep = get_message_and_diff(pH, pHMin, pHMax,pHPesudoMin,pHPesudoMax, 1)
+    
+    client = boto3.client('iot-data', region_name='us-east-2')
+    response = client.publish(
+        topic='RAC/sub',
+        qos=1,
+        payload=json.dumps({
+            "MAC": MAC,
+            "pH": actuatep,
+            "EC": actuatec
+        })
+    )
+    return response
+
+def get_message_and_diff(value, min_val, max_val,PesudoMin,PesudoMax, MAC):
+    if value < min_val and MAC == MAC:
+        msg = "below minimum thresholds"
+        diff = float(min_val - value)  # Convert Decimal to float
+        act = float(PesudoMin + PesudoMax)/2
+    elif min_val < value < PesudoMin and MAC == MAC:
+        msg = "still within thresholds but requires actuation"
+        diff = float(PesudoMin - value)  # Convert Decimal to float
+        act = float(PesudoMin + PesudoMax)/2
+    elif value > max_val and MAC == MAC:
+        msg = "above maximum thresholds"
+        diff = float(value - max_val)  # Convert Decimal to float
+        act = "0"
+    elif PesudoMax < value < max_val and MAC == MAC:
+        msg = "warning, variable is approaching maximum thresholds"
+        diff = float(max_val - value)  # Convert Decimal to float
+        act = "0"
+    elif PesudoMin < value < PesudoMax and MAC == MAC:
+        msg = "normal readings, no actions required"
+        diff = float(max_val - value)
+        act = "0"
+    else:
+        msg = "0"
+        diff = "0"
+        act = "0"
+    return msg, diff, act

@@ -1,0 +1,107 @@
+import boto3
+import json
+
+# Define the DynamoDB resource
+dynamodb = boto3.resource('dynamodb')
+
+# Define the source table name
+source_table_name = 'PlantRepository-7jdwgyuaa5fqdhfq2qrgneob2i-production'
+min_destination_table_name = 'ActuationMin-7jdwgyuaa5fqdhfq2qrgneob2i-production'
+max_destination_table_name = 'ActuationMax-7jdwgyuaa5fqdhfq2qrgneob2i-production'
+
+def lambda_handler(event, context):
+    # Check if the 'Records' key exists in the event
+    if 'Records' not in event:
+        return {
+            'statusCode': 400,
+            'body': 'Invalid event format. Missing "Records" key.'
+        }
+    
+    # Extract the first record from the event (assuming only one record is present)
+    first_record = event['Records'][0]
+    
+    # Check if the 'dynamodb' key exists in the first record
+    if 'dynamodb' not in first_record:
+        return {
+            'statusCode': 400,
+            'body': 'Invalid event format. Missing "dynamodb" key in the first record.'
+        }
+    
+    # Extract the 'NewImage' attribute from the first record's 'dynamodb' attribute
+    new_image = first_record['dynamodb'].get('NewImage', {})
+    
+    # Extract the 'Name' attribute from the 'NewImage' attribute
+    current_crop = new_image.get('Name', {}).get('S', '')
+    
+    if not current_crop:
+        return {
+            'statusCode': 400,
+            'body': 'Invalid event format. Missing "Crops" attribute in the "NewImage" attribute.'
+        }
+    
+    # Retrieve the current crop's details from the source table
+    source_table = dynamodb.Table(source_table_name)
+    response = source_table.get_item(Key={'Crops': current_crop})
+    item = response.get('Item')
+    if not item:
+        return {
+            'statusCode': 404,
+            'body': f'Crop with name {current_crop} not found in the source table. No action taken.'
+        }
+    
+    # Extract the values from the source table
+    ec_lower = item.get('ec_lower')
+    ec_upper = item.get('ec_upper')
+    N_lower = item.get('N_lower')
+    N_upper = item.get('N_upper')
+    pH_lower = item.get('pH_lower')
+    pH_upper = item.get('pH_upper')
+    
+    # Update the items in the min destination table
+    # Update the items in the min destination table
+    min_destination_table = dynamodb.Table(min_destination_table_name)
+    min_destination_table.update_item(
+        Key={'Setup': 'Soil 1', 'Variable': 'conductivity'},
+        UpdateExpression='SET #min_val = :min_val',
+        ExpressionAttributeNames={'#min_val': 'Min'},
+        ExpressionAttributeValues={':min_val': ec_lower}
+        )
+    min_destination_table.update_item(
+        Key={'Setup': 'Soil 1', 'Variable': 'pH'},
+        UpdateExpression='SET #min_val = :min_val',
+        ExpressionAttributeNames={'#min_val': 'Min'},
+        ExpressionAttributeValues={':min_val': pH_lower}
+        )
+    min_destination_table.update_item(
+        Key={'Setup': 'Soil 1', 'Variable': 'Nitrogen'},
+        UpdateExpression='SET #min_val = :min_val',
+        ExpressionAttributeNames={'#min_val': 'Min'},
+        ExpressionAttributeValues={':min_val': N_lower}
+        )
+
+    
+    # Update the items in the max destination table
+    max_destination_table = dynamodb.Table(max_destination_table_name)
+    max_destination_table.update_item(
+        Key={'Setup': 'Soil 1', 'Variable': 'conductivity'},
+        UpdateExpression='SET #max_val = :max_val',
+        ExpressionAttributeNames={'#max_val': 'Max'},
+        ExpressionAttributeValues={':max_val': ec_upper}
+        )
+    max_destination_table.update_item(
+        Key={'Setup': 'Soil 1', 'Variable': 'pH'},
+        UpdateExpression='SET #max_val = :max_val',
+        ExpressionAttributeNames={'#max_val': 'Max'},
+        ExpressionAttributeValues={':max_val': pH_upper}
+        )
+    max_destination_table.update_item(
+        Key={'Setup': 'Soil 1', 'Variable': 'Nitrogen'},
+        UpdateExpression='SET #max_val = :max_val',
+        ExpressionAttributeNames={'#max_val': 'Max'},
+        ExpressionAttributeValues={':max_val': N_upper}
+        )
+    
+    return {
+        'statusCode': 200,
+        'body': f'Successfully updated details for crop: {current_crop}'
+    }

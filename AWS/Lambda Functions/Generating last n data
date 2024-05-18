@@ -1,0 +1,109 @@
+import boto3
+from boto3.dynamodb.conditions import Key
+
+dynamodb = boto3.resource('dynamodb')
+
+def get_n_from_table(table_name):
+    table = dynamodb.Table(table_name)
+    response = table.get_item(
+        Key={
+            'MAC': 0,
+            'timestamp': '0'
+        }
+    )
+    if 'Item' in response:
+        return int(response['Item'].get('N', 0))
+    else:
+        return 0
+        
+def calculate_average_decrease(items, variable_key):
+    total_decrease = 0
+    num_decreases = 0
+    previous_value = None
+    
+    for item in items:
+        if variable_key in item:
+            current_value = item[variable_key]
+            if previous_value is not None and current_value < previous_value:
+                total_decrease += previous_value - current_value
+                num_decreases += 1
+            previous_value = current_value
+    
+    if num_decreases > 0:
+        return total_decrease / num_decreases
+    else:
+        return 0
+
+def lambda_handler(event, context):
+    # Retrieve parameters
+    original_table_name = 'SoilSensors-7jdwgyuaa5fqdhfq2qrgneob2i-production'
+    new_table_name = 'Temporary_Storage_RAC'
+    n_table_name = 'Temporary_Storage_RAC'
+    variable_keypH = 'pH'
+    variable_keyCond = 'conductivity'
+    variable_keyMoist = 'moisture'
+    
+    
+    # Get the value of N from the N table
+    n = get_n_from_table(n_table_name)
+    
+    # Get the DynamoDB tables
+    original_table = dynamodb.Table(original_table_name)
+    new_table = dynamodb.Table(new_table_name)
+    
+    # Get the last n items from the original table
+    response = original_table.query(
+        KeyConditionExpression=Key('MAC').eq(1),  # Specify your partition key condition
+        Limit=n,  # Convert n to an integer
+        ScanIndexForward=False,  # Retrieve items in descending order based on sort key
+        Select='ALL_ATTRIBUTES'
+    )
+    
+    # Delete existing items in the new table except for the item containing the 'N' count
+    scan = new_table.scan()
+    with new_table.batch_writer() as batch:
+        for each in scan['Items']:
+            if each['timestamp'] != '0':  # Exclude the item containing the 'N' count
+                batch.delete_item(
+                    Key={
+                        'MAC': each['MAC'],
+                        'timestamp': each['timestamp']
+                    }
+                )
+    
+    # Store the last n items in the new table
+    for item in response['Items']:
+        new_table.put_item(Item=item)
+    
+    # Calculate average decrease for the specified variable
+    average_decrease_pH = calculate_average_decrease(response['Items'], variable_keypH)
+    average_decrease_Cond = calculate_average_decrease(response['Items'], variable_keyCond)
+    average_decrease_Moist = calculate_average_decrease(response['Items'], variable_keyMoist)
+    
+    # Add or update the average decrease entry
+    new_table.put_item(Item={
+        'MAC': 1,
+        'timestamp': '2',  # Specify your sort key value
+        'variable' : 'pH',
+        'average_decrease': average_decrease_pH
+        
+    })
+    
+    new_table.put_item(Item={
+        'MAC': 1,
+        'timestamp': '1',  # Specify your sort key value
+        'variable' : 'Conductivity',
+        'average_decrease': average_decrease_Cond
+    })
+    
+    new_table.put_item(Item={
+        'MAC': 1,
+        'timestamp': '3',  # Specify your sort key value
+        'variable' : 'moisture',
+        'average_decrease': average_decrease_Moist
+    })
+    
+    return {
+        'statusCode': 200,
+        'body': 'Last {} entries stored in the new table. Average decrease in {}: {}'.format(n, variable_key, average_decrease)
+    }

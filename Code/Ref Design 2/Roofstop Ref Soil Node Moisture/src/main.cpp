@@ -36,7 +36,7 @@ Config protocol = SWSERIAL_8N1;
 
 Preferences preferences;
 
-Sol16_RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
+RS485Sensor CWT_Sensor(RX_PIN, TX_PIN);
 
 // CWT sensor addresses
 byte hexI[] = {0x03, 0x04, 0x05, 0x06};
